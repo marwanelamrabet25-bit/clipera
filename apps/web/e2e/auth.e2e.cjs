@@ -57,9 +57,25 @@ async function sessionCookies(email, password) {
   });
   await step("Visiteur : e-mail invalide → message d'erreur clair, rien n'est envoyé", async () => {
     await anon.goto(`${BASE}/connexion`);
-    await anon.getByLabel("Adresse e-mail").fill("pas-un-email");
-    await anon.getByRole("button", { name: /Recevoir mon lien/ }).click();
-    await anon.getByText("Adresse e-mail invalide.").waitFor({ timeout: 10000 });
+    await anon.getByText("Pas de mot de passe ? Recevoir un lien").click();
+    const linkForm = anon.locator("details form");
+    await linkForm.getByLabel("Adresse e-mail").fill("pas-un-email");
+    await linkForm.getByRole("button", { name: /Recevoir un lien/ }).click();
+    await linkForm.getByText("Adresse e-mail invalide.").waitFor({ timeout: 10000 });
+  });
+  await step("Visiteur : mauvais mot de passe → message clair", async () => {
+    await anon.goto(`${BASE}/connexion`);
+    await anon.getByLabel("Adresse e-mail").first().fill(process.env.E2E_A_EMAIL);
+    await anon.getByLabel("Mot de passe").fill("mauvais-mot-de-passe");
+    await anon.getByRole("button", { name: "Se connecter" }).click();
+    await anon.getByText("E-mail ou mot de passe incorrect.").waitFor({ timeout: 15000 });
+  });
+  await step("Visiteur : inscription refusée si mot de passe < 8 caractères (aucun e-mail envoyé)", async () => {
+    await anon.goto(`${BASE}/inscription`);
+    await anon.getByLabel("Adresse e-mail").fill("nouveau@clipera.test");
+    await anon.getByLabel("Mot de passe").fill("court");
+    await anon.getByRole("button", { name: "Créer mon compte" }).click();
+    await anon.getByText("Le mot de passe doit contenir au moins 8 caractères.").waitFor({ timeout: 10000 });
   });
   await step("Lien expiré ou falsifié → retour à la connexion avec un avertissement", async () => {
     await anon.goto(`${BASE}/auth/confirm?token_hash=faux&type=email`);
@@ -68,7 +84,7 @@ async function sessionCookies(email, password) {
   });
   await step("Redirection externe impossible (?suite=https://site-pirate.com)", async () => {
     await anon.goto(`${BASE}/connexion?suite=${encodeURIComponent("https://site-pirate.com")}`);
-    const hidden = await anon.locator('input[name="suite"]').inputValue();
+    const hidden = await anon.locator('input[name="suite"]').first().inputValue();
     assert.equal(hidden, "https://site-pirate.com"); // reçu tel quel…
     // …mais filtré côté serveur : la route de confirmation ne redirige que vers /app.
     const r = await anon.request.get(`${BASE}/auth/confirm?code=x&suite=${encodeURIComponent("//site-pirate.com")}`, {
@@ -79,8 +95,14 @@ async function sessionCookies(email, password) {
 
   // ── Utilisateur A connecté ──
   const ctxA = await browser.newContext();
-  await ctxA.addCookies(await sessionCookies(process.env.E2E_A_EMAIL, process.env.E2E_A_PASSWORD));
   const a = await ctxA.newPage();
+  await step("A : connexion par le formulaire (e-mail + mot de passe) → retour à la page demandée", async () => {
+    await a.goto(`${BASE}/app/projets`);
+    await a.getByLabel("Adresse e-mail").first().fill(process.env.E2E_A_EMAIL);
+    await a.getByLabel("Mot de passe").fill(process.env.E2E_A_PASSWORD);
+    await a.getByRole("button", { name: "Se connecter" }).click();
+    await a.waitForURL(/\/app\/projets$/, { timeout: 15000 });
+  });
   await step("A : le dashboard affiche ses vraies données (quota Free : 3 vidéos, 30 min)", async () => {
     await a.goto(`${BASE}/app`);
     await a.getByRole("heading", { name: /^Bonjour / }).waitFor({ timeout: 15000 });
@@ -127,13 +149,35 @@ async function sessionCookies(email, password) {
     await b.getByRole("heading", { name: "Bonjour e2e-b" }).waitFor({ timeout: 15000 });
   });
 
-  // ── Déconnexion ──
+  // ── Changement de mot de passe, déconnexion, reconnexion ──
+  const newPassword = `${process.env.E2E_A_PASSWORD}-nouveau`;
+  await step("A : changer son mot de passe (confirmation différente refusée, puis succès)", async () => {
+    await a.goto(`${BASE}/app/parametres`);
+    await a.getByLabel("Nouveau mot de passe").fill(newPassword);
+    await a.getByLabel("Confirmation").fill("autre-chose-123");
+    await a.getByRole("button", { name: "Mettre à jour le mot de passe" }).click();
+    await a.getByText("Les deux mots de passe ne correspondent pas.").waitFor({ timeout: 10000 });
+    await a.getByLabel("Nouveau mot de passe").fill(newPassword);
+    await a.getByLabel("Confirmation").fill(newPassword);
+    await a.getByRole("button", { name: "Mettre à jour le mot de passe" }).click();
+    await a.getByText("Mot de passe mis à jour.").waitFor({ timeout: 15000 });
+  });
   await step("A : la déconnexion ferme la session et /app redevient inaccessible", async () => {
     await a.goto(`${BASE}/app/parametres`);
     await a.getByRole("button", { name: "Se déconnecter" }).click();
     await a.waitForURL(/\/connexion/, { timeout: 15000 });
     await a.goto(`${BASE}/app`);
     assert.equal(new URL(a.url()).pathname, "/connexion");
+  });
+  await step("A : l'ancien mot de passe est refusé, le nouveau fonctionne", async () => {
+    await a.goto(`${BASE}/connexion`);
+    await a.getByLabel("Adresse e-mail").first().fill(process.env.E2E_A_EMAIL);
+    await a.getByLabel("Mot de passe").fill(process.env.E2E_A_PASSWORD);
+    await a.getByRole("button", { name: "Se connecter" }).click();
+    await a.getByText("E-mail ou mot de passe incorrect.").waitFor({ timeout: 15000 });
+    await a.getByLabel("Mot de passe").fill(newPassword);
+    await a.getByRole("button", { name: "Se connecter" }).click();
+    await a.waitForURL(/\/app$/, { timeout: 15000 });
   });
 
   // ── Mobile ──
@@ -143,7 +187,7 @@ async function sessionCookies(email, password) {
     await m.goto(`${BASE}/app`);
     await m.getByRole("heading", { name: /^Bonjour/ }).waitFor({ timeout: 15000 });
     assert.equal(await m.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
-    await m.screenshot({ path: process.env.E2E_SHOTS ? `${process.env.E2E_SHOTS}/app-mobile.png` : "/dev/null" });
+    if (process.env.E2E_SHOTS) await m.screenshot({ path: `${process.env.E2E_SHOTS}/app-mobile.png` });
   });
   if (process.env.E2E_SHOTS) {
     const d = await ctxB.newPage();

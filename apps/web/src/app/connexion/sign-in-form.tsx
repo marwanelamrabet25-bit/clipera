@@ -43,13 +43,12 @@ export function SignInForm({ suite, linkError }: { suite?: string; linkError?: b
         defaultValue={state.email}
         error={state.status === "error" ? state.message : undefined}
         required
-        autoFocus
       />
-      <Button type="submit" size="lg" loading={pending}>
-        Recevoir mon lien de connexion <ArrowRight />
+      <Button type="submit" variant="secondary" loading={pending}>
+        Recevoir un lien de connexion <ArrowRight />
       </Button>
       <p className="text-center text-caption text-subtle">
-        Pas de mot de passe : tu reçois un lien sécurisé par e-mail. Ton compte est créé à la première connexion.
+        Le lien est valable 1 heure et ne fonctionne qu&apos;une fois.
       </p>
     </form>
   );

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getAccount } from "@/lib/account";
 import { signOut } from "../../connexion/actions";
+import { ChangePasswordForm } from "./password-form";
 import { ProfileForm } from "./profile-form";
 
 export const metadata: Metadata = { title: "Paramètres" };
@@ -24,6 +25,17 @@ export default async function SettingsPage() {
           </CardHeader>
           <CardBody>
             <ProfileForm initialName={profile?.display_name ?? ""} />
+          </CardBody>
+        </Card>
+        <Card>
+          <CardHeader>
+            <div>
+              <CardTitle>Mot de passe</CardTitle>
+              <CardDescription>Définis ou change le mot de passe de ton compte.</CardDescription>
+            </div>
+          </CardHeader>
+          <CardBody>
+            <ChangePasswordForm />
           </CardBody>
         </Card>
         <Card>

@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "./database.types";
 
 const PROTECTED_PREFIX = "/app";
-const AUTH_PAGES = ["/connexion"];
+const AUTH_PAGES = ["/connexion", "/inscription"];
 
 /** Rafraîchit la session à chaque requête et protège l'espace /app. */
 export async function updateSession(request: NextRequest) {
