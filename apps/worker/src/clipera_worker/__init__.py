@@ -1,0 +1,1 @@
+"""Clipera video worker."""

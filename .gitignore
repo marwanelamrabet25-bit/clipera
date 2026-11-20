@@ -9,3 +9,5 @@ test-corpus/videos/
 *.mp4
 *.mov
 .DS_Store
+.pytest_cache/
+.ruff_cache/
