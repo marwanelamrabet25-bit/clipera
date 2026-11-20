@@ -115,7 +115,8 @@ def test_video_becomes_real_clip(env, video):
     m = job["metrics"]
     assert m["selection_method"] == "rules-v1" and m["transcription"]["words"] > 100
 
-    steps = [r["to_status"] for r in rows(url, "select to_status from job_events where job_id = %s order by id", job_id)]
+    steps = [r["to_status"] for r in rows(url, "select to_status from job_events where job_id = %s order by id",
+                                          job_id)]
     assert steps == ["queued", "transcribing", "selecting", "rendering", "completed"]
 
     (clip,) = rows(url, "select * from clips where job_id = %s", job_id)
