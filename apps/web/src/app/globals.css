@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+/* ───────────────────────────────────────────────────────────
+   CLIPERA — Design tokens
+   Couleurs officielles : #8B5CF6 · #A78BFA · #0B0B10 · #1A1A24 · #F8F9FF
+   ─────────────────────────────────────────────────────────── */
+@theme {
+  /* Marque */
+  --color-primary: #8b5cf6;
+  --color-primary-hover: #7c4ef0;
+  --color-primary-soft: #a78bfa;
+  --color-primary-wash: rgb(139 92 246 / 0.12);
+  --color-primary-line: rgb(167 139 250 / 0.32);
+
+  /* Surfaces (du plus profond au plus élevé) */
+  --color-canvas: #0b0b10;
+  --color-surface: #121219;
+  --color-elevated: #1a1a24;
+  --color-overlay: #23232f;
+
+  /* Texte */
+  --color-fg: #f8f9ff;
+  --color-muted: #a3a3b8;
+  --color-subtle: #6e6e84;
+  --color-on-primary: #ffffff;
+
+  /* Traits */
+  --color-line: rgb(248 249 255 / 0.08);
+  --color-line-strong: rgb(248 249 255 / 0.14);
+
+  /* États */
+  --color-success: #34d399;
+  --color-success-wash: rgb(52 211 153 / 0.12);
+  --color-warning: #fbbf24;
+  --color-warning-wash: rgb(251 191 36 / 0.12);
+  --color-danger: #f87171;
+  --color-danger-wash: rgb(248 113 113 / 0.12);
+
+  /* Typographie — Inter auto-hébergée */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --text-display: 3.5rem;
+  --text-display--line-height: 1.05;
+  --text-display--letter-spacing: -0.035em;
+  --text-h1: 2.25rem;
+  --text-h1--line-height: 1.15;
+  --text-h1--letter-spacing: -0.025em;
+  --text-h2: 1.5rem;
+  --text-h2--line-height: 1.25;
+  --text-h2--letter-spacing: -0.02em;
+  --text-h3: 1.125rem;
+  --text-h3--line-height: 1.4;
+  --text-h3--letter-spacing: -0.01em;
+  --text-body: 0.9375rem;
+  --text-body--line-height: 1.6;
+  --text-small: 0.8125rem;
+  --text-small--line-height: 1.5;
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.4;
+
+  /* Rayons */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+
+  /* Ombres : discrètes, jamais de néon */
+  --shadow-card: 0 1px 0 0 rgb(255 255 255 / 0.04) inset, 0 8px 24px -12px rgb(0 0 0 / 0.6);
+  --shadow-pop: 0 1px 0 0 rgb(255 255 255 / 0.06) inset, 0 24px 48px -16px rgb(0 0 0 / 0.7);
+  --shadow-focus: 0 0 0 2px var(--color-canvas), 0 0 0 4px var(--color-primary-soft);
+
+  /* Mouvement */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+  html {
+    background: var(--color-canvas);
+    color: var(--color-fg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv11", "ss01";
+  }
+  body {
+    background: var(--color-canvas);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+  }
+  ::selection {
+    background: rgb(139 92 246 / 0.35);
+  }
+  :focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

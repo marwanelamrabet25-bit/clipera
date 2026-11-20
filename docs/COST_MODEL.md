@@ -65,3 +65,21 @@ En pratique, la plupart des abonnés n'utilisent qu'une partie de leur quota ; l
 ## 6. Ce qui sera mesuré par job (table `processing_jobs` / `usage_records`)
 minutes source, secondes de rendu, tokens entrée/sortie par appel, minutes transcrites, durée de chaque étape, coût estimé total.
 Les tarifs unitaires sont stockés en configuration (pas en dur dans le code).
+
+## 7. Comparatif transcription (tarifs publics relevés le 20/11/2026 — à confirmer sur les pages officielles à l'inscription)
+
+| | Deepgram Nova-3 (pré-enregistré) | AssemblyAI Universal-3.5 Pro | AssemblyAI Universal-2 |
+|---|---|---|---|
+| Prix de base | 0,0043 $/min (0,0052 $ multilingue) | 0,21 $/h = 0,0035 $/min | 0,15 $/h = 0,0025 $/min |
+| Locuteurs (diarisation) | annoncée incluse (une source la facture +0,002 $/min) | +0,02 $/h | +0,02 $/h |
+| **Total avec locuteurs** | **0,0043 – 0,0063 $/min** | **0,0038 $/min** | **0,0028 $/min** |
+| Vidéo de 20 min | 0,09 – 0,13 $ | 0,08 $ | 0,06 $ |
+| Mots horodatés | oui | oui | oui |
+| Crédit gratuit à l'inscription | 200 $ annoncés | à vérifier | à vérifier |
+
+Conclusion provisoire : l'écart est d'environ **1 à 5 centimes par vidéo de 20 min** — négligeable face au coût
+de l'analyse IA. Le choix se fera donc sur la **qualité en français** (mots justes, horodatage précis, locuteurs bien
+séparés), mesurée sur notre corpus. Les crédits gratuits couvrent largement ce test : **0 € de dépense**.
+
+Sources (secondaires) : cartesia.ai/learn/deepgram-pricing, brasstranscripts.com, gladia.io/blog/deepgram-pricing,
+cartesia.ai/learn/assemblyai-pricing, assemblyai.com/blog/speech-to-text-api-pricing.

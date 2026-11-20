@@ -4,13 +4,25 @@
 SaaS qui transforme des vidéos longues en clips courts grâce à l'IA.
 
 ## État du projet
-Phase 0 terminée (audit + architecture proposée). **Aucun code applicatif pour l'instant** —
-la structure sera créée après validation du fondateur.
+Fondations en place : base de données sécurisée et testée, moteur vidéo (vérification + rendu) testé,
+design system de l'application web. Le premier parcours complet (import → clips) est en cours.
+Voir [docs/TASKS.md](docs/TASKS.md).
+
+## Lancer le projet en local
+Application web :
+```bash
+cd apps/web && pnpm install && pnpm dev
+```
+Puis ouvrir http://localhost:3000 (page d'attente) et http://localhost:3000/design-system.
+
+Worker et tests : voir [docs/TESTING.md](docs/TESTING.md).
 
 ## Documentation
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — architecture proposée
 - [docs/COST_MODEL.md](docs/COST_MODEL.md) — coûts mesurés et estimés, scénarios de quotas
 - [docs/TASKS.md](docs/TASKS.md) — suivi des tâches
+- [docs/DATABASE.md](docs/DATABASE.md) · [docs/VIDEO_PIPELINE.md](docs/VIDEO_PIPELINE.md) · [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md) · [docs/TESTING.md](docs/TESTING.md)
+- [docs/SETUP_ACCOUNTS.md](docs/SETUP_ACCOUNTS.md) — guide de création des comptes
 - `brand/reference/fiche-branding.webp` — fiche d'identité visuelle validée
 
 ## Structure prévue

@@ -7,7 +7,7 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/* \
  && fc-cache -f
 
-COPY --from=ghcr.io/astral-sh/uv:0.5.11 /uv /usr/local/bin/uv
+RUN pip install --no-cache-dir uv==0.5.11
 
 WORKDIR /app
 COPY pyproject.toml uv.lock ./

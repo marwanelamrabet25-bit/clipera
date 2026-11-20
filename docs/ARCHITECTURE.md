@@ -1,7 +1,6 @@
 # CLIPERA — Architecture
 
-> **Statut : PROPOSITION (Phase 0) — en attente de validation du fondateur.**
-> Aucun code applicatif n'existe encore. Ce document décrit la cible, pas l'existant.
+> **Statut : VALIDÉE par le fondateur le 2026-11-20.** Démarrage sans Redis : la file de traitements est dans Postgres.
 
 ## 1. Vue d'ensemble
 
