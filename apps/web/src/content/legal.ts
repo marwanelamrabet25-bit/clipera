@@ -32,5 +32,6 @@ export const HOSTS = [
 ];
 
 export function legalIsComplete() {
-  return Object.entries(LEGAL).every(([k, v]) => k === "vatNumber" || v !== null);
+  // TVA : facultative (franchise en base des micro-entreprises). Directeur de publication : l'entrepreneur par défaut.
+  return Object.entries(LEGAL).every(([k, v]) => k === "vatNumber" || k === "publicationDirector" || v !== null);
 }
