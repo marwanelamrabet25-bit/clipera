@@ -229,7 +229,7 @@ create table public.audit_log (
 -- updated_at automatique
 -- ─────────────────────────────────────────────────────────────
 create function public.touch_updated_at() returns trigger
-language plpgsql as $$ begin new.updated_at := now(); return new; end $$;
+language plpgsql set search_path = '' as $$ begin new.updated_at := now(); return new; end $$;
 
 create trigger plans_touch before update on public.plans for each row execute function public.touch_updated_at();
 create trigger profiles_touch before update on public.profiles for each row execute function public.touch_updated_at();

@@ -13,7 +13,7 @@ Dernière mise à jour : 2026-11-20
 
 ## Bloqué (en attente du fondateur)
 - [ ] Dépôt GitHub (le code n'existe que dans cette session temporaire)
-- [ ] Accord pour créer le projet Supabase gratuit `clipera-dev`
+- [x] Projet Supabase `clipera-dev` créé (Paris, Free), migrations appliquées et vérifiées
 - [ ] Comptes Cloudflare R2, Deepgram, AssemblyAI, Anthropic (voir SETUP_ACCOUNTS.md)
 - [ ] 7 vidéos de test dont tu détiens les droits
 - [ ] Validation des allocations de minutes (COST_MODEL.md §4)

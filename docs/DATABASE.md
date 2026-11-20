@@ -50,3 +50,19 @@ Chaque ligne appartient à un utilisateur (`user_id` → `auth.users`, suppressi
 - Battement de cœur toutes les 20 s ; sans signe de vie pendant 5 min → remis en file avec délai croissant,
   puis échec définitif (et remboursement) après `max_attempts`.
 - L'annulation par l'utilisateur est immédiate si le job attend, sinon transmise au worker par le battement de cœur.
+
+## Environnements Supabase
+| Projet | Réf. | Région | Offre | Migrations |
+|---|---|---|---|---|
+| `clipera-dev` | `bxejlqxvrgmbaganxxqb` | eu-west-3 (Paris) | Free | `initial_schema`, `seed_plans`, `probe_jobs` |
+
+Vérifié sur la vraie base (transaction annulée) : profil + offre Free créés à l'inscription, isolation entre
+utilisateurs, offres visibles, quota Free = 3 vidéos.
+
+Audit de sécurité Supabase — remarques acceptées volontairement :
+- `audit_log` sans policy : voulu, la table est invisible pour les utilisateurs.
+- `create_clip_job`, `cancel_job`, `my_quota` exécutables par un utilisateur connecté en SECURITY DEFINER : voulu,
+  ce sont les seules portes d'écriture et chacune revérifie `auth.uid()`. Les fonctions du worker ne sont pas exposées.
+
+⚠️ Toute nouvelle table ou fonction doit révoquer explicitement les droits de `anon` / `authenticated`
+(Supabase les accorde par défaut sur le schéma `public`).
