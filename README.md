@@ -18,7 +18,7 @@ Puis ouvrir http://localhost:3000 (page d'attente) et http://localhost:3000/desi
 Worker et tests : voir [docs/TESTING.md](docs/TESTING.md).
 
 ## Documentation
-- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — architecture proposée
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — architecture validée
 - [docs/COST_MODEL.md](docs/COST_MODEL.md) — coûts mesurés et estimés, scénarios de quotas
 - [docs/TASKS.md](docs/TASKS.md) — suivi des tâches
 - [docs/DATABASE.md](docs/DATABASE.md) · [docs/VIDEO_PIPELINE.md](docs/VIDEO_PIPELINE.md) · [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md) · [docs/TESTING.md](docs/TESTING.md)
