@@ -13,6 +13,7 @@ Dernière mise à jour : 2026-11-20
 - [x] Espace /app : navigation, Dashboard, Nouveau projet, Mes projets, Bibliothèque, Abonnement, Paramètres — vraies données, 15 tests E2E
 - [x] Connexion par e-mail + mot de passe (lien e-mail en option), inscription, changement de mot de passe — 20 tests E2E
 - [x] Import de vidéo : envoi direct multipart, contrôles SQL, page projet avec suivi — 11 tests E2E (stockage de test)
+- [x] Maintenance automatique horaire (pg_cron) : envois abandonnés, vidéos expirées, traitements bloqués — 2 tests
 - [x] Environnement cloud « clipera » (accès Supabase + installation automatique)
 - [x] Documentation : ARCHITECTURE, DATABASE, VIDEO_PIPELINE, ENVIRONMENT, TESTING, COST_MODEL, SETUP_ACCOUNTS
 
@@ -33,7 +34,6 @@ Dernière mise à jour : 2026-11-20
 - [ ] Connexion Google (optionnelle)
 - [ ] Activer l'import en production : clés R2 dans Vercel + CORS (SETUP_ACCOUNTS.md §3)
 - [ ] Héberger le worker (nécessite la chaîne de connexion Postgres de Supabase, saisie chez l'hébergeur)
-- [ ] Nettoyage automatique des envois abandonnés (> 24 h) et des fichiers associés
 - [ ] Pages légales : mentions légales, CGU, politique de confidentialité (avant ouverture au public)
 - [ ] Transcription (fournisseur choisi après comparatif)
 - [ ] Analyse et sélection des passages (comparatif Sonnet / Opus sur le corpus)

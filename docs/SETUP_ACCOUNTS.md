@@ -47,9 +47,13 @@ Dans le tableau de bord Supabase, projet `clipera-dev` :
    ]
    ```
    Sans `ExposeHeaders: ETag`, le navigateur ne peut pas terminer l'envoi des vidéos.
-5. **R2 → Manage API Tokens → Create API Token** : permission *Object Read & Write*, limité au bucket
+5. Dans le bucket → **Settings → Object Lifecycle Rules → Add rule**, crée ces deux règles :
+   - « envois-abandonnes » : *Abort incomplete multipart uploads* après **1 jour** (tout le bucket).
+   - « sources-30-jours » : préfixe `sources/`, *Delete objects* après **30 jours**.
+   La base de données est alignée automatiquement chaque heure (fonction `run_maintenance`).
+6. **R2 → Manage API Tokens → Create API Token** : permission *Object Read & Write*, limité au bucket
    `clipera-media`. Cloudflare affiche *Access Key ID* et *Secret Access Key* **une seule fois**.
-6. Saisis-les **directement dans Vercel** (projet `clipera` → *Settings → Environment Variables*), jamais dans le chat :
+7. Saisis-les **directement dans Vercel** (projet `clipera` → *Settings → Environment Variables*), jamais dans le chat :
    `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` (cocher *Sensitive*), `R2_BUCKET` = `clipera-media`.
    Dis-moi quand c'est fait : je redéploie et l'import s'active automatiquement.
 

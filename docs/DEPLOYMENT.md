@@ -26,5 +26,13 @@ Mise à jour : chaque envoi sur `main` redéploie automatiquement la production 
 Projet `clipera-dev` (`bxejlqxvrgmbaganxxqb`), Paris. Migrations : `supabase/migrations/`.
 Réglages Auth à faire dans le tableau de bord : voir SETUP_ACCOUNTS.md §2b.
 
+## Maintenance automatique
+- **Base** : `run_maintenance()` toutes les heures (pg_cron, `17 * * * *`) — clôt les envois inachevés de plus
+  de 24 h (vidéo et projet masqués), marque supprimées les vidéos sources de plus de 30 jours (jamais pendant un
+  traitement ; les clips sont conservés), remet en file les traitements dont le worker a disparu. Chaque passage
+  qui modifie quelque chose est consigné dans `audit_log`.
+- **Stockage R2** : règles de cycle de vie (voir SETUP_ACCOUNTS.md §3) — morceaux abandonnés après 1 jour,
+  `sources/` après 30 jours.
+
 ## Worker vidéo
 Pas encore déployé (nécessite R2 et le service de transcription). Image : `apps/worker/Dockerfile`.

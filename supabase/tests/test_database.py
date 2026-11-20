@@ -507,3 +507,37 @@ def test_abort_upload_hides_video_and_project():
     assert u.q("select count(*) from source_videos where id = %s", (vid,)) == [(0,)]
     assert u.q("select count(*) from projects where id = %s", (pid,)) == [(0,)]
     u.close()
+
+
+# ───────────────────────── Maintenance ─────────────────────────
+
+
+def test_maintenance_closes_abandoned_uploads_and_expired_sources():
+    uid = make_user()
+    u = As(uid)
+    old_vid, old_pid, _ = upload(u, name="abandonné.mp4")
+    fresh_vid, fresh_pid, _ = upload(u, name="en cours.mp4")
+    expired = make_video(uid, duration=60)
+    busy = make_video(uid, duration=60)
+    create_job(u, busy)  # traitement en cours : ne doit pas être purgé
+    with admin() as c:
+        c.execute("update source_videos set created_at = now() - interval '25 hours' where id = %s", (old_vid,))
+        c.execute("update source_videos set purge_after = now() - interval '1 minute' where id in (%s, %s)",
+                  (expired, busy))
+        res = c.execute("select run_maintenance()").fetchone()[0]
+    assert res["stale_uploads"] == 1 and res["expired_sources"] == 1
+    visible = {r[0] for r in u.q("select id from source_videos")}
+    assert old_vid not in visible and expired not in visible
+    assert fresh_vid in visible and busy in visible
+    assert u.q("select count(*) from projects where id = %s", (old_pid,)) == [(0,)]
+    assert u.q("select count(*) from projects where id = %s", (fresh_pid,)) == [(1,)]
+    with admin() as c:  # idempotent : un second passage ne change rien
+        assert c.execute("select run_maintenance()").fetchone()[0]["stale_uploads"] == 0
+    u.close()
+
+
+def test_maintenance_not_callable_by_users():
+    u = As(make_user())
+    with pytest.raises(errors.InsufficientPrivilege):
+        u.q("select run_maintenance()")
+    u.close()
