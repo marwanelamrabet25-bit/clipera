@@ -56,6 +56,19 @@ export function PasswordForm({ mode, suite }: { mode: "signin" | "signup"; suite
       <Button type="submit" size="lg" loading={pending} className="mt-1">
         {mode === "signin" ? "Se connecter" : "Créer mon compte"} <ArrowRight />
       </Button>
+      {mode === "signup" && (
+        <p className="text-center text-caption text-subtle">
+          En créant un compte, tu acceptes les{" "}
+          <Link href="/cgu" className="underline hover:text-fg">
+            conditions d&apos;utilisation
+          </Link>{" "}
+          et la{" "}
+          <Link href="/confidentialite" className="underline hover:text-fg">
+            politique de confidentialité
+          </Link>
+          .
+        </p>
+      )}
       <p className="text-center text-small text-muted">
         {mode === "signin" ? (
           <>
