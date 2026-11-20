@@ -86,5 +86,19 @@ transcrites en 1,8 s, facturation à la durée de l'audio → 0,0043 $/min × 0,
 gratuit. La clé utilisée n'a pas le droit de lire la facturation (rôle *Member*, choix de sécurité) : le solde se
 consulte sur console.deepgram.com → Billing.
 
+### Premier comparatif réel (20/11/2026, même audio, 0 € dépensé — crédits gratuits)
+Dialogue français de 47,6 s, 2 voix (voix de synthèse), audio du worker (Opus 32 kb/s), 117 mots de référence.
+
+| | Mots justes | Erreurs notables | Locuteurs | Délai |
+|---|---|---|---|---|
+| **Deepgram Nova-3** | **98,3 %** (2 erreurs) | « arle » pour « parle » | ✅ 2 voix bien séparées | 1,8 s (réponse directe) |
+| AssemblyAI Universal-3.5 Pro | 97,4 % (3 erreurs) | « Le tout a vêté » pour « J'ai tout arrêté » | ✅ | ~5 s (file d'attente) |
+| AssemblyAI Universal-2 | 94,9 % (6 erreurs) | « Tout avait été », « une par eux », « ne l'est venu » | ✅ | ~5 s |
+
+Lecture honnête : sur 117 mots, 1 erreur d'écart n'est **pas significatif**. Les deux premiers sont au coude à coude ;
+Universal-2 est nettement en retrait. Décision provisoire : **Deepgram** (meilleur ici, déjà intégré et testé,
+réponse directe plus simple). Décision définitive après le test sur de vraies vidéos (accents, bruit, voix qui se
+chevauchent), où les écarts apparaissent vraiment.
+
 Sources (secondaires) : cartesia.ai/learn/deepgram-pricing, brasstranscripts.com, gladia.io/blog/deepgram-pricing,
 cartesia.ai/learn/assemblyai-pricing, assemblyai.com/blog/speech-to-text-api-pricing.

@@ -26,7 +26,8 @@ Dernière mise à jour : 2026-11-20
 - [x] Code sauvegardé sur GitHub : marwanelamrabet25-bit/clipera (public, choix du fondateur)
 - [x] Projet Supabase `clipera-dev` créé (Paris, Free), migrations appliquées et vérifiées
 - [x] Comptes Cloudflare R2 et Deepgram
-- [ ] Comptes AssemblyAI, Anthropic (voir SETUP_ACCOUNTS.md)
+- [x] Compte AssemblyAI
+- [ ] Compte Anthropic (voir SETUP_ACCOUNTS.md)
 - [ ] 7 vidéos de test dont tu détiens les droits
 - [ ] Validation des allocations de minutes (COST_MODEL.md §4)
 - [ ] Fichier vectoriel (SVG) du logo pour l'impression et les très grandes tailles
@@ -42,7 +43,8 @@ Dernière mise à jour : 2026-11-20
 - [ ] Héberger le worker (nécessite la chaîne de connexion Postgres de Supabase, saisie chez l'hébergeur)
 - [ ] Compléter l'identité de l'éditeur dans `apps/web/src/content/legal.ts` (nom/raison sociale, statut, adresse, SIRET, directeur de publication, e-mail, médiateur de la consommation) + relecture juridique
 - [x] Transcription Deepgram branchée et testée avec la vraie API (dialogue français, 2 locuteurs) — 13 tests
-- [ ] Comparatif Deepgram / AssemblyAI sur de vraies vidéos (corpus)
+- [x] Premier comparatif Deepgram / AssemblyAI (même audio, COST_MODEL.md §7) : Deepgram retenu provisoirement
+- [ ] Confirmer le comparatif sur de vraies vidéos (corpus)
 - [ ] Analyse et sélection des passages (comparatif Sonnet / Opus sur le corpus)
 - [ ] Job `clip_generation` : rendu + export + enregistrement des clips
 - [ ] Écrans : suivi en direct, résultats, prévisualisation, téléchargement
