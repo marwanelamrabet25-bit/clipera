@@ -16,6 +16,7 @@ Dernière mise à jour : 2026-11-20
 - [x] Maintenance automatique horaire (pg_cron) : envois abandonnés, vidéos expirées, traitements bloqués — 2 tests
 - [x] Pages légales (mentions, confidentialité, CGU) rédigées à partir du fonctionnement réel, pied de page, acceptation à l'inscription — identité de l'éditeur à compléter
 - [x] Suppression de compte en libre-service (fichiers du stockage puis données en cascade) — 2 tests base + 5 tests E2E
+- [x] Page d'accueil : accroche, avant/après, 3 étapes, fonctionnalités, qualité du montage, tarifs lus en base, FAQ, appel à l'action ; robots.txt, sitemap, image de partage ; honnête sur l'accès anticipé, visuels marqués « Illustration »
 - [x] Environnement cloud « clipera » (accès Supabase + installation automatique)
 - [x] Documentation : ARCHITECTURE, DATABASE, VIDEO_PIPELINE, ENVIRONMENT, TESTING, COST_MODEL, SETUP_ACCOUNTS
 
