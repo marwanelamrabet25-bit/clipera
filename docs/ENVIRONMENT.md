@@ -18,6 +18,7 @@ Légende : 🔒 secret · 🌐 public (visible dans le navigateur) · ⚙️ ré
 | `R2_ACCESS_KEY_ID` | 🔒 | Clé d'accès R2 (droits limités au bucket Clipera) |
 | `R2_SECRET_ACCESS_KEY` | 🔒 | Secret R2 |
 | `R2_BUCKET` | ⚙️ | Nom du bucket privé (ex. `clipera-media`) |
+| `S3_ENDPOINT` | ⚙️ | **Tests uniquement** : adresse d'un faux S3 local (moto). Ne jamais définir en production |
 | `STRIPE_SECRET_KEY` | 🔒 | Phase 13 |
 | `STRIPE_WEBHOOK_SECRET` | 🔒 | Phase 13 |
 
@@ -33,6 +34,7 @@ Légende : 🔒 secret · 🌐 public (visible dans le navigateur) · ⚙️ ré
 | `DEEPGRAM_API_KEY` / `ASSEMBLYAI_API_KEY` | 🔒 | Selon le fournisseur retenu |
 | `ANTHROPIC_API_KEY` | 🔒 | Analyse des transcriptions |
 | `CLIPERA_ANALYSIS_MODEL` | ⚙️ | `claude-opus-5-5` par défaut ; changeable après comparatif |
+| `S3_ENDPOINT` | ⚙️ | Tests uniquement (faux S3 local) |
 | `CLIPERA_WORKER_ID` | ⚙️ | Nom du worker dans les journaux (facultatif) |
 | `CLIPERA_POLL_INTERVAL_S` | ⚙️ | Attente entre deux vérifications de la file (défaut 2) |
 | `CLIPERA_HEARTBEAT_INTERVAL_S` | ⚙️ | Fréquence du battement de cœur (défaut 20) |

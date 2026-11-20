@@ -2,9 +2,15 @@
 
 Légende : ✅ implémenté et testé · 🔜 prochaine étape · ⏳ plus tard
 
-## 1. Import (navigateur → R2) — 🔜
-Upload multipart signé directement vers R2, avec reprise. Le serveur web ne voit jamais les octets.
-Case obligatoire « Je détiens les droits sur cette vidéo » (`rights_confirmed_at`).
+## 1. Import (navigateur → R2) — ✅ (testé contre un S3 de test ; s'active avec les clés R2)
+- `create_upload` (SQL) : vérifie droits confirmés, extension, taille max de l'offre, quota restant, ≤ 3 envois
+  inachevés ; crée le projet ; **génère la clé** `sources/<user>/<video>/source.<ext>` (contrainte SQL).
+- Le navigateur envoie la vidéo **directement au stockage** en morceaux de 16 Mio, 4 en parallèle, URLs signées 1 h,
+  4 nouvelles tentatives par morceau avec délai croissant ; progression réelle (octets envoyés) ; annulation.
+- Fin : le serveur assemble, **vérifie que la taille stockée = taille annoncée**, puis `complete_upload` met en file
+  la vérification (`probe`). Annulation ou échec : morceaux libérés, projet masqué.
+- Testé : fichier stocké identique à l'original (MD5), annulation à deux moments, accès refusé sans session ou
+  sur la vidéo d'un autre utilisateur.
 
 ## 2. Vérification (`probe`) — ✅
 Le worker télécharge le fichier et l'analyse avec FFprobe :

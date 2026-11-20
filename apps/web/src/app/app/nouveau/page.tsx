@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Upload } from "lucide-react";
 import { PageHeader } from "@/components/app/page-header";
-import { Button } from "@/components/ui/button";
+import { Uploader } from "@/components/app/uploader";
 import { Card, CardBody } from "@/components/ui/card";
 import { Alert } from "@/components/ui/feedback";
 import { formatMinutes, getAccount } from "@/lib/account";
+import { isStorageConfigured } from "@/lib/storage";
 
 export const metadata: Metadata = { title: "Nouveau projet" };
 
@@ -19,31 +19,40 @@ const STEPS = [
 ];
 
 export default async function NewProjectPage() {
-  const { plan } = await getAccount();
+  const { plan, quota } = await getAccount();
+  const storageReady = isStorageConfigured();
+  const videosLeft = quota ? quota.videosLimit - quota.videosUsed : 0;
   return (
     <>
       <PageHeader title="Nouveau projet" description="Transforme une vidéo longue en clips courts." />
-      <Alert tone="info" title="L'import de vidéos arrive très bientôt" className="mb-6">
-        Nous connectons le stockage sécurisé des vidéos. Cette page deviendra active dès que l&apos;import sera
-        réellement opérationnel.
-      </Alert>
+      {!storageReady && (
+        <Alert tone="info" title="L'import de vidéos arrive très bientôt" className="mb-6">
+          Le stockage sécurisé des vidéos n&apos;est pas encore connecté. Cette page deviendra active dès qu&apos;il le
+          sera.
+        </Alert>
+      )}
+      {storageReady && videosLeft <= 0 && (
+        <Alert tone="warning" title="Tu as utilisé toutes tes vidéos ce mois-ci" className="mb-6">
+          Ton quota se renouvelle au début de la prochaine période.
+        </Alert>
+      )}
       <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
         <Card>
-          <CardBody className="flex flex-col items-center rounded-lg border border-dashed border-line-strong m-5 px-6 py-14 text-center">
-            <div className="mb-4 grid size-12 place-items-center rounded-md border border-primary-line bg-primary-wash text-primary-soft">
-              <Upload className="size-5" aria-hidden />
-            </div>
-            <p className="text-h3 font-semibold">Importe ta vidéo</p>
-            <p className="mt-1 max-w-sm text-small text-muted">
-              MP4 ou MOV
-              {plan
-                ? ` · jusqu'à ${formatMinutes(plan.max_video_seconds)} et ${Math.round(plan.max_upload_bytes / 1024 ** 3)} Go avec l'offre ${plan.name}`
-                : ""}
-              .
-            </p>
-            <Button className="mt-6" disabled>
-              Choisir un fichier
-            </Button>
+          <CardBody>
+            {storageReady && videosLeft > 0 && plan ? (
+              <Uploader maxBytes={plan.max_upload_bytes} planName={plan.name} />
+            ) : (
+              <div className="rounded-lg border border-dashed border-line-strong px-6 py-14 text-center text-small text-muted">
+                Import indisponible pour le moment.
+              </div>
+            )}
+            {plan && (
+              <p className="mt-4 text-caption text-subtle">
+                Offre {plan.name} : vidéos de {formatMinutes(plan.max_video_seconds)} maximum ·{" "}
+                {Math.round(plan.max_upload_bytes / 1024 ** 3)} Go maximum · {Math.max(videosLeft, 0)} vidéo(s) restante(s)
+                ce mois-ci.
+              </p>
+            )}
           </CardBody>
         </Card>
         <Card>

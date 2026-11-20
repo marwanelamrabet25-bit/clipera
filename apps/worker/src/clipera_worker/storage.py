@@ -45,14 +45,16 @@ class LocalStorage:
 
 
 class R2Storage:
-    def __init__(self, account_id: str, access_key_id: str, secret_access_key: str, bucket: str):
+    def __init__(self, account_id: str | None, access_key_id: str, secret_access_key: str, bucket: str,
+                 endpoint_url: str | None = None):
+        """endpoint_url remplace l'adresse R2 (faux S3 local pour les tests uniquement)."""
         import boto3
         from botocore.config import Config
 
         self.bucket = bucket
         self.s3 = boto3.client(
             "s3",
-            endpoint_url=f"https://{account_id}.r2.cloudflarestorage.com",
+            endpoint_url=endpoint_url or f"https://{account_id}.r2.cloudflarestorage.com",
             aws_access_key_id=access_key_id,
             aws_secret_access_key=secret_access_key,
             region_name="auto",

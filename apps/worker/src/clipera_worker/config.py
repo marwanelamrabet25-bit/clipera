@@ -24,6 +24,7 @@ class Settings:
     worker_id: str
     poll_interval_s: float
     heartbeat_interval_s: float
+    s3_endpoint: str | None
     r2_account_id: str | None
     r2_access_key_id: str | None
     r2_secret_access_key: str | None
@@ -41,7 +42,9 @@ class Settings:
             worker_id=os.environ.get("CLIPERA_WORKER_ID") or f"{socket.gethostname()}-{uuid.uuid4().hex[:6]}",
             poll_interval_s=float(os.environ.get("CLIPERA_POLL_INTERVAL_S", "2")),
             heartbeat_interval_s=float(os.environ.get("CLIPERA_HEARTBEAT_INTERVAL_S", "20")),
-            r2_account_id=_req("R2_ACCOUNT_ID") if backend == "r2" else None,
+            s3_endpoint=os.environ.get("S3_ENDPOINT") or None,
+            r2_account_id=(os.environ.get("R2_ACCOUNT_ID") if os.environ.get("S3_ENDPOINT") else _req("R2_ACCOUNT_ID"))
+            if backend == "r2" else None,
             r2_access_key_id=_req("R2_ACCESS_KEY_ID") if backend == "r2" else None,
             r2_secret_access_key=_req("R2_SECRET_ACCESS_KEY") if backend == "r2" else None,
             r2_bucket=_req("R2_BUCKET") if backend == "r2" else None,

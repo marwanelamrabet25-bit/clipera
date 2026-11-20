@@ -115,3 +115,28 @@ def test_unexpected_error_is_retried_then_failed(env, media, monkeypatch):
     process_one(queue, storage, work)
     _, jobs = state(url, vid)
     assert jobs[0]["status"] == "failed"
+
+
+S3_ENDPOINT = os.environ.get("CLIPERA_TEST_S3_ENDPOINT")
+
+
+@pytest.mark.skipif(not S3_ENDPOINT, reason="CLIPERA_TEST_S3_ENDPOINT non défini (faux S3 local, ex. moto)")
+def test_probe_reads_from_s3_compatible_storage(db_url, tmp_path, media):
+    """Même chemin qu'en production (API S3 de R2), contre un faux S3 local."""
+    import boto3
+
+    from clipera_worker.storage import R2Storage
+
+    bucket = "clipera-worker-it"
+    raw = boto3.client("s3", endpoint_url=S3_ENDPOINT, aws_access_key_id="test", aws_secret_access_key="test",
+                       region_name="us-east-1")
+    raw.create_bucket(Bucket=bucket)
+    storage = R2Storage(None, "test", "test", bucket, endpoint_url=S3_ENDPOINT)
+    queue = JobQueue(db_url, worker_id="test-worker-s3")
+    with psycopg.connect(db_url, autocommit=True) as c:
+        c.execute("update processing_jobs set status = 'cancelled' where status = 'queued'")
+    vid = upload_and_enqueue(db_url, storage, media["landscape_720"])
+    assert process_one(queue, storage, tmp_path / "work") is True
+    sv, jobs = state(db_url, vid)
+    assert sv["status"] == "validated" and (sv["width"], sv["height"]) == (1280, 720)
+    assert jobs[0]["status"] == "completed"

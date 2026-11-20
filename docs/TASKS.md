@@ -11,6 +11,8 @@ Dernière mise à jour : 2026-11-20
 - [x] Comparatif tarifaire Deepgram / AssemblyAI (COST_MODEL.md §7)
 - [x] Connexion par lien magique (Supabase Auth), `proxy.ts`, protection de /app, anti-redirection externe
 - [x] Espace /app : navigation, Dashboard, Nouveau projet, Mes projets, Bibliothèque, Abonnement, Paramètres — vraies données, 15 tests E2E
+- [x] Connexion par e-mail + mot de passe (lien e-mail en option), inscription, changement de mot de passe — 20 tests E2E
+- [x] Import de vidéo : envoi direct multipart, contrôles SQL, page projet avec suivi — 11 tests E2E (stockage de test)
 - [x] Environnement cloud « clipera » (accès Supabase + installation automatique)
 - [x] Documentation : ARCHITECTURE, DATABASE, VIDEO_PIPELINE, ENVIRONMENT, TESTING, COST_MODEL, SETUP_ACCOUNTS
 
@@ -29,7 +31,10 @@ Dernière mise à jour : 2026-11-20
 - [x] Site déployé sur Vercel : https://clipera-clipera1.vercel.app (région Paris)
 - [ ] Réglages Supabase Auth : URL du site, modèle d'e-mail, SMTP personnalisé (voir SETUP_ACCOUNTS.md §2b)
 - [ ] Connexion Google (optionnelle)
-- [ ] Upload multipart navigateur → R2 + confirmation des droits + job de vérification
+- [ ] Activer l'import en production : clés R2 dans Vercel + CORS (SETUP_ACCOUNTS.md §3)
+- [ ] Héberger le worker (nécessite la chaîne de connexion Postgres de Supabase, saisie chez l'hébergeur)
+- [ ] Nettoyage automatique des envois abandonnés (> 24 h) et des fichiers associés
+- [ ] Pages légales : mentions légales, CGU, politique de confidentialité (avant ouverture au public)
 - [ ] Transcription (fournisseur choisi après comparatif)
 - [ ] Analyse et sélection des passages (comparatif Sonnet / Opus sur le corpus)
 - [ ] Job `clip_generation` : rendu + export + enregistrement des clips

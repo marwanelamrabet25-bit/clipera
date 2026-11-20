@@ -19,7 +19,8 @@ def main() -> None:
     if s.storage_backend == "local":
         storage = LocalStorage(s.local_storage_dir)
     else:
-        storage = R2Storage(s.r2_account_id, s.r2_access_key_id, s.r2_secret_access_key, s.r2_bucket)
+        storage = R2Storage(s.r2_account_id, s.r2_access_key_id, s.r2_secret_access_key, s.r2_bucket,
+                            endpoint_url=s.s3_endpoint)
     stop = threading.Event()
     signal.signal(signal.SIGTERM, lambda *_: stop.set())
     signal.signal(signal.SIGINT, lambda *_: stop.set())

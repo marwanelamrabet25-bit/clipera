@@ -293,6 +293,12 @@ export type Database = {
     };
     Views: { [_ in never]: never };
     Functions: {
+      abort_upload: { Args: { p_source_video_id: string }; Returns: undefined };
+      complete_upload: { Args: { p_source_video_id: string } } & JobFnReturn;
+      create_upload: {
+        Args: { p_filename: string; p_size_bytes: number; p_rights_confirmed: boolean };
+        Returns: { source_video_id: string; project_id: string; storage_key: string }[];
+      };
       cancel_job: { Args: { p_job_id: string } } & JobFnReturn;
       claim_next_job: { Args: { p_kinds?: Database["public"]["Enums"]["job_kind"][]; p_worker_id: string } } & JobFnReturn;
       create_clip_job: {

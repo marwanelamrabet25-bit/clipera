@@ -419,3 +419,91 @@ def test_heartbeat_reports_cancel_request():
     with pytest.raises(errors.ObjectNotInPrerequisiteState):
         s.q("select heartbeat_job(%s, 'intruder')", (j,))
     s.close(), u.close()
+
+
+# ───────────────────────── Import de vidéos ─────────────────────────
+
+
+def upload(user: As, name="podcast épisode 12.mp4", size=100_000_000, rights=True):
+    return user.q("select * from create_upload(%s, %s, %s)", (name, size, rights))[0]
+
+
+def test_create_upload_generates_owned_key_and_project():
+    uid = make_user()
+    u = As(uid)
+    vid, pid, key = upload(u)
+    assert key == f"sources/{uid}/{vid}/source.mp4"
+    assert u.q("select title from projects where id = %s", (pid,)) == [("podcast épisode 12",)]
+    assert u.q("select status from source_videos where id = %s", (vid,)) == [("pending_upload",)]
+    u.close()
+
+
+@pytest.mark.parametrize(
+    "kwargs,error",
+    [
+        ({"rights": False}, "rights_not_confirmed"),
+        ({"name": "notes.pdf"}, "unsupported_extension"),
+        ({"name": "sans-extension"}, "unsupported_extension"),
+        ({"size": 3 * 1024**3}, "file_too_large"),  # Free : 2 Go maximum
+        ({"size": 0}, "invalid_size"),
+    ],
+)
+def test_create_upload_rejects_invalid_requests(kwargs, error):
+    u = As(make_user())
+    with pytest.raises(psycopg.Error, match=error):
+        upload(u, **kwargs)
+    u.close()
+
+
+def test_create_upload_refused_when_monthly_quota_used():
+    uid = make_user()
+    u = As(uid)
+    for _ in range(3):
+        j = create_job(u, make_video(uid, duration=60))
+        set_status(j[0], "completed", 2)
+    with pytest.raises(errors.ConfigurationLimitExceeded, match="quota_videos_exceeded"):
+        upload(u)
+    u.close()
+
+
+def test_at_most_three_pending_uploads():
+    u = As(make_user())
+    for _ in range(3):
+        upload(u)
+    with pytest.raises(errors.ConfigurationLimitExceeded, match="too_many_pending_uploads"):
+        upload(u)
+    u.close()
+
+
+def test_storage_key_must_belong_to_owner():
+    a, b = make_user(), make_user()
+    with admin() as c, pytest.raises(errors.CheckViolation):
+        pid = c.execute("insert into projects (user_id) values (%s) returning id", (b,)).fetchone()[0]
+        c.execute(
+            """insert into source_videos (project_id, user_id, storage_key, original_filename, declared_size_bytes,
+               rights_confirmed_at) values (%s, %s, %s, 'x.mp4', 1, now())""",
+            (pid, b, f"sources/{a}/stolen/source.mp4"),
+        )
+
+
+def test_complete_upload_enqueues_probe_once_and_only_for_owner():
+    a, b = make_user(), make_user()
+    ua, ub = As(a), As(b)
+    vid, _, _ = upload(ua)
+    with pytest.raises(errors.NoDataFound):
+        ub.q("select complete_upload(%s)", (vid,))
+    j1 = ua.q("select id, kind, status from complete_upload(%s)", (vid,))[0]
+    j2 = ua.q("select id from complete_upload(%s)", (vid,))[0]
+    assert j1[1:] == ("probe", "queued") and j1[0] == j2[0]
+    assert ua.q("select status from source_videos where id = %s", (vid,)) == [("uploaded",)]
+    ua.close(), ub.close()
+
+
+def test_abort_upload_hides_video_and_project():
+    uid = make_user()
+    u = As(uid)
+    vid, pid, _ = upload(u)
+    u.q("select abort_upload(%s)", (vid,))
+    assert u.q("select count(*) from source_videos where id = %s", (vid,)) == [(0,)]
+    assert u.q("select count(*) from projects where id = %s", (pid,)) == [(0,)]
+    u.close()

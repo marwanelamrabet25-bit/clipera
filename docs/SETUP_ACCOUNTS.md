@@ -34,7 +34,24 @@ Dans le tableau de bord Supabase, projet `clipera-dev` :
    l'offre gratuite (10 Go, sortie illimitée). Tant qu'on reste sous 10 Go, **rien n'est facturé**.
    Dis-moi avant de valider si tu préfères attendre.
 3. **Create bucket** → nom `clipera-media` → emplacement *Europe (EU)* → *Create*.
-4. Ne crée pas encore de clé d'accès : je te guiderai au moment de la saisir directement dans Vercel.
+4. Dans le bucket → **Settings → CORS Policy → Edit**, colle exactement ceci (remplace l'adresse si le domaine change) :
+   ```json
+   [
+     {
+       "AllowedOrigins": ["https://clipera.fr", "https://clipera-clipera1.vercel.app", "http://localhost:3000"],
+       "AllowedMethods": ["PUT", "GET", "HEAD"],
+       "AllowedHeaders": ["*"],
+       "ExposeHeaders": ["ETag"],
+       "MaxAgeSeconds": 3600
+     }
+   ]
+   ```
+   Sans `ExposeHeaders: ETag`, le navigateur ne peut pas terminer l'envoi des vidéos.
+5. **R2 → Manage API Tokens → Create API Token** : permission *Object Read & Write*, limité au bucket
+   `clipera-media`. Cloudflare affiche *Access Key ID* et *Secret Access Key* **une seule fois**.
+6. Saisis-les **directement dans Vercel** (projet `clipera` → *Settings → Environment Variables*), jamais dans le chat :
+   `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` (cocher *Sensitive*), `R2_BUCKET` = `clipera-media`.
+   Dis-moi quand c'est fait : je redéploie et l'import s'active automatiquement.
 
 ## 4. Transcription — deux comptes gratuits pour le comparatif
 - **Deepgram** : console.deepgram.com → inscription (crédit gratuit annoncé : 200 $).

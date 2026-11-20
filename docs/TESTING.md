@@ -42,6 +42,15 @@ Podcast solo · interview à deux · plusieurs intervenants · musique de fond �
 3. Mesure automatique : clips coupés en milieu de phrase, chevauchements, durée, coût réel en tokens.
 4. Décision documentée dans COST_MODEL.md. Budget estimé de l'expérience : < 5 $ d'API.
 
+## Test de bout en bout : import de vidéo (11 vérifications, toutes réussies)
+Script : `apps/web/e2e/upload.e2e.cjs` — navigateur réel → API → faux S3 (moto, mêmes appels que R2) → vraie base
+Supabase. Vérifie : format refusé, droits obligatoires, envoi multipart (3 morceaux) avec progression réelle,
+**fichier stocké identique à l'original (MD5)**, statut `uploaded` + une seule vérification en file, page projet,
+liste des projets, annulation immédiate et en plein transfert sans projet orphelin, accès refusé sans session
+ou sur l'envoi d'un autre utilisateur.
+
+Worker : 75 tests, dont la lecture d'une vidéo depuis un stockage S3 (`CLIPERA_TEST_S3_ENDPOINT`).
+
 ## Test de bout en bout : connexion et espace /app (15 vérifications, toutes réussies)
 Script : `apps/web/e2e/auth.e2e.cjs`, exécuté dans un vrai navigateur (Chromium) contre la **vraie base Supabase**.
 
