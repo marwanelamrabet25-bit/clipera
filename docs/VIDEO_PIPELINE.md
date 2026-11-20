@@ -54,7 +54,26 @@ Code : `apps/worker/src/clipera_worker/selection/`.
    chevauchement > 2 s entre clips livrés ; au plus le nombre demandé ; **jamais de remplissage** — moins de
    clips si moins de bons passages, avec l'explication et la raison de chaque rejet.
 
-## 6. Rendu — ✅ (moteur) / 🔜 (branché au pipeline)
+## 5b. Sélection de base sans IA — ✅ (mode actuel, gratuit)
+Code : `selection/heuristic.py`. Tant que l'IA n'est pas branchée (choix du fondateur : aucune dépense), les
+passages sont proposés par **règles** puis passent par **les mêmes contrôles, la même note et la même sélection**
+que les propositions de l'IA. Règles : chaque début de phrase plausible (jamais « mais/donc… »), meilleure fin entre
+20 et 60 s ; accroche (question, exclamation, mot fort, début de prise de parole), intérêt (chiffres, questions,
+mots forts, débit, clarté du son), conclusion explicite (« la leçon », « au final »…), moment complet.
+Limite assumée : les règles jugent la forme, pas si l'histoire est vraiment drôle ou passionnante.
+Chaque clip enregistre `score_details.method = "rules-v1"` pour l'afficher honnêtement et comparer plus tard.
+
+## 5c. Job `clip_generation` — ✅ (worker) / 🔜 écrans
+Code : `jobs/clip_job.py`. Étapes visibles : `transcribing` → `selecting` → `rendering` → `completed`.
+Vidéo → audio → Deepgram → transcription sauvegardée (`clips/<user>/<job>/transcript.json`) → sélection →
+pour chaque passage : sous-titres ASS au mot près, rendu (format, 720p/1080p selon l'offre, filigrane Free),
+miniature, envoi au stockage (`clips/<user>/<job>/<rang>.mp4|.jpg`), ligne `clips` (bornes, titre, extrait,
+note détaillée, options). Aucun bon passage ou aucune parole → échec expliqué + quota recrédité.
+Un clip raté n'annule pas les autres ; annulation ou erreur imprévue → aucun clip à moitié livré.
+Mesure réelle (dialogue 47,6 s, Deepgram réel) : transcription 2,1 s, sélection 4 ms, rendu 11,3 s ;
+coût 0,0034 $ (crédit gratuit).
+
+## 6. Rendu — ✅ (moteur) / ✅ branché au job
 - Découpe **précise à l'image près** (testé).
 - Recadrage 9:16, 1:1, 16:9, avec trajectoire de cadrage lissée (images clés → interpolation linéaire, testé).
 - **Résolution** : petit côté de sortie = min(limite de l'offre, petit côté de la source).

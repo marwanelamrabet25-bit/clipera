@@ -10,6 +10,7 @@ from .config import Settings
 from .queue import JobQueue
 from .runner import run_forever
 from .storage import LocalStorage, R2Storage
+from .transcription import DeepgramClient
 
 
 def main() -> None:
@@ -25,7 +26,8 @@ def main() -> None:
     signal.signal(signal.SIGTERM, lambda *_: stop.set())
     signal.signal(signal.SIGINT, lambda *_: stop.set())
     run_forever(JobQueue(s.database_url, s.worker_id), storage, s.work_dir,
-                poll_s=s.poll_interval_s, heartbeat_s=s.heartbeat_interval_s, stop=stop)
+                poll_s=s.poll_interval_s, heartbeat_s=s.heartbeat_interval_s, stop=stop,
+                deps={"transcriber": DeepgramClient(s.deepgram_api_key) if s.deepgram_api_key else None})
 
 
 if __name__ == "__main__":

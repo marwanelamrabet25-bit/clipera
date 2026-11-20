@@ -11,6 +11,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 from .errors import JobCancelled, JobError
+from .jobs.clip_job import run_clip_job
 from .jobs.probe_job import run_probe_job
 from .queue import Job, JobQueue
 from .storage import Storage
@@ -22,6 +23,7 @@ Handler = Callable[..., dict]
 # Seuls les types de job réellement implémentés sont réclamés : aucun job n'est « simulé ».
 HANDLERS: dict[str, Handler] = {
     "probe": run_probe_job,
+    "clip_generation": run_clip_job,
 }
 
 
@@ -45,7 +47,9 @@ def log_event(event: str, **fields):
     log.info(json.dumps({"event": event, **{k: str(v) for k, v in fields.items()}}))
 
 
-def process_one(queue: JobQueue, storage: Storage, work_root: Path, *, heartbeat_s: float = 20) -> bool:
+def process_one(queue: JobQueue, storage: Storage, work_root: Path, *, heartbeat_s: float = 20,
+                deps: dict | None = None) -> bool:
+    """deps : services injectés dans les jobs (ex. transcriber), pour pouvoir les remplacer en test."""
     job = queue.claim(list(HANDLERS))
     if job is None:
         return False
@@ -56,7 +60,8 @@ def process_one(queue: JobQueue, storage: Storage, work_root: Path, *, heartbeat
     t0 = time.monotonic()
     log_event("job_started", job=job.id, kind=job.kind, attempt=job.attempts)
     try:
-        metrics = HANDLERS[job.kind](job, queue=queue, storage=storage, work=work, cancel=hb.cancel_requested)
+        metrics = HANDLERS[job.kind](job, queue=queue, storage=storage, work=work, cancel=hb.cancel_requested,
+                                       **(deps or {}))
         metrics["duration_s"] = round(time.monotonic() - t0, 2)
         queue.complete(job.id, metrics=metrics, clips_produced=metrics.get("clips_produced", 0),
                        cost_usd=metrics.get("cost_usd"))
@@ -79,7 +84,7 @@ def process_one(queue: JobQueue, storage: Storage, work_root: Path, *, heartbeat
 
 
 def run_forever(queue: JobQueue, storage: Storage, work_root: Path, *, poll_s: float, heartbeat_s: float,
-                stop: threading.Event | None = None):
+                stop: threading.Event | None = None, deps: dict | None = None):
     stop = stop or threading.Event()
     log_event("worker_started", worker=queue.worker_id, kinds=",".join(HANDLERS))
     last_sweep = 0.0
@@ -89,5 +94,5 @@ def run_forever(queue: JobQueue, storage: Storage, work_root: Path, *, poll_s: f
             if n:
                 log_event("stale_jobs_requeued", count=n)
             last_sweep = time.monotonic()
-        if not process_one(queue, storage, work_root, heartbeat_s=heartbeat_s):
+        if not process_one(queue, storage, work_root, heartbeat_s=heartbeat_s, deps=deps):
             stop.wait(poll_s)

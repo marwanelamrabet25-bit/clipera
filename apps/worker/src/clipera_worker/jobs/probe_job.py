@@ -11,7 +11,7 @@ from ..queue import Job, JobQueue
 from ..storage import Storage
 
 
-def run_probe_job(job: Job, *, queue: JobQueue, storage: Storage, work: Path, cancel=None) -> dict:
+def run_probe_job(job: Job, *, queue: JobQueue, storage: Storage, work: Path, cancel=None, **_) -> dict:
     rows = queue.execute(
         "select sv.storage_key, sv.declared_size_bytes, p.max_video_seconds, p.max_upload_bytes "
         "from source_videos sv cross join lateral effective_plan(sv.user_id) ep "

@@ -56,6 +56,17 @@ moteur de sélection, silence, réponse invalide ; appels HTTP contre un serveur
 envoyés, nouvelles tentatives si service saturé, abandon après 3 essais, pas de nouvelle tentative si clé refusée
 ou audio invalide, clé jamais dans le message utilisateur.
 
+## Sélection sans IA (8 tests) et job de génération (5 tests de bout en bout)
+`tests/test_heuristic.py` : vraie transcription → un seul moment complet (jusqu'à la conclusion), un moment fort
+passe devant du bavardage, jamais de début par « mais/donc », phrases entières de 20 à 60 s, son peu clair pénalisé,
+nombre demandé respecté sans chevauchement, résultat déterministe.
+`tests/test_clip_job.py` (vraie base + rendu FFmpeg réel, transcription = vraie réponse Deepgram enregistrée) :
+vidéo → clip réel (statuts successifs, fichier lisible 720×1280 avec son et bonne durée, miniature, transcription
+sauvegardée, note expliquée, coût mesuré, quota consommé) ; format 1:1 sans sous-titres ; vidéo sans parole →
+échec expliqué + quota recrédité ; annulation pendant le traitement → aucun clip + quota recrédité ; clé de
+transcription absente → nouvelle tentative plus tard.
+Vérifié aussi à la main avec Deepgram réel : sous-titres synchronisés au mot près, filigrane en haut à droite.
+
 ## Test de bout en bout : suppression de compte (5 vérifications, toutes réussies)
 Script : `apps/web/e2e/account-delete.e2e.cjs`. Import d'une vidéo, confirmation obligatoire (« SUPPRIMER »),
 fichiers effacés du stockage, session fermée, mot de passe refusé ; contrôle SQL ensuite : aucune ligne restante.

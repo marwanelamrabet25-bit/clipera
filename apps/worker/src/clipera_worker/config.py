@@ -31,6 +31,7 @@ class Settings:
     r2_bucket: str | None
     local_storage_dir: Path | None
     max_free_video_seconds: int
+    deepgram_api_key: str | None
 
     @staticmethod
     def from_env() -> Settings:
@@ -50,4 +51,5 @@ class Settings:
             r2_bucket=_req("R2_BUCKET") if backend == "r2" else None,
             local_storage_dir=Path(_req("CLIPERA_LOCAL_STORAGE_DIR")) if backend == "local" else None,
             max_free_video_seconds=int(os.environ.get("CLIPERA_MAX_VIDEO_SECONDS", str(3 * 3600))),
+            deepgram_api_key=os.environ.get("DEEPGRAM_API_KEY") or None,
         )

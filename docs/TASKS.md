@@ -46,5 +46,6 @@ Dernière mise à jour : 2026-11-20
 - [x] Premier comparatif Deepgram / AssemblyAI (même audio, COST_MODEL.md §7) : Deepgram retenu provisoirement
 - [ ] Confirmer le comparatif sur de vraies vidéos (corpus)
 - [ ] Analyse et sélection des passages (comparatif Sonnet / Opus sur le corpus)
-- [ ] Job `clip_generation` : rendu + export + enregistrement des clips
+- [x] Sélection de base sans IA (règles, gratuite) — 8 tests
+- [x] Job `clip_generation` : transcription + sélection + rendu + enregistrement des clips — 5 tests de bout en bout + essai réel Deepgram
 - [ ] Écrans : suivi en direct, résultats, prévisualisation, téléchargement
