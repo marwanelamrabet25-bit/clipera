@@ -13,13 +13,13 @@ export default function LegalNoticePage() {
       <section>
         <h2>Éditeur du site</h2>
         <p>
-          Le site et le service Clipera sont édités par <strong><Value v={LEGAL.publisherName} /></strong>,{" "}
-          <Value v={LEGAL.legalForm} />, dont le siège est situé <Value v={LEGAL.address} />, immatriculé(e) sous le
-          numéro <Value v={LEGAL.siret} />
+          Le site et le service {LEGAL.tradeName} sont édités par <strong><Value v={LEGAL.publisherName} /></strong>,{" "}
+          <Value v={LEGAL.legalForm} /> exerçant sous le nom commercial « {LEGAL.tradeName} », domicilié(e){" "}
+          <Value v={LEGAL.address} />, SIRET <Value v={LEGAL.siret} />
           {LEGAL.vatNumber ? <>, TVA intracommunautaire {LEGAL.vatNumber}</> : null}.
         </p>
         <p>
-          Directeur ou directrice de la publication : <Value v={LEGAL.publicationDirector} />.
+          Directeur ou directrice de la publication : <Value v={LEGAL.publicationDirector ?? LEGAL.publisherName} />.
           <br />
           Contact : <Value v={LEGAL.contactEmail} />.
         </p>

@@ -3,10 +3,12 @@
  * Tant qu'un champ vaut null, les pages légales l'indiquent clairement comme « à compléter ».
  */
 export const LEGAL = {
-  /** Nom de l'entreprise ou, pour une micro-entreprise, nom et prénom de l'entrepreneur. */
+  /** Nom commercial du service. */
+  tradeName: "Clipera",
+  /** Micro-entreprise : nom et prénom de l'entrepreneur (l'éditeur légal est la personne physique). */
   publisherName: null as string | null,
-  /** Forme juridique : « Micro-entreprise », « SAS au capital de … € », etc. */
-  legalForm: null as string | null,
+  /** Forme juridique. */
+  legalForm: "Entrepreneur individuel (micro-entreprise)" as string | null,
   /** Adresse du siège (ou de domiciliation). */
   address: null as string | null,
   /** SIREN ou SIRET. */
