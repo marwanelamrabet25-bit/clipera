@@ -1,0 +1,67 @@
+# CLIPERA — Modèle de coûts
+
+> **Statut : ESTIMATION INITIALE (Phase 0).** Les chiffres marqués *(mesuré)* viennent d'un test réel ;
+> les autres sont des hypothèses à remplacer par les mesures du corpus de test (Phase 8).
+> Les allocations de minutes ci-dessous sont des **scénarios à valider**, pas des offres actives.
+
+## 1. Mesures réalisées (machine de dev, 4 vCPU, FFmpeg 6.1.1, libx264)
+
+| Opération (sur 60 s de vidéo 1080p 30 i/s) | Temps |
+|---|---|
+| Rendu 9:16 1080×1920 + sous-titres, preset `veryfast` | 16,5 s *(mesuré)* |
+| Rendu 9:16 1080×1920 + sous-titres, preset `faster` | 20,8 s *(mesuré)* |
+| Rendu 9:16 720×1280 (offre Free) | 8,9 s *(mesuré)* |
+| Extraction audio Opus mono 16 kHz 24 kb/s | 0,6 s *(mesuré)* — ≈ 17 Mo / heure |
+| Détection de scènes (image réduite) | 3,1 s *(mesuré)* |
+
+Source de test synthétique (bruit visuel, défavorable à l'encodeur) : les vidéos réelles devraient être aussi rapides ou plus.
+→ 5 clips de 45 s en 1080p ≈ **1 min 15 s de calcul** sur 4 vCPU.
+
+## 2. Coût variable par minute de vidéo source (hypothèses)
+
+| Poste | Hypothèse | €/min source |
+|---|---|---|
+| Transcription (mots horodatés + locuteurs) | ~0,004–0,006 $/min (Deepgram / AssemblyAI, tarifs publics à revérifier) | ~0,005 |
+| Analyse Claude Opus 5.5 (4 $/20 $ par M tokens) | ~250 tokens/min de transcript, 2 passes, réflexion incluse ≈ 1,2k entrée + 0,8k sortie / min | ~0,020 |
+| *(variante)* Claude Sonnet 5.5 (2 $/10 $) | mêmes volumes | ~0,010 |
+| Calcul (VPS 8 vCPU ~30 €/mois, amorti) | ~0,3 min CPU par min source | ~0,002 |
+| Stockage + sortie R2 | source gardée 3 j, clips 30 j, sortie gratuite | ~0,001 |
+| **Total (Opus 5.5)** | | **≈ 0,028 €** |
+| **Total (Sonnet 5.5)** | | **≈ 0,018 €** |
+
+## 3. Revenu net par abonnement
+
+Prix affichés TTC → TVA 20 % (France) puis frais Stripe (~1,5 % + 0,25 € carte UE).
+
+| Offre | Prix TTC | HT | Net après Stripe |
+|---|---|---|---|
+| Starter | 9,99 € | 8,33 € | ~7,93 € |
+| Pro | 19,99 € | 16,66 € | ~16,11 € |
+| Ultimate | 39,99 € | 33,33 € | ~32,48 € |
+
+## 4. Scénarios d'allocation de minutes (pire cas = quota utilisé à 100 %)
+
+| Offre | Vidéos | Minutes proposées | Coût max Opus | Marge pire cas Opus | Coût max Sonnet | Marge pire cas Sonnet |
+|---|---|---|---|---|---|---|
+| Free | 3 | 30 (max 15 min/vidéo) | 0,84 € | — (coût d'acquisition) | 0,54 € | — |
+| Starter | 10 | 120 | 3,36 € | 58 % | 2,16 € | 73 % |
+| Pro | 30 | 300 | 8,40 € | 48 % | 5,40 € | 67 % |
+| Ultimate | 80 | 700 | 19,60 € | 40 % | 12,60 € | 61 % |
+
+En pratique, la plupart des abonnés n'utilisent qu'une partie de leur quota ; la marge réelle sera supérieure, mais on dimensionne sur le pire cas.
+
+## 5. Coûts fixes estimés au lancement (pas pendant le développement)
+
+| Service | Dev | Lancement commercial |
+|---|---|---|
+| Supabase | Free | Pro 25 $/mois (sauvegardes, pas de mise en pause) |
+| Vercel | Hobby | Pro 20 $/mois (Hobby interdit l'usage commercial) |
+| Worker | machine locale / cette session | VPS ~15–40 €/mois |
+| R2 | gratuit < 10 Go | à l'usage |
+| Domaine | — | ~12 €/an |
+| Sentry | Free | Free au début |
+| **Total** | **0 €** | **≈ 70–100 €/mois** |
+
+## 6. Ce qui sera mesuré par job (table `processing_jobs` / `usage_records`)
+minutes source, secondes de rendu, tokens entrée/sortie par appel, minutes transcrites, durée de chaque étape, coût estimé total.
+Les tarifs unitaires sont stockés en configuration (pas en dur dans le code).
