@@ -12,7 +12,7 @@ Dernière mise à jour : 2026-11-20
 - [x] Documentation : ARCHITECTURE, DATABASE, VIDEO_PIPELINE, ENVIRONMENT, TESTING, COST_MODEL, SETUP_ACCOUNTS
 
 ## Bloqué (en attente du fondateur)
-- [ ] Dépôt GitHub (le code n'existe que dans cette session temporaire)
+- [x] Code sauvegardé sur GitHub : marwanelamrabet25-bit/clipera (public, choix du fondateur)
 - [x] Projet Supabase `clipera-dev` créé (Paris, Free), migrations appliquées et vérifiées
 - [ ] Comptes Cloudflare R2, Deepgram, AssemblyAI, Anthropic (voir SETUP_ACCOUNTS.md)
 - [ ] 7 vidéos de test dont tu détiens les droits
