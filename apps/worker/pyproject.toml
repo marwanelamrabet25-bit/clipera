@@ -32,3 +32,7 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# Consigne destinée à l'IA : texte en prose, lignes longues assumées.
+"src/clipera_worker/selection/prompt.py" = ["E501"]

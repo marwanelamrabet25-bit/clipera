@@ -17,6 +17,8 @@ Dernière mise à jour : 2026-11-20
 - [x] Pages légales (mentions, confidentialité, CGU) rédigées à partir du fonctionnement réel, pied de page, acceptation à l'inscription — identité de l'éditeur à compléter
 - [x] Suppression de compte en libre-service (fichiers du stockage puis données en cascade) — 2 tests base + 5 tests E2E
 - [x] Page d'accueil : accroche, avant/après, 3 étapes, fonctionnalités, qualité du montage, tarifs lus en base, FAQ, appel à l'action ; robots.txt, sitemap, image de partage ; honnête sur l'accès anticipé, visuels marqués « Illustration »
+- [x] Moteur de sélection des passages (phrases, fenêtres, consigne IA par numéros de phrases, score explicable, contrôles objectifs, aucun remplissage) — 30 tests
+- [x] Import vidéo activé en ligne (R2) et vérifié avec une vraie vidéo
 - [x] Environnement cloud « clipera » (accès Supabase + installation automatique)
 - [x] Documentation : ARCHITECTURE, DATABASE, VIDEO_PIPELINE, ENVIRONMENT, TESTING, COST_MODEL, SETUP_ACCOUNTS
 

@@ -25,10 +25,27 @@ Mono 16 kHz Opus 24 kb/s (≈ 17 Mo/heure) : léger à envoyer au service de tra
 Fournisseur choisi après comparatif Deepgram / AssemblyAI sur le corpus (voir COST_MODEL.md).
 On conserve : mots horodatés, segments, langue, locuteurs.
 
-## 5. Analyse et sélection — 🔜
-Découpage de la transcription en blocs avec chevauchement, analyse par Claude (sorties JSON validées),
-fusion, déduplication, notation sur critères explicites, classement global. Jamais de faux passages pour
-remplir un quota.
+## 5. Analyse et sélection — ✅ moteur (testé) / 🔜 appel à l'IA (clé Anthropic nécessaire)
+Code : `apps/worker/src/clipera_worker/selection/`.
+1. **Phrases** : la transcription est découpée en phrases numérotées (ponctuation, pause > 1,2 s, changement de
+   locuteur, 30 s maximum).
+2. **Fenêtres** : ~10 min de phrases entières, recouvrement de 90 s, numéros globaux (vidéos de plusieurs heures
+   possibles sans dépasser les limites de l'IA).
+3. **Proposition par l'IA** : consigne `SYSTEM_PROMPT`, réponse JSON stricte (`RESPONSE_SCHEMA`). L'IA désigne
+   chaque passage par **numéros de phrases** (jamais d'horodatage inventé, jamais de coupe en milieu de phrase)
+   et note 6 critères de 0 à 10 avec une justification : accroche, intérêt, contexte, cohérence, conclusion,
+   autonomie. Elle propose aussi un titre et une accroche fidèles au contenu.
+4. **Validation** : numéros inexistants, bornes inversées ou notes manquantes → proposition rejetée.
+5. **Contrôles objectifs** (calculés, pas déclarés par l'IA) : durée (idéal 25–60 s, bornes 15–90 s),
+   silences > 2,5 s (−2 cohérence chacun), début par un connecteur « mais/donc/et… » (−3 contexte),
+   fin sans ponctuation finale (−3 conclusion). Chaque pénalité est expliquée.
+6. **Note totale** /100 = 20 % accroche + 20 % intérêt + 15 % contexte + 15 % cohérence + 10 % conclusion
+   + 10 % autonomie + 10 % durée.
+7. **Bornes** : début 0,15 s avant le premier mot, fin 0,35 s après le dernier, sans jamais empiéter sur les
+   phrases voisines.
+8. **Sélection** : seuil 60/100 ; doublons entre fenêtres fusionnés (on garde le mieux noté) ; aucun
+   chevauchement > 2 s entre clips livrés ; au plus le nombre demandé ; **jamais de remplissage** — moins de
+   clips si moins de bons passages, avec l'explication et la raison de chaque rejet.
 
 ## 6. Rendu — ✅ (moteur) / 🔜 (branché au pipeline)
 - Découpe **précise à l'image près** (testé).

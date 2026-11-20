@@ -42,6 +42,13 @@ Podcast solo · interview à deux · plusieurs intervenants · musique de fond �
 3. Mesure automatique : clips coupés en milieu de phrase, chevauchements, durée, coût réel en tokens.
 4. Décision documentée dans COST_MODEL.md. Budget estimé de l'expérience : < 5 $ d'API.
 
+## Moteur de sélection (30 tests)
+`apps/worker/tests/test_selection.py` : phrases, fenêtres (couverture complète, recouvrement), score de durée,
+bornes et marges, note pondérée, contrôles objectifs, pronoms en début d'histoire non pénalisés, aucun
+remplissage, maximum respecté, doublons fusionnés, chevauchements refusés, propositions invalides de l'IA
+rejetées, notes bornées, ordre déterministe, consigne et schéma JSON. Vérification de pertinence : en
+désactivant le dédoublonnage ou le seuil de qualité, les tests échouent.
+
 ## Test de bout en bout : suppression de compte (5 vérifications, toutes réussies)
 Script : `apps/web/e2e/account-delete.e2e.cjs`. Import d'une vidéo, confirmation obligatoire (« SUPPRIMER »),
 fichiers effacés du stockage, session fermée, mot de passe refusé ; contrôle SQL ensuite : aucune ligne restante.
