@@ -55,9 +55,9 @@ export default async function ProjectPage({ params }: PageProps<"/app/projets/[i
       />
 
       {status.busy && (
-        <Alert title="Vérification de ta vidéo en cours" className="mb-6">
-          Nous contrôlons le fichier (format, durée, son). Cela prend généralement moins d&apos;une minute ; cette page se
-          met à jour toute seule.
+        <Alert title="Ta vidéo est bien reçue" className="mb-6">
+          Elle est en file d&apos;attente pour sa vérification (format, durée, son). Pendant l&apos;accès anticipé, cette
+          étape peut prendre plus de temps ; cette page se met à jour toute seule.
         </Alert>
       )}
       {video?.status === "rejected" && (
