@@ -26,7 +26,7 @@ Dernière mise à jour : 2026-11-20
 - [ ] Build de l'image Docker du worker : impossible dans cette session (réseau vers Debian bloqué) ; à valider sur l'hébergeur ou en CI
 
 ## À faire — premier jalon « Premier clip réel »
-- [ ] Déployer sur Vercel (autoriser la session sur l'équipe `clipera1`)
+- [x] Site déployé sur Vercel : https://clipera-clipera1.vercel.app (région Paris)
 - [ ] Réglages Supabase Auth : URL du site, modèle d'e-mail, SMTP personnalisé (voir SETUP_ACCOUNTS.md §2b)
 - [ ] Connexion Google (optionnelle)
 - [ ] Upload multipart navigateur → R2 + confirmation des droits + job de vérification
