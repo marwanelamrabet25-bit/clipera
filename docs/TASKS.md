@@ -9,6 +9,9 @@ Dernière mise à jour : 2026-11-20
 - [x] Worker : vérification FFprobe, extraction audio, moteur de rendu (formats, sous-titres, filigrane, son, contrôle qualité), boucle avec signal de vie — 35 tests
 - [x] Application web : Next.js 16, design system (tokens, boutons, badges, champs, interrupteurs, alertes, états vides, chargement, suivi du traitement), Inter auto-hébergée, page d'attente
 - [x] Comparatif tarifaire Deepgram / AssemblyAI (COST_MODEL.md §7)
+- [x] Connexion par lien magique (Supabase Auth), `proxy.ts`, protection de /app, anti-redirection externe
+- [x] Espace /app : navigation, Dashboard, Nouveau projet, Mes projets, Bibliothèque, Abonnement, Paramètres — vraies données, 15 tests E2E
+- [x] Environnement cloud « clipera » (accès Supabase + installation automatique)
 - [x] Documentation : ARCHITECTURE, DATABASE, VIDEO_PIPELINE, ENVIRONMENT, TESTING, COST_MODEL, SETUP_ACCOUNTS
 
 ## Bloqué (en attente du fondateur)
@@ -23,8 +26,9 @@ Dernière mise à jour : 2026-11-20
 - [ ] Build de l'image Docker du worker : impossible dans cette session (réseau vers Debian bloqué) ; à valider sur l'hébergeur ou en CI
 
 ## À faire — premier jalon « Premier clip réel »
-- [ ] Authentification Supabase (e-mail + Google), `proxy.ts`, pages connexion/inscription
-- [ ] Navigation de l'application (Dashboard, Nouveau projet, Mes projets, Bibliothèque, Abonnement, Paramètres)
+- [ ] Déployer sur Vercel (autoriser la session sur l'équipe `clipera1`)
+- [ ] Réglages Supabase Auth : URL du site, modèle d'e-mail, SMTP personnalisé (voir SETUP_ACCOUNTS.md §2b)
+- [ ] Connexion Google (optionnelle)
 - [ ] Upload multipart navigateur → R2 + confirmation des droits + job de vérification
 - [ ] Transcription (fournisseur choisi après comparatif)
 - [ ] Analyse et sélection des passages (comparatif Sonnet / Opus sur le corpus)

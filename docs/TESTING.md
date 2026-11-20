@@ -41,3 +41,23 @@ Podcast solo · interview à deux · plusieurs intervenants · musique de fond �
    début et fin naturels, doublons, cohérence — note de 1 à 5.
 3. Mesure automatique : clips coupés en milieu de phrase, chevauchements, durée, coût réel en tokens.
 4. Décision documentée dans COST_MODEL.md. Budget estimé de l'expérience : < 5 $ d'API.
+
+## Test de bout en bout : connexion et espace /app (15 vérifications, toutes réussies)
+Script : `apps/web/e2e/auth.e2e.cjs`, exécuté dans un vrai navigateur (Chromium) contre la **vraie base Supabase**.
+
+Vérifié : redirection des visiteurs vers /connexion (en gardant la page demandée), e-mail invalide refusé,
+lien expiré ou falsifié refusé avec un message, **aucune redirection vers un site externe**, dashboard alimenté
+par les vraies données (quota Free 3 vidéos / 30 min), redirection d'un utilisateur déjà connecté, modification
+du nom affiché, page Abonnement, toutes les pages /app, **isolation : B ne voit pas le projet de A**, déconnexion
+effective, affichage mobile sans défilement horizontal.
+
+Déroulé : deux comptes temporaires (mot de passe aléatoire) sont créés en SQL, le test s'exécute, puis les comptes
+sont supprimés (la suppression efface en cascade profil, abonnement et projets — vérifié).
+Le lien magique ne pouvant pas être lu ici, la session est ouverte par mot de passe avec la même bibliothèque
+et les mêmes cookies que l'application.
+
+```bash
+cd apps/web && pnpm build && PORT=3100 pnpm start &
+E2E_A_EMAIL=… E2E_A_PASSWORD=… E2E_B_EMAIL=… E2E_B_PASSWORD=… pnpm e2e
+```
+Dans les sessions cloud Claude, ajouter `NODE_USE_ENV_PROXY=1` (Node doit passer par le proxy réseau).

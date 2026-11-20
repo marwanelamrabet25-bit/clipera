@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { Logo } from "@/components/brand/logo";
+import { buttonStyles } from "@/components/ui/button";
 
 // Page d'attente honnête : la landing page complète arrive en Phase 2.
 export default function Home() {
@@ -15,6 +17,9 @@ export default function Home() {
           Clipera transforme tes vidéos longues en clips courts grâce à l&apos;intelligence artificielle.
           Le produit est en cours de construction.
         </p>
+        <Link href="/connexion" className={buttonStyles({ size: "lg", className: "mt-8" })}>
+          Se connecter
+        </Link>
       </div>
     </main>
   );

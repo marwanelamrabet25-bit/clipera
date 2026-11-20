@@ -17,6 +17,17 @@ Ton organisation Supabase est déjà connectée à cette session. Avec ton accor
 `clipera-dev` en offre **Free** (0 €), région Europe (Francfort ou Paris, conformité RGPD), et j'applique
 les migrations. Rien à faire de ton côté, réponds simplement « OK Supabase ».
 
+## 2b. Réglages Supabase pour la connexion (à faire avant d'inviter des utilisateurs)
+Dans le tableau de bord Supabase, projet `clipera-dev` :
+1. **Authentication → URL Configuration** : *Site URL* = l'adresse du site une fois déployé ; ajouter
+   `https://<ton-domaine>/auth/confirm` dans *Redirect URLs*. (En local, `http://localhost:3000` fonctionne déjà.)
+2. **Authentication → Emails → Magic Link** (recommandé, pour que le lien marche même ouvert sur un autre appareil) :
+   remplacer `{{ .ConfirmationURL }}` par
+   `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&suite=/app`
+3. **E-mails réels** : le service d'e-mail intégré de Supabase n'envoie qu'aux membres de ton organisation et avec
+   un débit très limité. Avant d'ouvrir aux utilisateurs, il faudra un service d'envoi (ex. Resend, offre gratuite)
+   configuré dans *Authentication → SMTP Settings*. Je te guiderai.
+
 ## 3. Cloudflare R2 — stockage des vidéos
 1. Crée un compte sur dash.cloudflare.com.
 2. Menu **R2 Object Storage** → active R2. ⚠️ Cloudflare demande un moyen de paiement pour activer R2, même pour
