@@ -65,7 +65,7 @@ export default function PrivacyPage() {
         <ul>
           <li>Vidéos sources : supprimées automatiquement <strong>30 jours</strong> après leur import.</li>
           <li>Envois de vidéo non terminés : supprimés après <strong>24 heures</strong>.</li>
-          <li>Compte, projets et clips : tant que ton compte existe, puis supprimés à sa suppression.</li>
+          <li>Compte, projets et clips : tant que ton compte existe. Tu peux le supprimer toi-même à tout moment (Paramètres) : tout est alors effacé immédiatement, fichiers compris.</li>
           <li>Données de facturation (à venir) : durée légale de conservation comptable (10 ans).</li>
         </ul>
       </section>

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getAccount } from "@/lib/account";
 import { signOut } from "../../connexion/actions";
+import { DeleteAccount } from "./delete-account";
 import { ChangePasswordForm } from "./password-form";
 import { ProfileForm } from "./profile-form";
 
@@ -51,6 +52,17 @@ export default async function SettingsPage() {
                 <LogOut /> Se déconnecter
               </Button>
             </form>
+          </CardBody>
+        </Card>
+        <Card className="border-danger/25">
+          <CardHeader>
+            <div>
+              <CardTitle>Supprimer mon compte</CardTitle>
+              <CardDescription>Efface définitivement ton compte et toutes tes données.</CardDescription>
+            </div>
+          </CardHeader>
+          <CardBody>
+            <DeleteAccount />
           </CardBody>
         </Card>
       </div>

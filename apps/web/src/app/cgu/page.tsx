@@ -71,7 +71,8 @@ export default function TermsPage() {
       <section>
         <h2>7. Résiliation</h2>
         <p>
-          Tu peux demander la suppression de ton compte à tout moment en écrivant à <Value v={LEGAL.contactEmail} /> ; tes
+          Tu peux supprimer ton compte à tout moment depuis <strong>Paramètres → Supprimer mon compte</strong>, ou en écrivant à{" "}
+          <Value v={LEGAL.contactEmail} /> ; tes
           données sont alors effacées. Nous pouvons suspendre un compte en cas de manquement grave à ces conditions.
         </p>
       </section>

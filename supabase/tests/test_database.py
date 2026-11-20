@@ -541,3 +541,34 @@ def test_maintenance_not_callable_by_users():
     with pytest.raises(errors.InsufficientPrivilege):
         u.q("select run_maintenance()")
     u.close()
+
+
+# ───────────────────────── Suppression de compte ─────────────────────────
+
+
+def test_delete_my_account_erases_everything_and_only_mine():
+    a, b = make_user(), make_user()
+    ua, ub = As(a), As(b)
+    upload(ua)
+    j = create_job(ua, make_video(a, duration=60))
+    set_status(j[0], "completed", 2)
+    make_video(b)
+    ua.q("select delete_my_account()")
+    with admin() as c:
+        for table in ("profiles", "subscriptions", "user_settings"):
+            assert c.execute(f"select count(*) from {table} where {'id' if table == 'profiles' else 'user_id'} = %s",
+                             (a,)).fetchone()[0] == 0, table
+        for table in ("projects", "source_videos", "processing_jobs", "job_events", "usage_records", "clips"):
+            assert c.execute(f"select count(*) from {table} where user_id = %s", (a,)).fetchone()[0] == 0, table
+        assert c.execute("select count(*) from auth.users where id = %s", (a,)).fetchone()[0] == 0
+        assert c.execute("select count(*) from source_videos where user_id = %s", (b,)).fetchone()[0] == 1
+        assert c.execute("select count(*) from audit_log where action = 'account_deleted' and actor_id = %s",
+                         (a,)).fetchone()[0] == 1
+    ua.close(), ub.close()
+
+
+def test_delete_account_requires_session():
+    anon = As(None, role="anon")
+    with pytest.raises(errors.InsufficientPrivilege):
+        anon.q("select delete_my_account()")
+    anon.close()

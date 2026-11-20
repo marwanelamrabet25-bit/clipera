@@ -15,6 +15,7 @@ Dernière mise à jour : 2026-11-20
 - [x] Import de vidéo : envoi direct multipart, contrôles SQL, page projet avec suivi — 11 tests E2E (stockage de test)
 - [x] Maintenance automatique horaire (pg_cron) : envois abandonnés, vidéos expirées, traitements bloqués — 2 tests
 - [x] Pages légales (mentions, confidentialité, CGU) rédigées à partir du fonctionnement réel, pied de page, acceptation à l'inscription — identité de l'éditeur à compléter
+- [x] Suppression de compte en libre-service (fichiers du stockage puis données en cascade) — 2 tests base + 5 tests E2E
 - [x] Environnement cloud « clipera » (accès Supabase + installation automatique)
 - [x] Documentation : ARCHITECTURE, DATABASE, VIDEO_PIPELINE, ENVIRONMENT, TESTING, COST_MODEL, SETUP_ACCOUNTS
 
@@ -36,7 +37,6 @@ Dernière mise à jour : 2026-11-20
 - [ ] Activer l'import en production : clés R2 dans Vercel + CORS (SETUP_ACCOUNTS.md §3)
 - [ ] Héberger le worker (nécessite la chaîne de connexion Postgres de Supabase, saisie chez l'hébergeur)
 - [ ] Compléter l'identité de l'éditeur dans `apps/web/src/content/legal.ts` (nom/raison sociale, statut, adresse, SIRET, directeur de publication, e-mail, médiateur de la consommation) + relecture juridique
-- [ ] Suppression de compte en libre-service (aujourd'hui : sur demande par e-mail)
 - [ ] Transcription (fournisseur choisi après comparatif)
 - [ ] Analyse et sélection des passages (comparatif Sonnet / Opus sur le corpus)
 - [ ] Job `clip_generation` : rendu + export + enregistrement des clips

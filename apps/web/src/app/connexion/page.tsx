@@ -27,6 +27,11 @@ async function Forms({ searchParams }: { searchParams: PageProps<"/connexion">["
           Il a peut-être expiré ou déjà été utilisé. Connecte-toi avec ton mot de passe.
         </Alert>
       )}
+      {sp.compte === "supprime" && (
+        <Alert tone="success" title="Ton compte a été supprimé">
+          Toutes tes données ont été effacées. Merci d&apos;avoir essayé Clipera.
+        </Alert>
+      )}
       <PasswordForm mode="signin" suite={suite} />
       <details className="group border-t border-line pt-5">
         <summary className="cursor-pointer list-none text-center text-small text-muted hover:text-fg [&::-webkit-details-marker]:hidden">

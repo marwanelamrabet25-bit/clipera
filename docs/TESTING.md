@@ -42,6 +42,10 @@ Podcast solo · interview à deux · plusieurs intervenants · musique de fond �
 3. Mesure automatique : clips coupés en milieu de phrase, chevauchements, durée, coût réel en tokens.
 4. Décision documentée dans COST_MODEL.md. Budget estimé de l'expérience : < 5 $ d'API.
 
+## Test de bout en bout : suppression de compte (5 vérifications, toutes réussies)
+Script : `apps/web/e2e/account-delete.e2e.cjs`. Import d'une vidéo, confirmation obligatoire (« SUPPRIMER »),
+fichiers effacés du stockage, session fermée, mot de passe refusé ; contrôle SQL ensuite : aucune ligne restante.
+
 ## Test de bout en bout : import de vidéo (11 vérifications, toutes réussies)
 Script : `apps/web/e2e/upload.e2e.cjs` — navigateur réel → API → faux S3 (moto, mêmes appels que R2) → vraie base
 Supabase. Vérifie : format refusé, droits obligatoires, envoi multipart (3 morceaux) avec progression réelle,

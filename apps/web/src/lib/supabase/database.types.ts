@@ -294,6 +294,7 @@ export type Database = {
     Views: { [_ in never]: never };
     Functions: {
       abort_upload: { Args: { p_source_video_id: string }; Returns: undefined };
+      delete_my_account: { Args: never; Returns: undefined };
       complete_upload: { Args: { p_source_video_id: string } } & JobFnReturn;
       create_upload: {
         Args: { p_filename: string; p_size_bytes: number; p_rights_confirmed: boolean };
