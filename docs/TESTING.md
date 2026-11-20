@@ -49,6 +49,13 @@ remplissage, maximum respecté, doublons fusionnés, chevauchements refusés, pr
 rejetées, notes bornées, ordre déterministe, consigne et schéma JSON. Vérification de pertinence : en
 désactivant le dédoublonnage ou le seuil de qualité, les tests échouent.
 
+## Transcription (13 tests)
+`apps/worker/tests/test_transcription.py` : normalisation d'une **vraie réponse Deepgram** (dialogue français à deux
+voix, `tests/fixtures/deepgram_fr_dialogue.json`), phrases et locuteurs, typographie française, alimentation du
+moteur de sélection, silence, réponse invalide ; appels HTTP contre un serveur local simulé : clé et paramètres
+envoyés, nouvelles tentatives si service saturé, abandon après 3 essais, pas de nouvelle tentative si clé refusée
+ou audio invalide, clé jamais dans le message utilisateur.
+
 ## Test de bout en bout : suppression de compte (5 vérifications, toutes réussies)
 Script : `apps/web/e2e/account-delete.e2e.cjs`. Import d'une vidéo, confirmation obligatoire (« SUPPRIMER »),
 fichiers effacés du stockage, session fermée, mot de passe refusé ; contrôle SQL ensuite : aucune ligne restante.

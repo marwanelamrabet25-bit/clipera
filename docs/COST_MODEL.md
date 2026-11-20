@@ -11,7 +11,7 @@
 | Rendu 9:16 1080×1920 + sous-titres, preset `veryfast` | 16,5 s *(mesuré)* |
 | Rendu 9:16 1080×1920 + sous-titres, preset `faster` | 20,8 s *(mesuré)* |
 | Rendu 9:16 720×1280 (offre Free) | 8,9 s *(mesuré)* |
-| Extraction audio Opus mono 16 kHz 24 kb/s | 0,6 s *(mesuré)* — ≈ 17 Mo / heure |
+| Extraction audio Opus mono 16 kHz 32 kb/s | ≈ 0,6 s *(mesuré)* — ≈ 22 Mo / heure |
 | Détection de scènes (image réduite) | 3,1 s *(mesuré)* |
 
 Source de test synthétique (bruit visuel, défavorable à l'encodeur) : les vidéos réelles devraient être aussi rapides ou plus.
@@ -80,6 +80,11 @@ Les tarifs unitaires sont stockés en configuration (pas en dur dans le code).
 Conclusion provisoire : l'écart est d'environ **1 à 5 centimes par vidéo de 20 min** — négligeable face au coût
 de l'analyse IA. Le choix se fera donc sur la **qualité en français** (mots justes, horodatage précis, locuteurs bien
 séparés), mesurée sur notre corpus. Les crédits gratuits couvrent largement ce test : **0 € de dépense**.
+
+Mesuré le 20/11/2026 (compte Deepgram créé, crédit gratuit, **0 € dépensé**) : Nova-3 français, 47,6 s d'audio
+transcrites en 1,8 s, facturation à la durée de l'audio → 0,0043 $/min × 0,8 min ≈ **0,003 $** pris sur le crédit
+gratuit. La clé utilisée n'a pas le droit de lire la facturation (rôle *Member*, choix de sécurité) : le solde se
+consulte sur console.deepgram.com → Billing.
 
 Sources (secondaires) : cartesia.ai/learn/deepgram-pricing, brasstranscripts.com, gladia.io/blog/deepgram-pricing,
 cartesia.ai/learn/assemblyai-pricing, assemblyai.com/blog/speech-to-text-api-pricing.

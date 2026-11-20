@@ -31,7 +31,8 @@ Légende : 🔒 secret · 🌐 public (visible dans le navigateur) · ⚙️ ré
 | `CLIPERA_LOCAL_STORAGE_DIR` | ⚙️ | Dossier utilisé si `local` |
 | `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` | 🔒/⚙️ | Comme ci-dessus |
 | `TRANSCRIPTION_PROVIDER` | ⚙️ | `deepgram` ou `assemblyai` (choix après comparatif) |
-| `DEEPGRAM_API_KEY` / `ASSEMBLYAI_API_KEY` | 🔒 | Selon le fournisseur retenu |
+| `DEEPGRAM_API_KEY` | 🔒 | Transcription (Deepgram Nova-3). Clé de rôle *Member* suffisante |
+| `ASSEMBLYAI_API_KEY` | 🔒 | Seulement si AssemblyAI est retenu après comparatif |
 | `ANTHROPIC_API_KEY` | 🔒 | Analyse des transcriptions |
 | `CLIPERA_ANALYSIS_MODEL` | ⚙️ | `claude-opus-5-5` par défaut ; changeable après comparatif |
 | `S3_ENDPOINT` | ⚙️ | Tests uniquement (faux S3 local) |

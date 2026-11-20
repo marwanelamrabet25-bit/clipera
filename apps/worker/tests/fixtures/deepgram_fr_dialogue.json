@@ -1,0 +1,1081 @@
+{
+ "metadata": {
+  "transaction_key": "deprecated",
+  "request_id": "fixture",
+  "created": "2026-11-20T22:19:53.514Z",
+  "duration": 47.59975,
+  "channels": 1,
+  "models": [
+   "3a734c85-0f8e-4fa0-a4af-da047fce2398"
+  ],
+  "model_info": {
+   "3a734c85-0f8e-4fa0-a4af-da047fce2398": {
+    "name": "general-nova-3",
+    "version": "2026-05-31.28995",
+    "arch": "nova-3"
+   }
+  },
+  "diarize_info": {
+   "model_uuid": "a9f85c2b-5afb-4b9d-b49b-492c43a01cfb",
+   "arch": "v1"
+  }
+ },
+ "results": {
+  "channels": [
+   {
+    "alternatives": [
+     {
+      "transcript": "Bienvenue dans l'émission, aujourd'hui on parle d'un sujet que tout le monde évite, l'argent quand on lance son entreprise. Alors dis-moi, quelle a été ta plus grosse erreur au début? Honnêtement, j'ai dépensé le huit mille euros dans un logo et un site avant d'avoir un seul client, huit mille euros. Et le jour du lancement, personne n'est venu, zéro commande. Mais qu'est-ce que tu as fait ensuite? J'ai tout arrêté pendant une semaine, puis j'ai appelé vingt personnes de mon réseau, une par une, pour leur demander ce dont elles avaient vraiment besoin. Trois d'entre elles sont devenues mes premières clientes. La leçon c'est simple, arle à tes clients avant de dépenser le moindre euro.",
+      "confidence": 0.99902344,
+      "words": [
+       {
+        "word": "bienvenue",
+        "start": 0.32,
+        "end": 0.79999995,
+        "confidence": 0.9770508,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "Bienvenue"
+       },
+       {
+        "word": "dans",
+        "start": 0.79999995,
+        "end": 1.04,
+        "confidence": 1.0,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "dans"
+       },
+       {
+        "word": "l'émission",
+        "start": 1.04,
+        "end": 1.76,
+        "confidence": 0.8592529,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "l'émission,"
+       },
+       {
+        "word": "aujourd'hui",
+        "start": 1.76,
+        "end": 2.48,
+        "confidence": 0.9996745,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "aujourd'hui"
+       },
+       {
+        "word": "on",
+        "start": 2.48,
+        "end": 2.8,
+        "confidence": 0.85839844,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "on"
+       },
+       {
+        "word": "parle",
+        "start": 2.8,
+        "end": 3.12,
+        "confidence": 1.0,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "parle"
+       },
+       {
+        "word": "d'un",
+        "start": 3.12,
+        "end": 3.36,
+        "confidence": 1.0,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "d'un"
+       },
+       {
+        "word": "sujet",
+        "start": 3.36,
+        "end": 3.6,
+        "confidence": 1.0,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "sujet"
+       },
+       {
+        "word": "que",
+        "start": 3.6,
+        "end": 3.84,
+        "confidence": 1.0,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "que"
+       },
+       {
+        "word": "tout",
+        "start": 3.84,
+        "end": 4.08,
+        "confidence": 1.0,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "tout"
+       },
+       {
+        "word": "le",
+        "start": 4.08,
+        "end": 4.16,
+        "confidence": 1.0,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "le"
+       },
+       {
+        "word": "monde",
+        "start": 4.16,
+        "end": 4.4,
+        "confidence": 1.0,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "monde"
+       },
+       {
+        "word": "évite",
+        "start": 4.4,
+        "end": 5.2000003,
+        "confidence": 0.80200195,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "évite,"
+       },
+       {
+        "word": "l'argent",
+        "start": 5.2799997,
+        "end": 6.08,
+        "confidence": 0.9996745,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "l'argent"
+       },
+       {
+        "word": "quand",
+        "start": 6.08,
+        "end": 6.3199997,
+        "confidence": 0.9941406,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "quand"
+       },
+       {
+        "word": "on",
+        "start": 6.3199997,
+        "end": 6.56,
+        "confidence": 0.99902344,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "on"
+       },
+       {
+        "word": "lance",
+        "start": 6.56,
+        "end": 6.8799996,
+        "confidence": 1.0,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "lance"
+       },
+       {
+        "word": "son",
+        "start": 6.8799996,
+        "end": 7.2,
+        "confidence": 0.99902344,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "son"
+       },
+       {
+        "word": "entreprise",
+        "start": 7.2,
+        "end": 8.16,
+        "confidence": 0.9489746,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "entreprise."
+       },
+       {
+        "word": "alors",
+        "start": 8.639999,
+        "end": 9.28,
+        "confidence": 1.0,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "Alors"
+       },
+       {
+        "word": "dis-moi",
+        "start": 9.28,
+        "end": 10.16,
+        "confidence": 0.8395996,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "dis-moi,"
+       },
+       {
+        "word": "quelle",
+        "start": 10.32,
+        "end": 10.559999,
+        "confidence": 0.8833008,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "quelle"
+       },
+       {
+        "word": "a",
+        "start": 10.559999,
+        "end": 10.719999,
+        "confidence": 0.9970703,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "a"
+       },
+       {
+        "word": "été",
+        "start": 10.719999,
+        "end": 10.96,
+        "confidence": 0.99902344,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "été"
+       },
+       {
+        "word": "ta",
+        "start": 10.96,
+        "end": 11.2,
+        "confidence": 0.9902344,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "ta"
+       },
+       {
+        "word": "plus",
+        "start": 11.2,
+        "end": 11.36,
+        "confidence": 0.9980469,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "plus"
+       },
+       {
+        "word": "grosse",
+        "start": 11.36,
+        "end": 11.679999,
+        "confidence": 0.99609375,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "grosse"
+       },
+       {
+        "word": "erreur",
+        "start": 11.679999,
+        "end": 12.0,
+        "confidence": 0.99902344,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "erreur"
+       },
+       {
+        "word": "au",
+        "start": 12.0,
+        "end": 12.24,
+        "confidence": 1.0,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "au"
+       },
+       {
+        "word": "début",
+        "start": 12.24,
+        "end": 12.559999,
+        "confidence": 0.9189453,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "début?"
+       },
+       {
+        "word": "honnêtement",
+        "start": 13.815001,
+        "end": 14.615,
+        "confidence": 0.967041,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "Honnêtement,"
+       },
+       {
+        "word": "j'ai",
+        "start": 14.935,
+        "end": 15.175,
+        "confidence": 1.0,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "j'ai"
+       },
+       {
+        "word": "dépensé",
+        "start": 15.175,
+        "end": 15.655001,
+        "confidence": 1.0,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "dépensé"
+       },
+       {
+        "word": "le",
+        "start": 15.655001,
+        "end": 15.975,
+        "confidence": 0.93115234,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "le"
+       },
+       {
+        "word": "huit",
+        "start": 15.975,
+        "end": 16.215,
+        "confidence": 0.9428711,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "huit"
+       },
+       {
+        "word": "mille",
+        "start": 16.215,
+        "end": 16.455,
+        "confidence": 0.99316406,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "mille"
+       },
+       {
+        "word": "euros",
+        "start": 16.455,
+        "end": 16.855,
+        "confidence": 0.99609375,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "euros"
+       },
+       {
+        "word": "dans",
+        "start": 16.855,
+        "end": 17.175,
+        "confidence": 0.9951172,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "dans"
+       },
+       {
+        "word": "un",
+        "start": 17.175,
+        "end": 17.335,
+        "confidence": 1.0,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "un"
+       },
+       {
+        "word": "logo",
+        "start": 17.335,
+        "end": 17.815,
+        "confidence": 0.9951172,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "logo"
+       },
+       {
+        "word": "et",
+        "start": 17.815,
+        "end": 17.975,
+        "confidence": 0.99902344,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "et"
+       },
+       {
+        "word": "un",
+        "start": 17.975,
+        "end": 18.135,
+        "confidence": 0.99902344,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "un"
+       },
+       {
+        "word": "site",
+        "start": 18.135,
+        "end": 18.695,
+        "confidence": 1.0,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "site"
+       },
+       {
+        "word": "avant",
+        "start": 18.695,
+        "end": 19.095001,
+        "confidence": 0.62109375,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "avant"
+       },
+       {
+        "word": "d'avoir",
+        "start": 19.095001,
+        "end": 19.655,
+        "confidence": 1.0,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "d'avoir"
+       },
+       {
+        "word": "un",
+        "start": 19.655,
+        "end": 19.895,
+        "confidence": 0.99902344,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "un"
+       },
+       {
+        "word": "seul",
+        "start": 19.895,
+        "end": 20.135,
+        "confidence": 1.0,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "seul"
+       },
+       {
+        "word": "client",
+        "start": 20.135,
+        "end": 20.855,
+        "confidence": 0.8754883,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "client,"
+       },
+       {
+        "word": "huit",
+        "start": 20.855,
+        "end": 21.175,
+        "confidence": 0.84814453,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "huit"
+       },
+       {
+        "word": "mille",
+        "start": 21.175,
+        "end": 21.415,
+        "confidence": 0.9980469,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "mille"
+       },
+       {
+        "word": "euros",
+        "start": 21.415,
+        "end": 22.055,
+        "confidence": 0.91064453,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "euros."
+       },
+       {
+        "word": "et",
+        "start": 22.215,
+        "end": 22.455,
+        "confidence": 0.9980469,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "Et"
+       },
+       {
+        "word": "le",
+        "start": 22.455,
+        "end": 22.615,
+        "confidence": 1.0,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "le"
+       },
+       {
+        "word": "jour",
+        "start": 22.615,
+        "end": 22.775,
+        "confidence": 1.0,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "jour"
+       },
+       {
+        "word": "du",
+        "start": 22.775,
+        "end": 23.015,
+        "confidence": 0.99902344,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "du"
+       },
+       {
+        "word": "lancement",
+        "start": 23.015,
+        "end": 23.654999,
+        "confidence": 0.9770508,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "lancement,"
+       },
+       {
+        "word": "personne",
+        "start": 23.735,
+        "end": 24.295,
+        "confidence": 1.0,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "personne"
+       },
+       {
+        "word": "n'est",
+        "start": 24.295,
+        "end": 24.775,
+        "confidence": 0.9383138,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "n'est"
+       },
+       {
+        "word": "venu",
+        "start": 24.775,
+        "end": 25.415,
+        "confidence": 0.77124023,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "venu,"
+       },
+       {
+        "word": "zéro",
+        "start": 25.575,
+        "end": 25.975,
+        "confidence": 0.99902344,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "zéro"
+       },
+       {
+        "word": "commande",
+        "start": 25.975,
+        "end": 26.455,
+        "confidence": 0.99853516,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "commande."
+       },
+       {
+        "word": "mais",
+        "start": 27.46,
+        "end": 27.699999,
+        "confidence": 0.97802734,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "Mais"
+       },
+       {
+        "word": "qu'est-ce",
+        "start": 27.699999,
+        "end": 28.02,
+        "confidence": 0.9982422,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "qu'est-ce"
+       },
+       {
+        "word": "que",
+        "start": 28.02,
+        "end": 28.1,
+        "confidence": 0.9970703,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "que"
+       },
+       {
+        "word": "tu",
+        "start": 28.1,
+        "end": 28.26,
+        "confidence": 1.0,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "tu"
+       },
+       {
+        "word": "as",
+        "start": 28.26,
+        "end": 28.42,
+        "confidence": 1.0,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "as"
+       },
+       {
+        "word": "fait",
+        "start": 28.42,
+        "end": 28.66,
+        "confidence": 1.0,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "fait"
+       },
+       {
+        "word": "ensuite",
+        "start": 28.66,
+        "end": 29.3,
+        "confidence": 0.99560547,
+        "speaker": 0,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "ensuite?"
+       },
+       {
+        "word": "j'ai",
+        "start": 30.58,
+        "end": 30.9,
+        "confidence": 0.9763997,
+        "speaker": 1,
+        "speaker_confidence": 0.85587966,
+        "punctuated_word": "J'ai"
+       },
+       {
+        "word": "tout",
+        "start": 30.9,
+        "end": 31.06,
+        "confidence": 1.0,
+        "speaker": 1,
+        "speaker_confidence": 0.85587966,
+        "punctuated_word": "tout"
+       },
+       {
+        "word": "arrêté",
+        "start": 31.06,
+        "end": 31.38,
+        "confidence": 0.9970703,
+        "speaker": 1,
+        "speaker_confidence": 0.85587966,
+        "punctuated_word": "arrêté"
+       },
+       {
+        "word": "pendant",
+        "start": 31.38,
+        "end": 31.7,
+        "confidence": 1.0,
+        "speaker": 1,
+        "speaker_confidence": 0.85587966,
+        "punctuated_word": "pendant"
+       },
+       {
+        "word": "une",
+        "start": 31.7,
+        "end": 31.939999,
+        "confidence": 0.99902344,
+        "speaker": 1,
+        "speaker_confidence": 0.85587966,
+        "punctuated_word": "une"
+       },
+       {
+        "word": "semaine",
+        "start": 31.939999,
+        "end": 32.579998,
+        "confidence": 0.9255371,
+        "speaker": 1,
+        "speaker_confidence": 0.85587966,
+        "punctuated_word": "semaine,"
+       },
+       {
+        "word": "puis",
+        "start": 32.579998,
+        "end": 32.9,
+        "confidence": 0.9658203,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "puis"
+       },
+       {
+        "word": "j'ai",
+        "start": 32.9,
+        "end": 33.14,
+        "confidence": 0.9996745,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "j'ai"
+       },
+       {
+        "word": "appelé",
+        "start": 33.14,
+        "end": 33.46,
+        "confidence": 0.99902344,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "appelé"
+       },
+       {
+        "word": "vingt",
+        "start": 33.46,
+        "end": 33.78,
+        "confidence": 0.9980469,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "vingt"
+       },
+       {
+        "word": "personnes",
+        "start": 33.78,
+        "end": 34.18,
+        "confidence": 1.0,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "personnes"
+       },
+       {
+        "word": "de",
+        "start": 34.18,
+        "end": 34.42,
+        "confidence": 1.0,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "de"
+       },
+       {
+        "word": "mon",
+        "start": 34.42,
+        "end": 34.579998,
+        "confidence": 1.0,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "mon"
+       },
+       {
+        "word": "réseau",
+        "start": 34.579998,
+        "end": 35.3,
+        "confidence": 0.9375,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "réseau,"
+       },
+       {
+        "word": "une",
+        "start": 35.379997,
+        "end": 35.78,
+        "confidence": 0.8935547,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "une"
+       },
+       {
+        "word": "par",
+        "start": 35.78,
+        "end": 36.02,
+        "confidence": 0.9970703,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "par"
+       },
+       {
+        "word": "une",
+        "start": 36.02,
+        "end": 36.58,
+        "confidence": 0.75,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "une,"
+       },
+       {
+        "word": "pour",
+        "start": 36.58,
+        "end": 36.9,
+        "confidence": 0.99902344,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "pour"
+       },
+       {
+        "word": "leur",
+        "start": 36.9,
+        "end": 37.059998,
+        "confidence": 0.99609375,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "leur"
+       },
+       {
+        "word": "demander",
+        "start": 37.059998,
+        "end": 37.54,
+        "confidence": 0.99902344,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "demander"
+       },
+       {
+        "word": "ce",
+        "start": 37.54,
+        "end": 37.7,
+        "confidence": 0.99902344,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "ce"
+       },
+       {
+        "word": "dont",
+        "start": 37.7,
+        "end": 37.94,
+        "confidence": 1.0,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "dont"
+       },
+       {
+        "word": "elles",
+        "start": 37.94,
+        "end": 38.18,
+        "confidence": 0.9970703,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "elles"
+       },
+       {
+        "word": "avaient",
+        "start": 38.18,
+        "end": 38.42,
+        "confidence": 0.99902344,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "avaient"
+       },
+       {
+        "word": "vraiment",
+        "start": 38.42,
+        "end": 38.66,
+        "confidence": 0.99902344,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "vraiment"
+       },
+       {
+        "word": "besoin",
+        "start": 38.66,
+        "end": 38.98,
+        "confidence": 0.99853516,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "besoin."
+       },
+       {
+        "word": "trois",
+        "start": 39.89475,
+        "end": 40.13475,
+        "confidence": 1.0,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "Trois"
+       },
+       {
+        "word": "d'entre",
+        "start": 40.13475,
+        "end": 40.534748,
+        "confidence": 0.9983724,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "d'entre"
+       },
+       {
+        "word": "elles",
+        "start": 40.534748,
+        "end": 40.694748,
+        "confidence": 0.9970703,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "elles"
+       },
+       {
+        "word": "sont",
+        "start": 40.694748,
+        "end": 40.93475,
+        "confidence": 0.99316406,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "sont"
+       },
+       {
+        "word": "devenues",
+        "start": 40.93475,
+        "end": 41.25475,
+        "confidence": 0.99316406,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "devenues"
+       },
+       {
+        "word": "mes",
+        "start": 41.25475,
+        "end": 41.494747,
+        "confidence": 1.0,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "mes"
+       },
+       {
+        "word": "premières",
+        "start": 41.494747,
+        "end": 41.97475,
+        "confidence": 0.99902344,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "premières"
+       },
+       {
+        "word": "clientes",
+        "start": 41.97475,
+        "end": 42.694748,
+        "confidence": 0.9946289,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "clientes."
+       },
+       {
+        "word": "la",
+        "start": 43.014748,
+        "end": 43.25475,
+        "confidence": 1.0,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "La"
+       },
+       {
+        "word": "leçon",
+        "start": 43.25475,
+        "end": 43.654747,
+        "confidence": 0.99902344,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "leçon"
+       },
+       {
+        "word": "c'est",
+        "start": 43.654747,
+        "end": 43.97475,
+        "confidence": 0.8421224,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "c'est"
+       },
+       {
+        "word": "simple",
+        "start": 43.97475,
+        "end": 44.534748,
+        "confidence": 0.9597168,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "simple,"
+       },
+       {
+        "word": "arle",
+        "start": 44.534748,
+        "end": 44.854748,
+        "confidence": 0.50891113,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "arle"
+       },
+       {
+        "word": "à",
+        "start": 44.854748,
+        "end": 45.014748,
+        "confidence": 0.9892578,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "à"
+       },
+       {
+        "word": "tes",
+        "start": 45.014748,
+        "end": 45.25475,
+        "confidence": 0.99902344,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "tes"
+       },
+       {
+        "word": "clients",
+        "start": 45.25475,
+        "end": 45.57475,
+        "confidence": 0.99902344,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "clients"
+       },
+       {
+        "word": "avant",
+        "start": 45.57475,
+        "end": 45.974747,
+        "confidence": 0.9658203,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "avant"
+       },
+       {
+        "word": "de",
+        "start": 45.974747,
+        "end": 46.13475,
+        "confidence": 1.0,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "de"
+       },
+       {
+        "word": "dépenser",
+        "start": 46.13475,
+        "end": 46.534748,
+        "confidence": 1.0,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "dépenser"
+       },
+       {
+        "word": "le",
+        "start": 46.534748,
+        "end": 46.77475,
+        "confidence": 1.0,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "le"
+       },
+       {
+        "word": "moindre",
+        "start": 46.77475,
+        "end": 47.09475,
+        "confidence": 1.0,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "moindre"
+       },
+       {
+        "word": "euro",
+        "start": 47.09475,
+        "end": 47.494747,
+        "confidence": 0.9819336,
+        "speaker": 1,
+        "speaker_confidence": 1.0,
+        "punctuated_word": "euro."
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

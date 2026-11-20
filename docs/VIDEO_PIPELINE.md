@@ -19,11 +19,18 @@ Refus avec un message clair si : fichier illisible, pas de vidéo, **pas de son*
 résolution < 240p ou > 4K, codec non pris en charge, fichier trop lourd.
 
 ## 3. Extraction audio — ✅
-Mono 16 kHz Opus 24 kb/s (≈ 17 Mo/heure) : léger à envoyer au service de transcription.
+Mono 16 kHz Opus 32 kb/s (≈ 22 Mo/heure, mesuré). Mesure réelle : à 24 kb/s en mode « voip », Deepgram perdait
+des mots (« Tout a été » au lieu de « J'ai tout arrêté ») ; à 32 kb/s le résultat est identique à l'audio non compressé.
 
-## 4. Transcription — 🔜
-Fournisseur choisi après comparatif Deepgram / AssemblyAI sur le corpus (voir COST_MODEL.md).
-On conserve : mots horodatés, segments, langue, locuteurs.
+## 4. Transcription — ✅ Deepgram branché et testé en réel / 🔜 comparatif AssemblyAI sur vraies vidéos
+Code : `apps/worker/src/clipera_worker/transcription/deepgram.py` (aucune dépendance ajoutée).
+- Nova-3, langue `fr` (ou détection automatique), ponctuation, **locuteurs**, nombres en toutes lettres
+  (« zéro commande » plutôt que « 0 commande » dans les sous-titres), typographie française (« début ? »).
+- Sortie : mots horodatés + locuteur + confiance → `Transcript` du moteur de sélection.
+- Erreurs : service saturé (429/5xx) ou réseau → 3 nouvelles tentatives puis échec « réessayable » ;
+  clé refusée ou audio invalide → échec immédiat ; silence total → transcription vide (pas une erreur).
+- Mesure réelle (dialogue français 47,6 s, 2 voix) : **1,8 s** de traitement, locuteurs correctement séparés.
+  Limite du test : voix de synthèse ; la qualité sur de vraies vidéos reste à mesurer sur le corpus.
 
 ## 5. Analyse et sélection — ✅ moteur (testé) / 🔜 appel à l'IA (clé Anthropic nécessaire)
 Code : `apps/worker/src/clipera_worker/selection/`.
