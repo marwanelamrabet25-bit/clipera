@@ -3,7 +3,7 @@ FROM python:3.12-slim-bookworm
 
 # FFmpeg (avec libass/libx264) + police Inter pour les sous-titres
 RUN apt-get update \
- && apt-get install -y --no-install-recommends ffmpeg fonts-inter fontconfig \
+ && apt-get install -y --no-install-recommends ffmpeg fonts-inter fontconfig libglib2.0-0 \
  && rm -rf /var/lib/apt/lists/* \
  && fc-cache -f
 

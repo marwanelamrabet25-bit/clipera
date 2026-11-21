@@ -18,7 +18,9 @@ from typing import Protocol
 from ..captions.ass import CaptionOptions, Word, build_ass
 from ..errors import JobCancelled, JobError
 from ..media.audio import extract_speech_audio
+from ..media.loudness import Energy, loudness_series
 from ..media.probe import probe
+from ..media.reframe import ReframeResult, reframe
 from ..media.render import RenderSpec, compute_geometry, render_clip
 from ..queue import Job, JobQueue
 from ..selection import Clip, Transcript, select_clips, split_sentences
@@ -118,7 +120,12 @@ def run_clip_job(job: Job, *, queue: JobQueue, storage: Storage, work: Path, can
     queue.set_status(job.id, "selecting", "Recherche des meilleurs passages")
     t = time.monotonic()
     sentences = split_sentences(tr.transcript)
-    result = select_clips(propose_candidates(sentences), sentences, requested=requested)
+    try:
+        energy = Energy(loudness_series(audio))
+    except Exception:  # noqa: BLE001 — signal d'appoint : sans lui, la sélection fonctionne quand même
+        log.warning("loudness failed", exc_info=True)
+        energy = None
+    result = select_clips(propose_candidates(sentences, energy), sentences, requested=requested)
     timings["selection_s"] = round(time.monotonic() - t, 3)
     metrics["selection"] = {"sentences": len(sentences), "selected": len(result.selected),
                             "rejected": len(result.rejected), "explanation": result.explanation}
@@ -155,6 +162,15 @@ def run_clip_job(job: Job, *, queue: JobQueue, storage: Storage, work: Path, can
     return metrics
 
 
+def _framing(source: Path, start: float, end: float, crop_fraction: float) -> ReframeResult:
+    """Cadrage sur la personne qui parle ; en cas de problème imprévu, cadre centré (le clip est quand même livré)."""
+    try:
+        return reframe(source, start, end, crop_fraction=crop_fraction)
+    except Exception:  # noqa: BLE001 — le recadrage est une amélioration, jamais une cause d'échec
+        log.warning("reframe failed, falling back to center", exc_info=True)
+        return ReframeResult((), "center", 0.0, 0, 0)
+
+
 def _render_all(job, queue, storage, work, cancel, source, selected, transcript, info, geo, opts, base, failures,
                 uploaded) -> int:
     produced = 0
@@ -166,7 +182,9 @@ def _render_all(job, queue, storage, work, cancel, source, selected, transcript,
             ass = work / f"clip-{rank}.ass"
             ass.write_text(build_ass(clip_words(transcript, c.start, c.end), width=geo.out_w, height=geo.out_h,
                                      opts=CaptionOptions(style=opts["caption_style"])))
-        spec = RenderSpec(source=source, output=out, start=c.start, end=min(c.end, info.duration_seconds),
+        end = min(c.end, info.duration_seconds)
+        framing = _framing(source, c.start, end, geo.crop_w / info.width)
+        spec = RenderSpec(source=source, output=out, start=c.start, end=end, crop_track=framing.keyframes,
                           aspect=opts["format"], max_short_side=opts["max_short_side"], ass_file=ass,
                           watermark_file=ASSETS / "watermark.png" if opts["watermark"] else None)
         try:
@@ -189,7 +207,8 @@ def _render_all(job, queue, storage, work, cancel, source, selected, transcript,
             (job.user_id, job.project_id, job.id, job.source_video_id, rank, c.start, spec.end, cand.title,
              _excerpt(transcript, c), c.total,
              json.dumps({"criteria": c.criteria, "reasons": cand.reasons, "flags": c.flags, "method": METHOD}),
-             json.dumps({k: opts[k] for k in ("format", "captions", "caption_style", "watermark")}),
+             json.dumps({**{k: opts[k] for k in ("format", "captions", "caption_style", "watermark")},
+                         "framing": framing.as_dict()}),
              key, tkey, r.width, r.height, r.size_bytes),
         )
         produced += 1

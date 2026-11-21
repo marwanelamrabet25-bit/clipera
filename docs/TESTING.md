@@ -77,6 +77,15 @@ d'après le vrai statut, clip affiché (titre, note, extrait, « pourquoi ce pas
 projet ni le clip de A), relance puis annulation (quota recrédité, anciens clips conservés), échec expliqué (étape en
 échec marquée, quota recrédité, relance possible), mobile sans défilement horizontal. Comptes de test supprimés ensuite.
 
+## Recadrage intelligent (10 tests) et énergie de la voix (2 tests)
+`tests/test_reframe.py` : vidéos générées à partir d'un vrai visage (portrait NASA, domaine public) avec mouvements de
+tête, bruit du capteur et lèvres de l'auditeur qui bougent un peu : le cadre suit la personne qui parle (coupe au bon
+moment, nette), le clip rendu montre la bonne personne (mesure des pixels), personne seule décentrée, personne qui se
+déplace (suivi progressif), deux personnes proches (plan d'ensemble), interjections courtes sans coupe, ouverture sur
+la personne qui parle au début, aucun visage → centre, format horizontal → rien à recadrer.
+Vérification de pertinence : en empêchant les changements, en autorisant les changements nerveux ou en supprimant le
+suivi, les tests échouent.
+
 ## Test de bout en bout : suppression de compte (5 vérifications, toutes réussies)
 Script : `apps/web/e2e/account-delete.e2e.cjs`. Import d'une vidéo, confirmation obligatoire (« SUPPRIMER »),
 fichiers effacés du stockage, session fermée, mot de passe refusé ; contrôle SQL ensuite : aucune ligne restante.

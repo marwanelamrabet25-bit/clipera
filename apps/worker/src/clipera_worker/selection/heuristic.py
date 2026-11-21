@@ -17,7 +17,7 @@ from .models import Candidate, Sentence
 from .scoring import CONNECTOR_START, IDEAL, evaluate
 from .sentences import ends_cleanly
 
-METHOD = "rules-v1"
+METHOD = "rules-v2"  # v2 : + énergie de la voix
 MIN_S, MAX_S = 20.0, IDEAL[1]  # durée visée des propositions
 TURN_PAUSE_S = 0.8  # pause qui marque un nouveau moment
 
@@ -50,7 +50,7 @@ def _ends_turn(sentences: list[Sentence], j: int) -> bool:
     return nxt.speaker != cur.speaker or nxt.start - cur.end >= TURN_PAUSE_S
 
 
-def score_span(sentences: list[Sentence], i: int, j: int) -> tuple[dict[str, float], dict[str, str]]:
+def score_span(sentences: list[Sentence], i: int, j: int, energy=None) -> tuple[dict[str, float], dict[str, str]]:
     first, last, span = sentences[i], sentences[j], sentences[i : j + 1]
     text = " ".join(s.text for s in span)
     words = [w for s in span for w in s.words]
@@ -82,6 +82,14 @@ def score_span(sentences: list[Sentence], i: int, j: int) -> tuple[dict[str, flo
         interest -= 2
     reasons["interest"] = f"{markers} marqueur(s) (chiffres, questions, mots forts), débit {rate:.1f} mots/s" + (
         ", son peu clair" if low_audio else "")
+    if energy is not None:
+        # Voix plus animée que d'habitude (rires, montée de ton, emphase) : bonus ; passage plus terne : malus léger.
+        rel = energy.relative(first.start, last.end)
+        interest += max(-1.0, min(1.5, rel * 1.5))
+        if rel > 0.3:
+            reasons["interest"] += ", voix plus animée que la moyenne"
+        elif rel < -0.4:
+            reasons["interest"] += ", ton plus calme que le reste de la vidéo"
 
     turn_start, turn_end = _starts_turn(sentences, i), _ends_turn(sentences, j)
     context = 7.0 + (1 if turn_start else 0)
@@ -116,7 +124,7 @@ def _title(first: Sentence, max_words: int = 9) -> str:
     return t + ("…" if len(words) > max_words else "")
 
 
-def propose_candidates(sentences: list[Sentence]) -> list[Candidate]:
+def propose_candidates(sentences: list[Sentence], energy=None) -> list[Candidate]:
     """Pour chaque début de phrase plausible, garde la meilleure fin (entre 20 et 60 s)."""
     out: list[Candidate] = []
     for i, first in enumerate(sentences):
@@ -129,7 +137,7 @@ def propose_candidates(sentences: list[Sentence]) -> list[Candidate]:
                 break
             if d < MIN_S:
                 continue
-            scores, reasons = score_span(sentences, i, j)
+            scores, reasons = score_span(sentences, i, j, energy)
             cand = Candidate(i, j, scores, reasons, content_type=None, title=_title(first), hook_text=first.text)
             total = evaluate(cand, sentences).total
             if best is None or total > best[0]:

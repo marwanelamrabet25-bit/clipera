@@ -107,9 +107,24 @@ coût 0,0034 $ (crédit gratuit).
 
 Performances mesurées (4 vCPU) : 60 s de clip 1080×1920 sous-titré ≈ 16,5 s de calcul.
 
-## 7. Recadrage intelligent (visages) — ⏳ Phase 10
-Détection de visages échantillonnée, trajectoire lissée sans à-coups, repli au centre si la détection est incertaine,
-correction manuelle possible.
+## 7. Recadrage intelligent (visages) — ✅
+Code : `media/reframe.py` (YuNet, modèle libre MIT, 230 Ko ; OpenCV). Appliqué automatiquement en 9:16 et 1:1.
+1. Lecture de l'extrait à 5 images/s en 640 px, image par image (mémoire constante : 76 Mo mesurés).
+2. Détection des visages + points de repère ; regroupement en personnes (suivi par dernière position connue).
+3. **Qui parle ?** Variation de la luminosité moyenne de l'intérieur de la bouche (écart-type sur 1,2 s) :
+   robuste aux petits mouvements de tête et au rythme des syllabes (mesuré : ~8 pour celui qui parle, ~1,3 pour
+   celui qui écoute).
+4. Plans : plan d'ensemble si tout le monde tient dans le cadre ; sinon cadre sur la personne qui parle, **coupe nette**
+   au changement, plans ≥ 2 s, l'autre personne doit dominer ≥ 1 s (un « oui » ne fait pas couper), ouverture sur
+   celle qui parle au début ; suivi doux (zone morte 5 %) si la personne se déplace.
+5. Repli au centre si moins de 40 % des images contiennent un visage, ou en cas d'erreur (le clip est toujours livré).
+Mesuré : 1,8 s d'analyse pour un clip de 39 s. Contrôle visuel : podcast à deux sur un vrai dialogue français,
+4 instants vérifiés (animateur, invitée, animateur, invitée).
+
+## 7b. Énergie de la voix — ✅
+`media/loudness.py` : niveau sonore toutes les 100 ms sur l'audio déjà extrait ; un passage plus animé que la médiane
+de la vidéo (rires, montées de ton) gagne jusqu'à +1,5 point d'intérêt, un passage terne perd jusqu'à 1 point,
+avec l'explication dans « Pourquoi ce passage ? ». Méthode `rules-v2`.
 
 ## 8. Options — ⏳
 Suppression des silences, zooms légers (style Dynamique), musique autorisée avec mixage et fondus.

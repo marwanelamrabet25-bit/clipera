@@ -86,3 +86,39 @@ def test_deterministic():
 
 def test_empty_transcript_gives_no_clip():
     assert propose_candidates([]) == []
+
+
+# ───────────── Énergie de la voix ─────────────
+
+
+def test_loudness_measured_on_real_audio(tmp_path):
+    import subprocess
+
+    from clipera_worker.media.loudness import Energy, loudness_series
+
+    wav = tmp_path / "a.wav"  # 10 s calmes puis 10 s fortes (+12 dB), comme une montée de ton
+    subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-f", "lavfi", "-i",
+                    "aevalsrc='0.05*sin(2*PI*220*t)*(1+3*gte(t,10))':s=16000:d=20", str(wav)], check=True)
+    series = loudness_series(wav)
+    assert len(series) == 200
+    e = Energy(series)
+    assert e.relative(10, 20) > 0.5 > e.relative(0, 10)
+
+
+class FakeEnergy:
+    def __init__(self, loud: tuple[float, float]):
+        self.loud = loud
+
+    def relative(self, start, end):
+        a, b = self.loud
+        return 1.0 if start >= a and end <= b + 1 else -0.5
+
+
+def test_animated_passage_preferred_over_identical_calm_one():
+    s = talk([(FILLER, "A", 0.3)] * 4 + STRONG + [(FILLER, "A", 0.3)] * 4 + STRONG)
+    second = [x for x in s if x.text.startswith("Pourquoi personne")][1]
+    energy = FakeEnergy((second.start, s[-1].end))
+    res = select_clips(propose_candidates(s, energy), s, requested=1)
+    (clip,) = res.selected
+    assert clip.candidate.first_sentence == second.id  # même texte, mais voix plus animée → choisi
+    assert "voix plus animée" in clip.candidate.reasons["interest"]
