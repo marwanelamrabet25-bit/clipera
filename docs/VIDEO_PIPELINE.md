@@ -103,7 +103,13 @@ coût 0,0034 $ (crédit gratuit).
 - Filigrane Clipera (offre Free) en haut à droite, semi-transparent.
 - Son : fondu de 60 ms en entrée, 180 ms en sortie (pas de « clic »), normalisation à −14 LUFS.
 - H.264 High, yuv420p, AAC 160 kb/s, `faststart` (lecture immédiate sur le web), 60 i/s maximum.
-- **Contrôle qualité automatique** après chaque rendu : dimensions, durée (±0,15 s), son présent, codec.
+- **Couleurs** (mesurées sur une vraie image) : source HDR iPhone (HLG) → conversion directe en SDR BT.709
+  (écart 2,2/255 avec l'original ; le « tone mapping » hable assombrissait de 41/255) ; HDR PQ → tone mapping
+  mobius ; SD BT.601 → BT.709 ; sortie toujours étiquetée BT.709 (plus de couleurs « devinées » par les lecteurs).
+- **Débit plafonné** : 10 Mb/s en 1080p, 6 Mb/s en 720p (source bruitée : −41 % de poids, SSIM 0,914 → 0,908,
+  invisible ; source propre : inchangé). Préréglage `veryfast` conservé (mesuré : `medium` = 2× plus lent pour
+  +0,001 de SSIM).
+- **Contrôle qualité automatique** après chaque rendu : dimensions, durée (±0,15 s), son présent, codec, **son et image de même durée (±0,1 s)**, **couleurs étiquetées BT.709**, **image noire** (seulement si la source ne l'est pas : une scène de nuit n'est pas une erreur).
 
 Performances mesurées (4 vCPU) : 60 s de clip 1080×1920 sous-titré ≈ 16,5 s de calcul.
 

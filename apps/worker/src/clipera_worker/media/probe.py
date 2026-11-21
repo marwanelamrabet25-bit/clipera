@@ -31,9 +31,26 @@ class VideoInfo:
     has_audio: bool
     rotation: int
     bit_rate: int | None
+    # Couleur et qualité de la source (pour adapter le rendu : HDR → SDR, matrice de couleurs, débit).
+    pix_fmt: str | None = None
+    color_transfer: str | None = None
+    color_primaries: str | None = None
+    color_space: str | None = None
+    video_bit_rate: int | None = None
+    audio_sample_rate: int | None = None
+    audio_channels: int | None = None
+
+    @property
+    def is_hdr(self) -> bool:
+        """HDR (iPhone : HLG ; caméras / Android : PQ) → doit être converti en SDR pour les réseaux sociaux."""
+        return self.color_transfer in ("arib-std-b67", "smpte2084")
+
+    @property
+    def bit_depth(self) -> int:
+        return 10 if self.pix_fmt and ("10" in self.pix_fmt or "12" in self.pix_fmt) else 8
 
     def as_dict(self) -> dict:
-        return asdict(self)
+        return {**asdict(self), "is_hdr": self.is_hdr, "bit_depth": self.bit_depth}
 
 
 def _fps(stream: dict) -> float:
@@ -93,6 +110,14 @@ def probe(path: Path, *, timeout: float = 60) -> tuple[VideoInfo, dict]:
         has_audio=audio is not None,
         rotation=rotation,
         bit_rate=int(fmt["bit_rate"]) if fmt.get("bit_rate") else None,
+        pix_fmt=video.get("pix_fmt"),
+        color_transfer=video.get("color_transfer"),
+        color_primaries=video.get("color_primaries"),
+        color_space=video.get("color_space"),
+        video_bit_rate=int(video["bit_rate"]) if str(video.get("bit_rate") or "").isdigit() else None,
+        audio_sample_rate=int(audio["sample_rate"]) if audio and str(audio.get("sample_rate") or "").isdigit()
+        else None,
+        audio_channels=int(audio["channels"]) if audio and audio.get("channels") else None,
     )
     return info, raw
 
