@@ -22,6 +22,26 @@ Dernière mise à jour : 2026-11-20
 - [x] Environnement cloud « clipera » (accès Supabase + installation automatique)
 - [x] Documentation : ARCHITECTURE, DATABASE, VIDEO_PIPELINE, ENVIRONMENT, TESTING, COST_MODEL, SETUP_ACCOUNTS
 
+## Fait le 21/11 (autonomie)
+- [x] Qualité d'image : couleurs HDR iPhone corrigées (mesuré), étiquetage BT.709, débit plafonné, contrôle qualité
+  renforcé (synchro son/image, couleurs, image noire comparée à la source)
+- [x] Cadrage : modes Stable (défaut) / Suivi de l'intervenant / Large, changements de caméra, aucune tête coupée,
+  vitesse plafonnée, préférence mémorisée — testés et vérifiés visuellement
+- [x] Adresse officielle du site (`NEXT_PUBLIC_SITE_URL`) passée de clipera-clipera1.vercel.app (protégée) à clipera.fr
+
+## En attente du fondateur
+- [ ] Vercel : ajouter STRIPE_SECRET_KEY (test), STRIPE_WEBHOOK_SECRET, SUPABASE_SECRET_KEY (SETUP_ACCOUNTS §9)
+- [ ] Supabase → Authentication → URL Configuration : Site URL = https://clipera.fr, ajouter https://clipera.fr/** aux
+  Redirect URLs (liens de confirmation par e-mail)
+- [ ] Vidéos réelles (podcast / interview, 1–3 min) pour valider le cadrage sur de vraies images
+- [ ] Identité légale, CGV, médiateur avant tout paiement réel ; hébergement durable du worker (fin d'essai Railway)
+
+## Prochaines étapes techniques (gratuites)
+- [ ] Sous-titres : durée minimale d'affichage par mot, placement qui évite les visages
+- [ ] Style de montage (Naturel / Dynamique / Minimaliste), suppression des silences
+- [ ] Combinaison des locuteurs de la transcription avec l'analyse des bouches
+- [ ] Correction d'un clip sans relancer l'analyse (transcription déjà enregistrée)
+
 ## Bloqué (en attente du fondateur)
 - [x] Code sauvegardé sur GitHub : marwanelamrabet25-bit/clipera (public, choix du fondateur)
 - [x] Projet Supabase `clipera-dev` créé (Paris, Free), migrations appliquées et vérifiées
