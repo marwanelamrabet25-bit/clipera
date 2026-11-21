@@ -48,4 +48,4 @@ Dernière mise à jour : 2026-11-20
 - [ ] Analyse et sélection des passages (comparatif Sonnet / Opus sur le corpus)
 - [x] Sélection de base sans IA (règles, gratuite) — 8 tests
 - [x] Job `clip_generation` : transcription + sélection + rendu + enregistrement des clips — 5 tests de bout en bout + essai réel Deepgram
-- [ ] Écrans : suivi en direct, résultats, prévisualisation, téléchargement
+- [x] Écrans : lancement (options), suivi en direct, annulation, résultats, aperçu, note expliquée, téléchargement, bibliothèque — 13 tests E2E

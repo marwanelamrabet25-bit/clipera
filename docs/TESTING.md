@@ -67,6 +67,16 @@ sauvegardée, note expliquée, coût mesuré, quota consommé) ; format 1:1 sans
 transcription absente → nouvelle tentative plus tard.
 Vérifié aussi à la main avec Deepgram réel : sous-titres synchronisés au mot près, filigrane en haut à droite.
 
+## Test de bout en bout : écrans de génération (13 vérifications, toutes réussies)
+Script : `apps/web/e2e/clips.e2e.cjs`, navigateur réel → actions serveur → **vraie base Supabase**, en 4 phases
+(`E2E_PHASE`). Le worker n'étant pas hébergé, son rôle est joué entre les phases (statuts SQL + dépôt du **vrai clip**
+rendu par le worker avec Deepgram). Vérifié : formulaire (limite de l'offre, formats, style des sous-titres, quota),
+**double clic → un seul job**, options transmises, quota réservé une fois, message d'attente honnête, étape en cours
+d'après le vrai statut, clip affiché (titre, note, extrait, « pourquoi ce passage »), **vidéo réellement lue**
+(720×1280), **MP4 téléchargé identique au fichier stocké**, bibliothèque avec miniature, **isolation** (B ne voit ni le
+projet ni le clip de A), relance puis annulation (quota recrédité, anciens clips conservés), échec expliqué (étape en
+échec marquée, quota recrédité, relance possible), mobile sans défilement horizontal. Comptes de test supprimés ensuite.
+
 ## Test de bout en bout : suppression de compte (5 vérifications, toutes réussies)
 Script : `apps/web/e2e/account-delete.e2e.cjs`. Import d'une vidéo, confirmation obligatoire (« SUPPRIMER »),
 fichiers effacés du stockage, session fermée, mot de passe refusé ; contrôle SQL ensuite : aucune ligne restante.

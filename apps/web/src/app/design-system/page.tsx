@@ -131,7 +131,7 @@ export default function DesignSystemPage() {
         <div className="grid gap-4 md:grid-cols-3">
           {(
             [
-              ["En cours", "analyzing", undefined],
+              ["En cours", "selecting", undefined],
               ["Terminé", "completed", undefined],
               ["Échec", "failed", "rendering"],
             ] as const

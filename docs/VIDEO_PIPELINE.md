@@ -63,7 +63,7 @@ mots forts, débit, clarté du son), conclusion explicite (« la leçon », « a
 Limite assumée : les règles jugent la forme, pas si l'histoire est vraiment drôle ou passionnante.
 Chaque clip enregistre `score_details.method = "rules-v1"` pour l'afficher honnêtement et comparer plus tard.
 
-## 5c. Job `clip_generation` — ✅ (worker) / 🔜 écrans
+## 5c. Job `clip_generation` — ✅ (worker) / ✅ écrans (en ligne dès que le worker sera hébergé)
 Code : `jobs/clip_job.py`. Étapes visibles : `transcribing` → `selecting` → `rendering` → `completed`.
 Vidéo → audio → Deepgram → transcription sauvegardée (`clips/<user>/<job>/transcript.json`) → sélection →
 pour chaque passage : sous-titres ASS au mot près, rendu (format, 720p/1080p selon l'offre, filigrane Free),
