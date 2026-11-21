@@ -114,3 +114,21 @@ def test_quality_check_rejects_untagged_colours(tmp_path):
     with pytest.raises(JobError) as e:
         quality_check(spec, compute_geometry(1080, 1920, "9:16", 1080))
     assert "color tags" in e.value.detail
+
+
+def test_wide_layout_keeps_whole_scene_on_blurred_background(tmp_path):
+    """Mode Large : image entière (rien de coupé), centrée, fond flouté de la même image (pas de bandes noires)."""
+    src = tmp_path / "s.mp4"
+    subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-f", "lavfi", "-i", "testsrc2=size=1920x1080:rate=30:d=4",
+                    "-f", "lavfi", "-i", "sine=duration=4", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac",
+                    "-shortest", str(src)], check=True)
+    info, _ = probe(src)
+    out = tmp_path / "o.mp4"
+    r = render_clip(RenderSpec(source=src, output=out, start=0, end=3, aspect="9:16", max_short_side=1080,
+                               layout="fit"), info)
+    assert (r.width, r.height) == (1080, 1920)
+    top = mean_rgb(out, vf="crop=1080:400:0:0,scale=32:-2")
+    assert top.mean() > 15  # fond flouté visible, pas une bande noire
+    # La bande centrale contient l'image entière : 1080 × 608 (16:9 réduit à la largeur).
+    mid = mean_rgb(out, vf="crop=1080:600:0:660,scale=32:-2")
+    assert abs(float(mid.mean()) - float(mean_rgb(src, vf="scale=32:-2").mean())) < 25

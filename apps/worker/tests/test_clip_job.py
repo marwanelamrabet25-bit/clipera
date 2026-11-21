@@ -126,6 +126,7 @@ def test_video_becomes_real_clip(env, video):
     assert clip["title"].startswith("Bienvenue") and "La leçon" in clip["transcript_excerpt"]
     assert clip["score_details"]["reasons"]["hook"] and clip["render_options"]["watermark"] is True
     assert clip["render_options"]["framing"]["mode"] == "center"  # mire de test : aucun visage → cadre centré
+    assert clip["render_options"]["framing"]["profile"] == "stable"  # mode par défaut
 
     out = work.parent / "check.mp4"
     storage.download(clip["storage_key"], out)
@@ -139,6 +140,14 @@ def test_video_becomes_real_clip(env, video):
     refunds = rows(url, "select * from usage_records where job_id = %s and kind = 'refund'", job_id)
     assert refunds == []  # clip livré → quota consommé
     assert not (work / str(job_id)).exists()
+
+
+def test_wide_framing_option(env, video):
+    storage, queue, work, url = env
+    _, job_id = create_job(url, storage, video, options={"framing": "wide"})
+    assert process_one(queue, storage, work, deps={"transcriber": FakeTranscriber(REAL)})
+    (clip,) = rows(url, "select * from clips where job_id = %s", job_id)
+    assert clip["render_options"]["framing"]["profile"] == "wide" and (clip["width"], clip["height"]) == (720, 1280)
 
 
 def test_format_and_captions_options(env, video):

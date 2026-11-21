@@ -42,6 +42,7 @@ class RenderSpec:
     fonts_dir: Path | None = None
     watermark_file: Path | None = None
     normalize_audio: bool = True
+    layout: str = "crop"  # "crop" : recadrage ; "fit" (mode Large) : image entière sur fond flouté, aucun mouvement
     extra: dict = field(default_factory=dict)
 
     @property
@@ -133,8 +134,17 @@ def build_command(spec: RenderSpec, info: VideoInfo) -> list[str]:
     xs = _axis_expr([(k.t, k.cx) for k in spec.crop_track], info.width, g.crop_w)
     ys = _axis_expr([(k.t, k.cy) for k in spec.crop_track], info.height, g.crop_h)
 
-    v = (f"[0:v]crop=w={g.crop_w}:h={g.crop_h}:x='{xs}':y='{ys}',{color_chain(info)}"
-         f"scale={g.out_w}:{g.out_h}:flags=lanczos,setsar=1,format=yuv420p")
+    if spec.layout == "fit":
+        # Toute la scène reste visible (contexte, interactions) ; le format vertical est complété par la même
+        # image, agrandie, floutée et légèrement assombrie (jamais de bandes noires).
+        v = (f"[0:v]{color_chain(info)}split=2[full][back];"
+             f"[back]scale={g.out_w}:{g.out_h}:force_original_aspect_ratio=increase,crop={g.out_w}:{g.out_h},"
+             f"boxblur=luma_radius=40:luma_power=2,eq=brightness=-0.12:saturation=0.85[bg];"
+             f"[full]scale={g.out_w}:{g.out_h}:force_original_aspect_ratio=decrease:flags=lanczos[fg];"
+             f"[bg][fg]overlay=(W-w)/2:(H-h)/2,setsar=1,format=yuv420p")
+    else:
+        v = (f"[0:v]crop=w={g.crop_w}:h={g.crop_h}:x='{xs}':y='{ys}',{color_chain(info)}"
+             f"scale={g.out_w}:{g.out_h}:flags=lanczos,setsar=1,format=yuv420p")
     if spec.ass_file:
         v += f",subtitles=filename='{_filter_path(spec.ass_file)}'"
         if spec.fonts_dir:

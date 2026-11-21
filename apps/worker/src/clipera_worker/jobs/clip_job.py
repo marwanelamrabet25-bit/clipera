@@ -34,6 +34,7 @@ ASSETS = Path(__file__).resolve().parents[3] / "assets"
 DEEPGRAM_USD_PER_MIN = 0.0043  # tarif public Nova-3 pré-enregistré (COST_MODEL.md §7)
 FORMATS = ("9:16", "1:1", "16:9")
 CAPTION_STYLES = ("classic", "highlight", "modern", "minimal")
+FRAMINGS = ("stable", "speaker", "wide")
 
 
 class Transcriber(Protocol):
@@ -56,6 +57,7 @@ def _options(job: Job) -> dict:
         "caption_style": style if style in CAPTION_STYLES else "classic",
         "language": o.get("language") or "fr",
         "watermark": bool(o.get("watermark", True)),  # par défaut : filigrane (offre Free)
+        "framing": o.get("framing") if o.get("framing") in FRAMINGS else "stable",
         "max_short_side": int(o.get("export_max_height") or 720),
     }
 
@@ -162,13 +164,13 @@ def run_clip_job(job: Job, *, queue: JobQueue, storage: Storage, work: Path, can
     return metrics
 
 
-def _framing(source: Path, start: float, end: float, crop_fraction: float) -> ReframeResult:
-    """Cadrage sur la personne qui parle ; en cas de problème imprévu, cadre centré (le clip est quand même livré)."""
+def _framing(source: Path, start: float, end: float, crop_fraction: float, mode: str) -> ReframeResult:
+    """Cadrage intelligent ; en cas de problème imprévu, cadre centré (le clip est quand même livré)."""
     try:
-        return reframe(source, start, end, crop_fraction=crop_fraction)
+        return reframe(source, start, end, crop_fraction=crop_fraction, mode=mode)
     except Exception:  # noqa: BLE001 — le recadrage est une amélioration, jamais une cause d'échec
         log.warning("reframe failed, falling back to center", exc_info=True)
-        return ReframeResult((), "center", 0.0, 0, 0)
+        return ReframeResult((), "center", 0.0, 0, 0, mode)
 
 
 def _render_all(job, queue, storage, work, cancel, source, selected, transcript, info, geo, opts, base, failures,
@@ -183,8 +185,10 @@ def _render_all(job, queue, storage, work, cancel, source, selected, transcript,
             ass.write_text(build_ass(clip_words(transcript, c.start, c.end), width=geo.out_w, height=geo.out_h,
                                      opts=CaptionOptions(style=opts["caption_style"])))
         end = min(c.end, info.duration_seconds)
-        framing = _framing(source, c.start, end, geo.crop_w / info.width)
+        framing = (ReframeResult((), "wide", 0.0, 0, 0, "wide") if opts["framing"] == "wide"
+                   else _framing(source, c.start, end, geo.crop_w / info.width, opts["framing"]))
         spec = RenderSpec(source=source, output=out, start=c.start, end=end, crop_track=framing.keyframes,
+                          layout="fit" if opts["framing"] == "wide" else "crop",
                           aspect=opts["format"], max_short_side=opts["max_short_side"], ass_file=ass,
                           watermark_file=ASSETS / "watermark.png" if opts["watermark"] else None)
         try:

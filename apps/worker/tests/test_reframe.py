@@ -169,3 +169,69 @@ def test_clip_opens_on_whoever_speaks_first(tmp_path):
     r = reframe(v, 0, 16, crop_fraction=CROP_9_16)
     assert center_at(r, 1.5) == pytest.approx(0.25, abs=0.03)
     assert center_at(r, 10) == pytest.approx(0.75, abs=0.03)
+
+
+# ───────────── Modes Stable / Speaker, plans de la source, composition ─────────────
+
+
+def test_camera_cut_in_source_gives_clean_cut_without_camera_move(tmp_path):
+    """Podcast multi-caméras : plan large (A parle) puis gros plan de B. Le cadrage change PILE sur la coupe de la
+    source, sans mouvement de caméra virtuelle ensuite (défaut relevé à l'audit)."""
+    def layout(t):
+        return [("A", A_X, True), ("B", B_X, False)] if t < 6 else [("B", 1450, True)]
+    v = make_video(tmp_path / "cams.mp4", 12, layout)
+    for mode in ("stable", "speaker"):
+        r = reframe(v, 0, 12, crop_fraction=CROP_9_16, mode=mode)
+        assert r.scenes == 2, mode
+        assert center_at(r, 3) == pytest.approx(0.25, abs=0.03)
+        assert center_at(r, 9) == pytest.approx((1450 + 146) / W, abs=0.03)
+        jumps = [b.t for a, b in zip(r.keyframes, r.keyframes[1:], strict=False) if abs(b.cx - a.cx) > 0.05]
+        assert len(jumps) == 1 and abs(jumps[0] - 6) <= 0.25, (mode, r.keyframes)  # une seule coupe, sur la coupe
+        after = [k.cx for k in r.keyframes if k.t > 6.3]
+        assert max(after) - min(after) < 0.01, mode  # aucun mouvement après la coupe
+
+
+def test_no_half_face_on_frame_edge(tmp_path):
+    """Deux personnes proches qui ne tiennent pas ensemble : l'autre visage est soit entièrement dans le cadre,
+    soit entièrement dehors (mesuré à l'audit : 21 % visible avant correction)."""
+    v = make_video(tmp_path / "close.mp4", 8, lambda t: [("A", 640, True), ("B", 1030, False)])
+    for mode in ("stable", "speaker"):
+        r = reframe(v, 0, 8, crop_fraction=CROP_9_16, mode=mode)
+        cx = center_at(r, 4)
+        half = CROP_9_16 / 2
+
+        def vis(x, cx=cx, half=half):
+            c, w = (x + 146) / W, 292 / W
+            return max(0, min(c + w / 2, cx + half) - max(c - w / 2, cx - half)) / w
+        assert vis(640) >= 0.97, mode  # la personne qui parle est entière
+        assert vis(1030) <= 0.03 or vis(1030) >= 0.97, (mode, vis(1030))
+
+
+def test_stable_ignores_a_short_reply_that_speaker_follows(tmp_path):
+    """B répond 3 s au milieu d'un long monologue de A : Stable ne bouge pas, Speaker montre B."""
+    v = make_video(tmp_path / "reply.mp4", 16, lambda t: [("A", A_X, not 7 <= t < 10), ("B", B_X, 7 <= t < 10)])
+    stable = reframe(v, 0, 16, crop_fraction=CROP_9_16, mode="stable")
+    speaker = reframe(v, 0, 16, crop_fraction=CROP_9_16, mode="speaker")
+    assert stable.switches == 0 and center_at(stable, 8.5) == pytest.approx(0.25, abs=0.03)
+    assert speaker.switches >= 1 and center_at(speaker, 8.5) == pytest.approx(0.75, abs=0.03)
+    assert stable.moves_per_min < speaker.moves_per_min
+
+
+def test_stable_does_not_move_for_head_movements(tmp_path):
+    """La personne bouge la tête et se penche (±60 px) sans sortir du cadre : Stable ne bouge pas du tout."""
+    v = make_video(tmp_path / "wobble.mp4", 10, lambda t: [("A", 900 + 60 * np.sin(t * 1.3), True)])
+    r = reframe(v, 0, 10, crop_fraction=CROP_9_16, mode="stable")
+    xs = [k.cx for k in r.keyframes]
+    assert max(xs) - min(xs) < 0.005 and r.moves_per_min == 0
+
+
+def test_stable_recenters_slowly_when_person_really_moves(tmp_path):
+    """Déplacement réel (la personne traverse la pièce) : Stable suit, lentement, sans jamais la perdre."""
+    v = make_video(tmp_path / "walk2.mp4", 10, lambda t: [("A", 300 + 120 * t, True)])
+    r = reframe(v, 0, 10, crop_fraction=CROP_9_16, mode="stable")
+    half = CROP_9_16 / 2
+    for t in (2, 5, 8):
+        c = (300 + 120 * t + 146) / W
+        assert center_at(r, t) - half <= c - 0.04 and c + 0.04 <= center_at(r, t) + half, t  # visage dans le cadre
+    speeds = [abs(b.cx - a.cx) / max(b.t - a.t, 1e-3) for a, b in zip(r.keyframes, r.keyframes[1:], strict=False)]
+    assert max(speeds) <= 0.121  # vitesse plafonnée
