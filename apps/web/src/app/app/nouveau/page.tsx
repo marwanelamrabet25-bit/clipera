@@ -23,17 +23,30 @@ export default async function NewProjectPage() {
   const { plan, quota } = await getAccount();
   const storageReady = isStorageConfigured();
   const videosLeft = quota ? quota.videosLimit - quota.videosUsed : 0;
+  // Import YouTube désactivé tant que YouTube bloque nos serveurs (testé en réel le 21/11/2026).
+  const linkImport = process.env.YOUTUBE_IMPORT_ENABLED === "1";
   return (
     <>
-      <PageHeader title="Nouveau projet" description="Transforme une vidéo longue en clips courts." />
+      <PageHeader
+        title="Nouveau projet"
+        description="Transforme une vidéo longue en clips courts."
+      />
       {!storageReady && (
-        <Alert tone="info" title="L'import de vidéos arrive très bientôt" className="mb-6">
-          Le stockage sécurisé des vidéos n&apos;est pas encore connecté. Cette page deviendra active dès qu&apos;il le
-          sera.
+        <Alert
+          tone="info"
+          title="L'import de vidéos arrive très bientôt"
+          className="mb-6"
+        >
+          Le stockage sécurisé des vidéos n&apos;est pas encore connecté. Cette
+          page deviendra active dès qu&apos;il le sera.
         </Alert>
       )}
       {storageReady && videosLeft <= 0 && (
-        <Alert tone="warning" title="Tu as utilisé toutes tes vidéos ce mois-ci" className="mb-6">
+        <Alert
+          tone="warning"
+          title="Tu as utilisé toutes tes vidéos ce mois-ci"
+          className="mb-6"
+        >
           Ton quota se renouvelle au début de la prochaine période.
         </Alert>
       )}
@@ -42,20 +55,33 @@ export default async function NewProjectPage() {
           <CardBody>
             {storageReady && videosLeft > 0 && plan ? (
               <div className="flex flex-col gap-8">
-                <section aria-labelledby="link-title">
-                  <h2 id="link-title" className="mb-4 text-h3 font-semibold">
-                    Depuis un lien YouTube
-                  </h2>
-                  <LinkImport maxMinutes={Math.floor(plan.max_video_seconds / 60)} />
-                </section>
-                <div className="flex items-center gap-3 text-caption text-subtle" aria-hidden>
-                  <span className="h-px flex-1 bg-line" /> ou <span className="h-px flex-1 bg-line" />
-                </div>
+                {linkImport && (
+                  <section aria-labelledby="link-title">
+                    <h2 id="link-title" className="mb-4 text-h3 font-semibold">
+                      Depuis un lien YouTube
+                    </h2>
+                    <LinkImport
+                      maxMinutes={Math.floor(plan.max_video_seconds / 60)}
+                    />
+                  </section>
+                )}
+                {linkImport && (
+                  <div
+                    className="flex items-center gap-3 text-caption text-subtle"
+                    aria-hidden
+                  >
+                    <span className="h-px flex-1 bg-line" /> ou{" "}
+                    <span className="h-px flex-1 bg-line" />
+                  </div>
+                )}
                 <section aria-labelledby="file-title">
                   <h2 id="file-title" className="mb-4 text-h3 font-semibold">
                     Depuis un fichier
                   </h2>
-                  <Uploader maxBytes={plan.max_upload_bytes} planName={plan.name} />
+                  <Uploader
+                    maxBytes={plan.max_upload_bytes}
+                    planName={plan.name}
+                  />
                 </section>
               </div>
             ) : (
@@ -65,9 +91,10 @@ export default async function NewProjectPage() {
             )}
             {plan && (
               <p className="mt-4 text-caption text-subtle">
-                Offre {plan.name} : vidéos de {formatMinutes(plan.max_video_seconds)} maximum ·{" "}
-                {Math.round(plan.max_upload_bytes / 1024 ** 3)} Go maximum · {Math.max(videosLeft, 0)} vidéo(s) restante(s)
-                ce mois-ci.
+                Offre {plan.name} : vidéos de{" "}
+                {formatMinutes(plan.max_video_seconds)} maximum ·{" "}
+                {Math.round(plan.max_upload_bytes / 1024 ** 3)} Go maximum ·{" "}
+                {Math.max(videosLeft, 0)} vidéo(s) restante(s) ce mois-ci.
               </p>
             )}
           </CardBody>
