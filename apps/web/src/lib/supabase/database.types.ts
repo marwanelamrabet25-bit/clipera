@@ -216,6 +216,7 @@ export type Database = {
           rejection_reason: string | null;
           rights_confirmed_at: string;
           size_bytes: number | null;
+          source_url: string | null;
           status: Database["public"]["Enums"]["source_video_status"];
           storage_key: string;
           updated_at: string;
@@ -300,6 +301,11 @@ export type Database = {
         Args: { p_filename: string; p_size_bytes: number; p_rights_confirmed: boolean };
         Returns: { source_video_id: string; project_id: string; storage_key: string }[];
       };
+      create_url_import: {
+        Args: { p_url: string; p_rights_confirmed: boolean };
+        Returns: { source_video_id: string; project_id: string }[];
+      };
+      youtube_video_id: { Args: { p_url: string }; Returns: string };
       cancel_job: { Args: { p_job_id: string } } & JobFnReturn;
       claim_next_job: { Args: { p_kinds?: Database["public"]["Enums"]["job_kind"][]; p_worker_id: string } } & JobFnReturn;
       create_clip_job: {
@@ -324,7 +330,7 @@ export type Database = {
     };
     Enums: {
       clip_status: "ready" | "rendering" | "failed" | "deleted";
-      job_kind: "probe" | "clip_generation";
+      job_kind: "probe" | "clip_generation" | "import_url";
       job_status:
         | "queued"
         | "uploading"
@@ -335,7 +341,7 @@ export type Database = {
         | "completed"
         | "failed"
         | "cancelled";
-      source_video_status: "pending_upload" | "uploaded" | "validated" | "rejected" | "deleted";
+      source_video_status: "pending_upload" | "uploaded" | "validated" | "rejected" | "deleted" | "importing";
       subscription_status: "active" | "trialing" | "past_due" | "canceled" | "incomplete" | "unpaid";
       usage_kind: "reserve" | "refund" | "adjust";
     };

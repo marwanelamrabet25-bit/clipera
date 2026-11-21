@@ -107,7 +107,13 @@ export default async function ProjectPage({ params }: PageProps<"/app/projets/[i
         action={<Badge tone={status.tone}>{status.label}</Badge>}
       />
 
-      {status.busy && (
+      {video?.status === "importing" && (
+        <Alert title="Import depuis YouTube en cours" className="mb-6">
+          Nos serveurs téléchargent la vidéo, puis la vérifient (format, durée, son). Compte une à quelques minutes
+          selon sa longueur ; cette page se met à jour toute seule.
+        </Alert>
+      )}
+      {status.busy && video?.status !== "importing" && (
         <Alert title="Ta vidéo est bien reçue" className="mb-6">
           Elle est en file d&apos;attente pour sa vérification (format, durée, son). Pendant l&apos;accès anticipé, cette
           étape peut prendre plus de temps ; cette page se met à jour toute seule.
@@ -137,7 +143,7 @@ export default async function ProjectPage({ params }: PageProps<"/app/projets/[i
               {facts.map(([k, v]) => (
                 <div key={k}>
                   <dt className="text-caption text-subtle">{k}</dt>
-                  <dd className="mt-0.5 text-small font-medium tabular-nums">{video?.status === "validated" || k === "Taille" ? v : "—"}</dd>
+                  <dd className="mt-0.5 text-small font-medium tabular-nums">{video?.status === "validated" || (k === "Taille" && video?.status !== "importing") ? v : "—"}</dd>
                 </div>
               ))}
             </dl>

@@ -572,3 +572,82 @@ def test_delete_account_requires_session():
     with pytest.raises(errors.InsufficientPrivilege):
         anon.q("select delete_my_account()")
     anon.close()
+
+
+# ───────────────────────── Import par lien YouTube ─────────────────────────
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "https://www.youtube.com/watch?v=aqz-KE-bpKQ",
+        "https://youtube.com/watch?v=aqz-KE-bpKQ&t=42s",
+        "https://www.youtube.com/watch?feature=share&v=aqz-KE-bpKQ",
+        "https://youtu.be/aqz-KE-bpKQ?si=abc",
+        "https://m.youtube.com/watch?v=aqz-KE-bpKQ",
+        "https://www.youtube.com/shorts/aqz-KE-bpKQ",
+        "youtube.com/live/aqz-KE-bpKQ",
+        "  https://www.youtube.com/embed/aqz-KE-bpKQ  ",
+        "https://www.youtube.com/watch?v=aqz-KE-bpKQ;rm -rf /",  # le reste est ignoré : seul l'identifiant est gardé
+    ],
+)
+def test_url_import_accepts_youtube_forms_and_normalises(url):
+    uid = make_user()
+    u = As(uid)
+    vid, pid = u.q("select * from create_url_import(%s, true)", (url,))[0]
+    with admin() as c:
+        sv = c.execute("select status, source_url, storage_key from source_videos where id = %s", (vid,)).fetchone()
+        job = c.execute("select kind, status, options, project_id from processing_jobs where source_video_id = %s",
+                        (vid,)).fetchall()
+    assert sv == ("importing", "https://www.youtube.com/watch?v=aqz-KE-bpKQ", f"sources/{uid}/{vid}/source.mp4")
+    assert job == [("import_url", "queued", {"url": "https://www.youtube.com/watch?v=aqz-KE-bpKQ"}, pid)]
+
+
+@pytest.mark.parametrize(
+    "url,rights,error",
+    [
+        ("https://www.youtube.com/watch?v=aqz-KE-bpKQ", False, "rights_not_confirmed"),
+        ("https://vimeo.com/123456", True, "invalid_url"),
+        ("https://evil.com/youtube.com/watch?v=aqz-KE-bpKQ", True, "invalid_url"),
+        ("https://www.youtube.com/watch?v=short", True, "invalid_url"),
+        ("https://www.youtube.com/playlist?list=PL123", True, "invalid_url"),
+        ("file:///etc/passwd", True, "invalid_url"),
+    ],
+)
+def test_url_import_rejects_bad_requests(url, rights, error):
+    u = As(make_user())
+    with pytest.raises(psycopg.Error, match=error):
+        u.q("select * from create_url_import(%s, %s)", (url, rights))
+    assert u.q("select count(*) from processing_jobs")[0][0] == 0
+
+
+def test_url_import_requires_session_and_counts_as_pending():
+    with pytest.raises(errors.InsufficientPrivilege):
+        As(None, role="anon").q("select * from create_url_import('https://youtu.be/aqz-KE-bpKQ', true)")
+    u = As(make_user())
+    for _ in range(3):
+        u.q("select * from create_url_import('https://youtu.be/aqz-KE-bpKQ', true)")
+    with pytest.raises(psycopg.Error, match="too_many_pending_uploads"):
+        u.q("select * from create_url_import('https://youtu.be/aqz-KE-bpKQ', true)")
+
+
+def test_url_import_refused_when_monthly_quota_used():
+    uid = make_user()
+    u = As(uid)
+    for _ in range(3):  # offre Free : 3 vidéos / mois (un seul traitement à la fois)
+        set_status(create_job(u, make_video(uid, duration=60), clips=1)[0], "completed", 1)
+    with pytest.raises(psycopg.Error, match="quota_videos_exceeded"):
+        u.q("select * from create_url_import('https://youtu.be/aqz-KE-bpKQ', true)")
+
+
+def test_import_job_claimed_as_uploading_and_failure_rejects_video():
+    uid = make_user()
+    vid, _ = As(uid).q("select * from create_url_import('https://youtu.be/aqz-KE-bpKQ', true)")[0]
+    with admin() as c:
+        c.execute("update processing_jobs set priority = 1000 where source_video_id = %s", (vid,))
+        job = c.execute("select id, status, kind from claim_next_job('w1', array['import_url']::job_kind[])").fetchone()
+        assert job[1:] == ("uploading", "import_url")
+        c.execute("update processing_jobs set status = 'failed', error_message = 'Vidéo privée.' where id = %s",
+                  (job[0],))
+        sv = c.execute("select status, rejection_reason from source_videos where id = %s", (vid,)).fetchone()
+    assert sv == ("rejected", "Vidéo privée.")

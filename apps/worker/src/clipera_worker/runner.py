@@ -12,6 +12,7 @@ from pathlib import Path
 
 from .errors import JobCancelled, JobError
 from .jobs.clip_job import run_clip_job
+from .jobs.import_job import run_import_job
 from .jobs.probe_job import run_probe_job
 from .queue import Job, JobQueue
 from .storage import Storage
@@ -24,6 +25,7 @@ Handler = Callable[..., dict]
 HANDLERS: dict[str, Handler] = {
     "probe": run_probe_job,
     "clip_generation": run_clip_job,
+    "import_url": run_import_job,
 }
 
 

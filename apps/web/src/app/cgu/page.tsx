@@ -48,7 +48,12 @@ export default function TermsPage() {
             portent atteinte aux droits d&apos;autrui. Clipera peut supprimer un contenu manifestement illicite et suspendre
             le compte concerné.
           </li>
-          <li>Clipera ne permet pas de télécharger des vidéos depuis des plateformes tierces.</li>
+          <li>
+            <strong>Import par lien YouTube</strong> : réservé aux vidéos publiques sur lesquelles tu détiens les droits
+            (ta propre chaîne, ou autorisation de son auteur). Clipera récupère la vidéo uniquement pour fabriquer tes
+            clips, la conserve 30 jours au plus et ne la redistribue jamais. Tu restes responsable du respect des droits
+            d&apos;auteur et des conditions d&apos;utilisation de la plateforme d&apos;origine.
+          </li>
         </ul>
       </section>
       <section>

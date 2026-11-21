@@ -12,6 +12,16 @@ Légende : ✅ implémenté et testé · 🔜 prochaine étape · ⏳ plus tard
 - Testé : fichier stocké identique à l'original (MD5), annulation à deux moments, accès refusé sans session ou
   sur la vidéo d'un autre utilisateur.
 
+## 1b. Import par lien YouTube — ✅ code et tests / 🔜 validation réelle sur le serveur
+- `create_url_import` (SQL) : droits confirmés, lien YouTube reconnu (watch, youtu.be, shorts, live, embed) et
+  **reconstruit à partir de l'identifiant seul** (aucune URL libre transmise au worker), quota, ≤ 3 imports inachevés.
+- Worker `import_url` (yt-dlp + Deno) : lit d'abord les informations (direct, durée max de l'offre, < 20 s →
+  refus **sans téléchargement**), télécharge en MP4 ≤ 1080p, taille max de l'offre, dépose dans le stockage, renomme
+  le projet avec le titre de la vidéo puis lance la vérification habituelle.
+- Erreurs claires : vidéo privée, réservée aux membres, limite d'âge, indisponible, restriction géographique,
+  blocage temporaire de YouTube (1 nouvelle tentative, puis conseil d'importer le fichier).
+- YouTube peut bloquer les serveurs d'hébergeurs : à vérifier en conditions réelles.
+
 ## 2. Vérification (`probe`) — ✅
 Le worker télécharge le fichier et l'analyse avec FFprobe :
 durée, dimensions **d'affichage** (rotation des vidéos de téléphone prise en compte), images/s, codecs, son.

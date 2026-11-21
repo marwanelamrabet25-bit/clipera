@@ -23,5 +23,6 @@ RUN uv sync --frozen --no-dev
 RUN useradd --create-home --uid 10001 clipera && mkdir -p /tmp/clipera-work && chown clipera /tmp/clipera-work
 USER clipera
 
-ENV PYTHONUNBUFFERED=1 CLIPERA_WORK_DIR=/tmp/clipera-work
+# PATH : yt-dlp trouve Deno (installé dans l'environnement Python) pour les protections de YouTube
+ENV PYTHONUNBUFFERED=1 CLIPERA_WORK_DIR=/tmp/clipera-work PATH="/app/.venv/bin:$PATH" DENO_DIR=/tmp/deno
 CMD ["/app/.venv/bin/python", "-m", "clipera_worker"]

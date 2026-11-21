@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/app/page-header";
+import { LinkImport } from "@/components/app/link-import";
 import { Uploader } from "@/components/app/uploader";
 import { Card, CardBody } from "@/components/ui/card";
 import { Alert } from "@/components/ui/feedback";
@@ -40,7 +41,23 @@ export default async function NewProjectPage() {
         <Card>
           <CardBody>
             {storageReady && videosLeft > 0 && plan ? (
-              <Uploader maxBytes={plan.max_upload_bytes} planName={plan.name} />
+              <div className="flex flex-col gap-8">
+                <section aria-labelledby="link-title">
+                  <h2 id="link-title" className="mb-4 text-h3 font-semibold">
+                    Depuis un lien YouTube
+                  </h2>
+                  <LinkImport maxMinutes={Math.floor(plan.max_video_seconds / 60)} />
+                </section>
+                <div className="flex items-center gap-3 text-caption text-subtle" aria-hidden>
+                  <span className="h-px flex-1 bg-line" /> ou <span className="h-px flex-1 bg-line" />
+                </div>
+                <section aria-labelledby="file-title">
+                  <h2 id="file-title" className="mb-4 text-h3 font-semibold">
+                    Depuis un fichier
+                  </h2>
+                  <Uploader maxBytes={plan.max_upload_bytes} planName={plan.name} />
+                </section>
+              </div>
             ) : (
               <div className="rounded-lg border border-dashed border-line-strong px-6 py-14 text-center text-small text-muted">
                 Import indisponible pour le moment.

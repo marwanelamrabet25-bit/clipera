@@ -8,6 +8,8 @@ export function videoStatus(
   probeJob?: { status: Enums<"job_status"> } | null,
 ): { label: string; tone: Tone; busy: boolean } {
   switch (status) {
+    case "importing":
+      return { label: "Import depuis YouTube…", tone: "primary", busy: true };
     case "pending_upload":
       return { label: "Envoi en cours", tone: "warning", busy: false };
     case "uploaded":
