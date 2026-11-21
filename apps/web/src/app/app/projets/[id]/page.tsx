@@ -24,7 +24,7 @@ export default async function ProjectPage({ params }: PageProps<"/app/projets/[i
   const { id } = await params;
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
   const supabase = await createClient();
-  const [{ data: project }, { data: clipRows }, account] = await Promise.all([
+  const [{ data: project }, { data: clipRows }, account, { data: settings }] = await Promise.all([
     supabase
       .from("projects")
       .select(
@@ -43,6 +43,7 @@ export default async function ProjectPage({ params }: PageProps<"/app/projets/[i
       .eq("status", "ready")
       .order("rank"),
     getAccount(),
+    supabase.from("user_settings").select("default_framing").maybeSingle(),
   ]);
   if (!project) notFound();
 
@@ -81,6 +82,7 @@ export default async function ProjectPage({ params }: PageProps<"/app/projets/[i
         exportHeight={plan.export_max_height}
         watermark={plan.watermark}
         quotaNote={quotaNote}
+        defaultFraming={settings?.default_framing ?? "stable"}
       />
     ) : null;
 

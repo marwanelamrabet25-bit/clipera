@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/field";
 import { Alert } from "@/components/ui/feedback";
 import { cn } from "@/lib/cn";
-import { CAPTION_STYLES, FORMATS } from "@/lib/jobs";
+import { CAPTION_STYLES, FORMATS, FRAMINGS } from "@/lib/jobs";
 
 type Props = {
   projectId: string;
@@ -16,16 +16,26 @@ type Props = {
   exportHeight: number;
   watermark: boolean;
   quotaNote: string;
+  defaultFraming?: string;
 };
 
 /** Options de génération. Les contrôles définitifs sont faits côté base (create_clip_job). */
-export function GenerateForm({ projectId, videoId, maxClips, exportHeight, watermark, quotaNote }: Props) {
+export function GenerateForm({
+  projectId,
+  videoId,
+  maxClips,
+  exportHeight,
+  watermark,
+  quotaNote,
+  defaultFraming = "stable",
+}: Props) {
   const [state, action, pending] = useActionState<GenerateState, FormData>(generateClips, { status: "idle" });
   // Une clé par affichage du formulaire : un double clic ne lance jamais deux générations.
   const [key] = useState(() => crypto.randomUUID());
   const [count, setCount] = useState(Math.min(3, maxClips));
   const [format, setFormat] = useState<string>("9:16");
   const [captions, setCaptions] = useState(true);
+  const [framing, setFraming] = useState<string>(defaultFraming);
 
   return (
     <form action={action} className="flex flex-col gap-6">
@@ -34,6 +44,7 @@ export function GenerateForm({ projectId, videoId, maxClips, exportHeight, water
       <input type="hidden" name="idempotency_key" value={key} />
       <input type="hidden" name="format" value={format} />
       <input type="hidden" name="captions" value={captions ? "on" : "off"} />
+      <input type="hidden" name="framing" value={framing} />
 
       <div>
         <label htmlFor="requested_clips" className="text-small font-medium">
@@ -83,6 +94,34 @@ export function GenerateForm({ projectId, videoId, maxClips, exportHeight, water
           ))}
         </div>
       </fieldset>
+
+      {format !== "16:9" && (
+        <fieldset>
+          <legend className="text-small font-medium">Cadrage</legend>
+          <div className="mt-2 grid gap-2 sm:grid-cols-3">
+            {FRAMINGS.map((f) => (
+              <label
+                key={f.value}
+                className={cn(
+                  "cursor-pointer rounded-md border px-3 py-2.5 transition-colors",
+                  framing === f.value ? "border-primary bg-primary-wash" : "border-line-strong hover:border-primary-line",
+                )}
+              >
+                <input
+                  type="radio"
+                  name="framing_choice"
+                  value={f.value}
+                  checked={framing === f.value}
+                  onChange={() => setFraming(f.value)}
+                  className="sr-only"
+                />
+                <span className="block text-small font-medium">{f.label}</span>
+                <span className="block text-caption text-subtle">{f.hint}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      )}
 
       <div className="flex flex-col gap-3">
         <Switch

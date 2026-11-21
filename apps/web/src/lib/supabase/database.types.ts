@@ -296,9 +296,10 @@ export type Database = {
         ];
       };
       user_settings: {
-        Row: { caption_defaults: Json; default_format: string; default_style: string; locale: string; updated_at: string; user_id: string };
-        Insert: { caption_defaults?: Json; default_format?: string; default_style?: string; locale?: string; updated_at?: string; user_id: string };
-        Update: { caption_defaults?: Json; default_format?: string; default_style?: string; locale?: string; updated_at?: string; user_id?: string };
+        Row: {
+          default_framing: string; caption_defaults: Json; default_format: string; default_style: string; locale: string; updated_at: string; user_id: string };
+        Insert: { caption_defaults?: Json; default_format?: string; default_framing?: string; default_style?: string; locale?: string; updated_at?: string; user_id: string };
+        Update: { caption_defaults?: Json; default_format?: string; default_framing?: string; default_style?: string; locale?: string; updated_at?: string; user_id?: string };
         Relationships: [];
       };
     };

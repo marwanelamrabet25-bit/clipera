@@ -70,3 +70,9 @@ export const CAPTION_STYLES = [
   { value: "modern", label: "Moderne (majuscules)" },
   { value: "minimal", label: "Minimal" },
 ] as const;
+
+export const FRAMINGS = [
+  { value: "stable", label: "Stable", hint: "Recommandé : cadrage propre et posé, changements rares et justifiés." },
+  { value: "speaker", label: "Suivi de l'intervenant", hint: "Le cadre passe à la personne qui parle, après confirmation." },
+  { value: "wide", label: "Large", hint: "Toute la scène reste visible, sur fond flouté. Aucun mouvement." },
+] as const;

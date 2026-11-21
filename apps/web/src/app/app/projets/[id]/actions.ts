@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { CAPTION_STYLES, CREATE_JOB_ERRORS, FORMATS } from "@/lib/jobs";
+import { CAPTION_STYLES, CREATE_JOB_ERRORS, FORMATS, FRAMINGS } from "@/lib/jobs";
 import { createClient } from "@/lib/supabase/server";
 
 export type GenerateState = { status: "idle" | "error"; message?: string };
@@ -21,6 +21,7 @@ export async function generateClips(_prev: GenerateState, form: FormData): Promi
   const format = String(form.get("format") ?? "9:16");
   const captions = form.get("captions") === "on";
   const style = String(form.get("caption_style") ?? "classic");
+  const framing = String(form.get("framing") ?? "stable");
 
   if (!UUID_RE.test(videoId) || !UUID_RE.test(projectId) || !/^[\w-]{8,100}$/.test(key)) {
     return { status: "error", message: "Requête invalide. Recharge la page." };
@@ -28,7 +29,11 @@ export async function generateClips(_prev: GenerateState, form: FormData): Promi
   if (!Number.isInteger(requested) || requested < 1 || requested > 20) {
     return { status: "error", message: CREATE_JOB_ERRORS.requested_clips_out_of_range };
   }
-  if (!FORMATS.some((f) => f.value === format) || !CAPTION_STYLES.some((s) => s.value === style)) {
+  if (
+    !FORMATS.some((f) => f.value === format) ||
+    !CAPTION_STYLES.some((s) => s.value === style) ||
+    !FRAMINGS.some((f) => f.value === framing)
+  ) {
     return { status: "error", message: "Option invalide." };
   }
 
@@ -36,7 +41,7 @@ export async function generateClips(_prev: GenerateState, form: FormData): Promi
   const { error } = await supabase.rpc("create_clip_job", {
     p_source_video_id: videoId,
     p_requested_clips: requested,
-    p_options: { format, captions: { enabled: captions, style }, language: "fr" },
+    p_options: { format, framing, captions: { enabled: captions, style }, language: "fr" },
     p_idempotency_key: key,
   });
   if (error) {
@@ -45,6 +50,11 @@ export async function generateClips(_prev: GenerateState, form: FormData): Promi
       return { status: "error", message: "Session expirée. Reconnecte-toi." };
     }
     return { status: "error", message: code ? CREATE_JOB_ERRORS[code] : "Impossible de lancer la génération. Réessaie." };
+  }
+  // Le mode de cadrage choisi devient la préférence de l'utilisateur pour ses prochaines générations.
+  const { data: claims } = await supabase.auth.getClaims();
+  if (claims?.claims?.sub) {
+    await supabase.from("user_settings").update({ default_framing: framing }).eq("user_id", claims.claims.sub);
   }
   revalidatePath(`/app/projets/${projectId}`);
   return { status: "idle" };
