@@ -239,8 +239,16 @@ export type Database = {
           { foreignKeyName: "source_videos_project_id_fkey"; columns: ["project_id"]; isOneToOne: false; referencedRelation: "projects"; referencedColumns: ["id"] },
         ];
       };
+      stripe_events: {
+        Row: { id: string; type: string; received_at: string };
+        Insert: { id: string; type: string; received_at?: string };
+        Update: { id?: string; type?: string; received_at?: string };
+        Relationships: [];
+      };
       subscriptions: {
         Row: {
+          billing_interval: string | null;
+          stripe_price_id: string | null;
           cancel_at_period_end: boolean;
           created_at: string;
           current_period_end: string | null;
@@ -308,6 +316,20 @@ export type Database = {
         Returns: { source_video_id: string; project_id: string }[];
       };
       youtube_video_id: { Args: { p_url: string }; Returns: string };
+      stripe_apply_subscription: {
+        Args: {
+          p_user: string;
+          p_price_id: string;
+          p_status: string;
+          p_period_start: string;
+          p_period_end: string;
+          p_cancel_at_period_end: boolean;
+          p_customer_id: string;
+          p_subscription_id: string;
+        };
+        Returns: string;
+      };
+      stripe_set_customer: { Args: { p_user: string; p_customer_id: string }; Returns: undefined };
       cancel_job: { Args: { p_job_id: string } } & JobFnReturn;
       claim_next_job: { Args: { p_kinds?: Database["public"]["Enums"]["job_kind"][]; p_worker_id: string } } & JobFnReturn;
       create_clip_job: {

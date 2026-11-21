@@ -105,3 +105,18 @@ changements de scène. On les déposera dans le bucket R2, jamais dans Git.
    **mise à jour automatique depuis GitHub toutes les 15 min**, accès SSH fermé.
 4. Vérification : un job de test passe de « en attente » à « terminé » sur clipera.fr.
    Journaux : console web Hetzner → `journalctl -u clipera-worker -n 50`.
+
+## 9. Stripe — paiements (mode TEST d'abord)
+Déjà fait (via l'API, mode test) : prix mensuels existants conservés, prix annuels créés (99,90 / 199,90 / 399,90 €,
+facturés une fois par an, `lookup_key` `clipera_<offre>_annual`), Price ID enregistrés dans `plans`, portail client
+(factures, carte, changement d'offre, résiliation en fin de période) et point de webhook
+`https://clipera.fr/api/stripe/webhook` (6 événements).
+
+Variables à ajouter dans Vercel (Production, cocher *Sensitive*) — jamais dans le chat :
+- `STRIPE_SECRET_KEY` : clé secrète **de test** (`sk_test_…`).
+- `STRIPE_WEBHOOK_SECRET` : Stripe (mode test) → Développeurs → Webhooks → point `clipera.fr/api/stripe/webhook`
+  → Clé secrète de signature → Révéler (`whsec_…`).
+- `SUPABASE_SECRET_KEY` : Supabase → Project Settings → API Keys → Secret keys (`sb_secret_…`). Clé très puissante :
+  uniquement côté serveur (webhooks).
+Passage au réel : recréer les prix et le webhook en mode live, remplacer les 3 variables et les Price ID en base,
+après identité légale + CGV + médiateur.

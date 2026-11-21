@@ -697,3 +697,69 @@ def test_import_links_recognised_and_rebuilt(url, provider, canonical):
 def test_unrecognised_or_dangerous_links_refused(url):
     with pytest.raises(psycopg.Error, match="invalid_url"):
         As(make_user()).q("select * from create_url_import(%s, true)", (url,))
+
+
+# ───────────────────────── Abonnements Stripe ─────────────────────────
+
+
+def _prices():
+    with admin() as c:
+        c.execute("update plans set stripe_price_id = 'price_pro_m', stripe_annual_price_id = 'price_pro_y', "
+                  "annual_price_cents = 19990 where id = 'pro'")
+
+
+def apply_sub(uid, price, status="active", start="now() - interval '40 days'", end="now() + interval '325 days'",
+              cancel=False):
+    with admin() as c:
+        return c.execute(
+            f"select stripe_apply_subscription(%s, %s, %s, {start}, {end}, %s, %s, %s)",
+            (uid, price, status, cancel, f"cus_{uid.hex[:12]}", f"sub_{uid.hex[:12]}")).fetchone()[0]
+
+
+def test_annual_subscription_gives_pro_with_monthly_quota_windows():
+    _prices()
+    uid = make_user()
+    assert apply_sub(uid, "price_pro_y") == "pro"
+    u = As(uid)
+    plan, start, end, _, vlimit, _, _ = u.q("select * from my_quota()")[0]
+    assert plan == "pro" and vlimit == 30
+    with admin() as c:
+        sub_start = c.execute("select current_period_start, billing_interval from subscriptions where user_id = %s",
+                              (uid,)).fetchone()
+    assert sub_start[1] == "year"
+    # 40 jours après le début : on est dans la 2e fenêtre mensuelle (pas un quota unique pour 12 mois).
+    days_into_window = (end - start).days
+    assert 27 <= days_into_window <= 31 and start > sub_start[0]
+
+
+def test_monthly_subscription_and_cancellation_back_to_free():
+    _prices()
+    uid = make_user()
+    assert apply_sub(uid, "price_pro_m", start="now() - interval '3 days'", end="now() + interval '27 days'") == "pro"
+    with admin() as c:
+        assert c.execute("select billing_interval from subscriptions where user_id = %s", (uid,)).fetchone()[0] == "month"
+    apply_sub(uid, "price_pro_m", status="canceled")
+    assert As(uid).q("select plan_id from my_quota()")[0][0] == "free"
+
+
+def test_past_due_subscription_does_not_grant_paid_plan():
+    _prices()
+    uid = make_user()
+    apply_sub(uid, "price_pro_m", status="past_due")
+    assert As(uid).q("select plan_id from my_quota()")[0][0] == "free"
+
+
+def test_unknown_price_refused():
+    uid = make_user()
+    with pytest.raises(psycopg.Error, match="unknown_price"):
+        apply_sub(uid, "price_inexistant")
+
+
+def test_users_cannot_grant_themselves_a_subscription():
+    uid = make_user()
+    for fn in ("select stripe_apply_subscription(%s, 'price_pro_y', 'active', now(), now() + interval '1 year', "
+               "false, 'c', 's')", "select stripe_set_customer(%s, 'cus_x')"):
+        with pytest.raises(errors.InsufficientPrivilege):
+            As(uid).q(fn, (uid,))
+    with pytest.raises(errors.InsufficientPrivilege):
+        As(uid).q("select * from stripe_events")

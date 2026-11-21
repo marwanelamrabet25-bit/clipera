@@ -3,11 +3,13 @@ import { ArrowLeft, Lock } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/app/page-header";
+import { PayButton } from "@/components/pricing/billing-buttons";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { Alert } from "@/components/ui/feedback";
 import { getAccount } from "@/lib/account";
 import { type Billing, euros, planPerks, planPrice, renewalDate } from "@/lib/pricing";
+import { isStripeConfigured } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Récapitulatif" };
@@ -74,12 +76,18 @@ export default async function SummaryPage({ searchParams }: PageProps<"/app/abon
             {current?.id === plan.id && (
               <Alert className="mt-6" title="C'est déjà ton offre actuelle" />
             )}
-            <Alert className="mt-6" title="Le paiement en ligne ouvre très bientôt">
-              Aucun paiement n&apos;est possible pour le moment : tu ne seras pas débité.
-            </Alert>
-            <Button size="lg" className="mt-6 w-full sm:w-auto" disabled>
-              <Lock /> Payer {euros(today)}
-            </Button>
+            {isStripeConfigured() ? (
+              <PayButton plan={plan.id} billing={billing} label={`Payer ${euros(today)}`} />
+            ) : (
+              <>
+                <Alert className="mt-6" title="Le paiement en ligne ouvre très bientôt">
+                  Aucun paiement n&apos;est possible pour le moment : tu ne seras pas débité.
+                </Alert>
+                <Button size="lg" className="mt-6 w-full sm:w-auto" disabled>
+                  <Lock /> Payer {euros(today)}
+                </Button>
+              </>
+            )}
           </CardBody>
         </Card>
         <Card>
