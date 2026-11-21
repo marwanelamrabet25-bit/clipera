@@ -18,6 +18,7 @@ import { BeforeAfter, HeroVisual } from "@/components/landing/visuals";
 import { SiteFooter } from "@/components/legal/site-footer";
 import { buttonStyles } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
+import { PricingTable } from "@/components/pricing/pricing-table";
 import { getPublicPlans } from "@/lib/public-plans";
 
 export const metadata: Metadata = {
@@ -118,11 +119,6 @@ const FAQ = [
     a: "À tout moment, depuis Paramètres. Tout est effacé immédiatement, fichiers compris.",
   },
 ];
-
-function formatPrice(cents: number) {
-  if (cents === 0) return "0 €";
-  return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(cents / 100);
-}
 
 function SectionTitle({ eyebrow, title, text, id }: { eyebrow: string; title: string; text?: string; id?: string }) {
   return (
@@ -276,60 +272,11 @@ export default async function Home() {
               id="tarifs"
               eyebrow="Tarifs"
               title="Des offres simples, sans engagement."
-              text="Prix TTC par mois. Les offres payantes ouvriront avec la génération de clips ; l'offre gratuite est disponible dès maintenant."
+              text="Prix TTC. Mensuel sans engagement, ou annuel avec 2 mois offerts. L'offre gratuite est disponible dès maintenant ; le paiement en ligne des offres payantes ouvre très bientôt."
             />
             {plans.length > 0 ? (
-              <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {plans.map((p) => {
-                  const highlight = p.id === "pro";
-                  const perks = [
-                    `${p.monthly_source_videos} vidéos par mois`,
-                    `${Math.round(p.monthly_source_seconds / 60)} minutes de vidéo par mois`,
-                    `Jusqu'à ${p.max_clips_per_video} clips par vidéo`,
-                    `Export ${p.export_max_height}p`,
-                    p.watermark ? "Filigrane Clipera" : "Sans filigrane",
-                    ...(p.priority > 0 ? ["Traitement prioritaire"] : []),
-                  ];
-                  return (
-                    <div
-                      key={p.id}
-                      className={cn(
-                        "flex flex-col rounded-xl border bg-canvas p-6",
-                        highlight ? "border-primary-line shadow-pop" : "border-line",
-                      )}
-                    >
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-h3 font-semibold">{p.name}</h3>
-                        {highlight && (
-                          <span className="rounded-full bg-primary-wash px-2.5 py-0.5 text-caption font-medium text-primary-soft">
-                            Recommandé
-                          </span>
-                        )}
-                      </div>
-                      <p className="mt-4 text-h1 font-bold tabular-nums">
-                        {formatPrice(p.price_cents)}
-                        <span className="text-small font-normal text-subtle"> / mois</span>
-                      </p>
-                      <ul className="mt-6 flex flex-1 flex-col gap-2.5">
-                        {perks.map((perk) => (
-                          <li key={perk} className="flex gap-2 text-small text-muted">
-                            <Check className="mt-0.5 size-4 shrink-0 text-primary-soft" aria-hidden />
-                            {perk}
-                          </li>
-                        ))}
-                      </ul>
-                      {p.price_cents === 0 ? (
-                        <Link href="/inscription" className={cn(buttonStyles(), "mt-7 w-full")}>
-                          Commencer gratuitement
-                        </Link>
-                      ) : (
-                        <span className={cn(buttonStyles({ variant: "secondary" }), "pointer-events-none mt-7 w-full opacity-60")}>
-                          Bientôt disponible
-                        </span>
-                      )}
-                    </div>
-                  );
-                })}
+              <div className="mt-12">
+                <PricingTable plans={plans} />
               </div>
             ) : (
               <p className="mt-10 text-muted">Les tarifs sont momentanément indisponibles.</p>

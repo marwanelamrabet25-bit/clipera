@@ -86,6 +86,14 @@ la personne qui parle au début, aucun visage → centre, format horizontal → 
 Vérification de pertinence : en empêchant les changements, en autorisant les changements nerveux ou en supprimant le
 suivi, les tests échouent.
 
+## Test de bout en bout : page tarifs (11 vérifications, toutes réussies)
+Script : `apps/web/e2e/pricing.e2e.cjs`. Prix lus en base : mensuel par défaut (aucune économie affichée), passage en
+annuel (équivalent mensuel 8,33 / 16,66 / 33,33 €, ancien prix barré, total 99,90 / 199,90 / 399,90 € « débité en une
+seule fois aujourd'hui », économie 19,98 / 39,98 / 79,98 €, badge « 2 MOIS OFFERTS »), retour instantané sans
+rechargement, « Le plus populaire » sur PRO, boutons (Free → inscription, payant → récapitulatif après connexion),
+récapitulatif annuel et mensuel (montant du jour, période, date et prix de renouvellement, bouton de paiement
+désactivé tant que le paiement n'est pas ouvert), adresse falsifiée → page introuvable, page Abonnement, mobile.
+
 ## Test de bout en bout : suppression de compte (5 vérifications, toutes réussies)
 Script : `apps/web/e2e/account-delete.e2e.cjs`. Import d'une vidéo, confirmation obligatoire (« SUPPRIMER »),
 fichiers effacés du stockage, session fermée, mot de passe refusé ; contrôle SQL ensuite : aucune ligne restante.

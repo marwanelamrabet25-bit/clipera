@@ -128,6 +128,8 @@ export type Database = {
       };
       plans: {
         Row: {
+          annual_price_cents: number;
+          stripe_annual_price_id: string | null;
           created_at: string;
           currency: string;
           export_max_height: number;

@@ -49,6 +49,9 @@ Dernière mise à jour : 2026-11-20
 - [x] Import par lien Google Drive / Dropbox + guides (YouTube Studio, campagne de clipping) — 36 tests + 6 E2E
 - [ ] Validation réelle Drive / Dropbox sur le serveur avec un lien du fondateur
 - [ ] Import YouTube direct : prêt mais masqué (blocage YouTube ; nécessiterait un service payant de connexions résidentielles)
+- [x] Page tarifs mensuel / annuel (2 mois offerts) + récapitulatif avant paiement — 11 vérifications navigateur
+- [ ] Paiement Stripe (mode test d'abord) : produits, prix mensuels et annuels, Checkout, webhooks, portail client
+- [ ] Avant tout encaissement réel : identité légale, CGV (droit de rétractation), médiateur de la consommation
 - [ ] Hébergement durable du worker avant la fin de l'essai Railway (carte bancaire classique, ou autre hébergeur)
 - [ ] Analyse et sélection des passages (comparatif Sonnet / Opus sur le corpus)
 - [x] Sélection de base sans IA (règles, gratuite) — 8 tests
