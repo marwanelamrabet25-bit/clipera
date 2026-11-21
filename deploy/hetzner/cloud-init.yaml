@@ -1,0 +1,111 @@
+#cloud-config
+# CLIPERA — installation automatique du worker sur un serveur Hetzner Cloud (Ubuntu 24.04).
+#
+# À coller dans « Cloud config » lors de la création du serveur, APRÈS avoir remplacé les 4 valeurs
+# « A_REMPLACER » ci-dessous. Ne jamais publier ce fichier une fois rempli.
+#
+# Ce que fait ce script :
+#  - installe Docker et Git, ajoute 2 Go de mémoire d'appoint (swap) ;
+#  - télécharge le code de Clipera depuis GitHub, construit le worker et le lance ;
+#  - le relance automatiquement en cas d'erreur ou de redémarrage du serveur ;
+#  - vérifie toutes les 15 min si une nouvelle version est publiée sur GitHub et l'installe ;
+#  - ferme l'accès SSH (aucune porte d'entrée depuis Internet ; console web Hetzner seulement).
+
+package_update: true
+package_upgrade: true
+packages:
+  - docker.io
+  - git
+  - unattended-upgrades
+
+ssh_pwauth: false
+disable_root: true
+
+swap:
+  filename: /swapfile
+  size: 2147483648
+
+write_files:
+  - path: /opt/clipera/worker.env
+    permissions: "0600"
+    content: |
+      CLIPERA_DATABASE_URL=A_REMPLACER_adresse_session_pooler_supabase
+      R2_ACCESS_KEY_ID=A_REMPLACER_cle_r2
+      R2_SECRET_ACCESS_KEY=A_REMPLACER_secret_r2
+      DEEPGRAM_API_KEY=A_REMPLACER_cle_deepgram
+      R2_ACCOUNT_ID=7a17a432303772fe667264d41d5fd10f
+      R2_BUCKET=clipera-media
+      CLIPERA_STORAGE_BACKEND=r2
+
+  - path: /usr/local/bin/clipera-update
+    permissions: "0755"
+    content: |
+      #!/bin/bash
+      # Met à jour le worker si une nouvelle version est sur GitHub (ou au premier lancement).
+      set -euo pipefail
+      cd /opt/clipera
+      if [ ! -d repo/.git ]; then
+        git clone --depth 1 https://github.com/marwanelamrabet25-bit/clipera.git repo
+        changed=1
+      else
+        git -C repo fetch --depth 1 origin main
+        if [ "$(git -C repo rev-parse HEAD)" != "$(git -C repo rev-parse origin/main)" ]; then
+          git -C repo reset --hard origin/main
+          changed=1
+        else
+          changed=0
+        fi
+      fi
+      if [ "$changed" = 1 ] || ! docker image inspect clipera-worker >/dev/null 2>&1; then
+        docker build -t clipera-worker repo/apps/worker
+        systemctl restart clipera-worker
+        docker image prune -f >/dev/null
+        echo "worker mis à jour : $(git -C repo log -1 --format='%h %s')"
+      fi
+
+  - path: /etc/systemd/system/clipera-worker.service
+    content: |
+      [Unit]
+      Description=Clipera worker
+      After=docker.service network-online.target
+      Requires=docker.service
+
+      [Service]
+      ExecStartPre=-/usr/bin/docker rm -f clipera-worker
+      ExecStart=/usr/bin/docker run --rm --name clipera-worker --env-file /opt/clipera/worker.env clipera-worker
+      ExecStop=/usr/bin/docker stop -t 60 clipera-worker
+      Restart=always
+      RestartSec=10
+
+      [Install]
+      WantedBy=multi-user.target
+
+  - path: /etc/systemd/system/clipera-update.service
+    content: |
+      [Unit]
+      Description=Mise à jour du worker Clipera
+      After=docker.service network-online.target
+
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/local/bin/clipera-update
+
+  - path: /etc/systemd/system/clipera-update.timer
+    content: |
+      [Unit]
+      Description=Vérifie les mises à jour du worker Clipera toutes les 15 minutes
+
+      [Timer]
+      OnBootSec=2min
+      OnUnitActiveSec=15min
+
+      [Install]
+      WantedBy=timers.target
+
+runcmd:
+  - systemctl enable --now docker
+  - systemctl daemon-reload
+  - /usr/local/bin/clipera-update
+  - systemctl enable --now clipera-worker
+  - systemctl enable --now clipera-update.timer
+  - systemctl disable --now ssh.socket ssh.service || true

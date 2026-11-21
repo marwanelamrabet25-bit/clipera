@@ -89,3 +89,19 @@ changements de scène. On les déposera dans le bucket R2, jamais dans Git.
    - `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET=clipera-media`
    - `DEEPGRAM_API_KEY` : clé dédiée à la production (rôle *Member*)
 5. Aucun domaine public nécessaire : le worker ne reçoit aucune requête, il lit la file de jobs.
+
+> Railway refuse les cartes Revolut (classées « prépayées ») et Koyeb n'accepte plus que l'offre Pro (≥ 29 $/mois)
+> pour les nouveaux comptes : **le worker est hébergé chez Hetzner** (décision du fondateur).
+
+## 8. Hetzner Cloud — hébergement du worker (≈ 7,20 €/mois TTC)
+1. hetzner.com → *Cloud* → créer un compte ; paiement **prélèvement SEPA** (IBAN Revolut accepté).
+   Hetzner peut demander une vérification d'identité.
+2. Console Cloud → nouveau projet `clipera` → *Add Server* :
+   - Emplacement : Falkenstein ou Nuremberg (Allemagne) ; image **Ubuntu 24.04** ; type **CX23** (2 vCPU, 4 Go) ;
+   - Réseau : IPv4 + IPv6 ; pas de clé SSH nécessaire ;
+   - **Cloud config** : coller `deploy/hetzner/cloud-init.yaml` après avoir remplacé les 4 valeurs `A_REMPLACER`
+     (adresse *Session pooler* Supabase avec le mot de passe, clés R2, clé Deepgram dédiée).
+3. Le serveur s'installe seul (~5 min) : Docker, construction du worker, lancement, relance automatique,
+   **mise à jour automatique depuis GitHub toutes les 15 min**, accès SSH fermé.
+4. Vérification : un job de test passe de « en attente » à « terminé » sur clipera.fr.
+   Journaux : console web Hetzner → `journalctl -u clipera-worker -n 50`.
