@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { PageHeader } from "@/components/app/page-header";
+import { ImportGuides } from "@/components/app/import-guides";
 import { LinkImport } from "@/components/app/link-import";
+import { PageHeader } from "@/components/app/page-header";
 import { Uploader } from "@/components/app/uploader";
 import { Card, CardBody } from "@/components/ui/card";
 import { Alert } from "@/components/ui/feedback";
@@ -10,78 +11,55 @@ import { isStorageConfigured } from "@/lib/storage";
 export const metadata: Metadata = { title: "Nouveau projet" };
 
 const STEPS = [
-  "Importer une vidéo",
-  "Vérifier les informations",
-  "Choisir les options de montage",
-  "Lancer l'analyse",
-  "Suivre le traitement",
-  "Consulter les clips",
-  "Prévisualiser, modifier et télécharger",
+  "Importer une vidéo (lien ou fichier)",
+  "Vérification automatique (format, durée, son)",
+  "Choisir le nombre de clips, le format et les sous-titres",
+  "Suivre la génération en direct",
+  "Prévisualiser et télécharger les clips",
 ];
 
 export default async function NewProjectPage() {
   const { plan, quota } = await getAccount();
   const storageReady = isStorageConfigured();
   const videosLeft = quota ? quota.videosLimit - quota.videosUsed : 0;
-  // Import YouTube désactivé tant que YouTube bloque nos serveurs (testé en réel le 21/11/2026).
-  const linkImport = process.env.YOUTUBE_IMPORT_ENABLED === "1";
+  // Import YouTube direct : désactivé tant que YouTube bloque nos serveurs (testé en réel le 21/11/2026).
+  const youtube = process.env.YOUTUBE_IMPORT_ENABLED === "1";
+  const ready = storageReady && videosLeft > 0 && plan;
+
   return (
     <>
-      <PageHeader
-        title="Nouveau projet"
-        description="Transforme une vidéo longue en clips courts."
-      />
+      <PageHeader title="Nouveau projet" description="Transforme une vidéo longue en clips courts." />
       {!storageReady && (
-        <Alert
-          tone="info"
-          title="L'import de vidéos arrive très bientôt"
-          className="mb-6"
-        >
-          Le stockage sécurisé des vidéos n&apos;est pas encore connecté. Cette
-          page deviendra active dès qu&apos;il le sera.
+        <Alert tone="info" title="L'import de vidéos arrive très bientôt" className="mb-6">
+          Le stockage sécurisé des vidéos n&apos;est pas encore connecté. Cette page deviendra active dès qu&apos;il le
+          sera.
         </Alert>
       )}
       {storageReady && videosLeft <= 0 && (
-        <Alert
-          tone="warning"
-          title="Tu as utilisé toutes tes vidéos ce mois-ci"
-          className="mb-6"
-        >
+        <Alert tone="warning" title="Tu as utilisé toutes tes vidéos ce mois-ci" className="mb-6">
           Ton quota se renouvelle au début de la prochaine période.
         </Alert>
       )}
       <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
         <Card>
           <CardBody>
-            {storageReady && videosLeft > 0 && plan ? (
+            {ready ? (
               <div className="flex flex-col gap-8">
-                {linkImport && (
-                  <section aria-labelledby="link-title">
-                    <h2 id="link-title" className="mb-4 text-h3 font-semibold">
-                      Depuis un lien YouTube
-                    </h2>
-                    <LinkImport
-                      maxMinutes={Math.floor(plan.max_video_seconds / 60)}
-                    />
-                  </section>
-                )}
-                {linkImport && (
-                  <div
-                    className="flex items-center gap-3 text-caption text-subtle"
-                    aria-hidden
-                  >
-                    <span className="h-px flex-1 bg-line" /> ou{" "}
-                    <span className="h-px flex-1 bg-line" />
-                  </div>
-                )}
+                <section aria-labelledby="link-title" className="flex flex-col gap-4">
+                  <h2 id="link-title" className="text-h3 font-semibold">
+                    Depuis un lien
+                  </h2>
+                  <LinkImport maxMinutes={Math.floor(plan.max_video_seconds / 60)} youtube={youtube} />
+                  <ImportGuides />
+                </section>
+                <div className="flex items-center gap-3 text-caption text-subtle" aria-hidden>
+                  <span className="h-px flex-1 bg-line" /> ou <span className="h-px flex-1 bg-line" />
+                </div>
                 <section aria-labelledby="file-title">
                   <h2 id="file-title" className="mb-4 text-h3 font-semibold">
                     Depuis un fichier
                   </h2>
-                  <Uploader
-                    maxBytes={plan.max_upload_bytes}
-                    planName={plan.name}
-                  />
+                  <Uploader maxBytes={plan.max_upload_bytes} planName={plan.name} />
                 </section>
               </div>
             ) : (
@@ -90,11 +68,10 @@ export default async function NewProjectPage() {
               </div>
             )}
             {plan && (
-              <p className="mt-4 text-caption text-subtle">
-                Offre {plan.name} : vidéos de{" "}
-                {formatMinutes(plan.max_video_seconds)} maximum ·{" "}
-                {Math.round(plan.max_upload_bytes / 1024 ** 3)} Go maximum ·{" "}
-                {Math.max(videosLeft, 0)} vidéo(s) restante(s) ce mois-ci.
+              <p className="mt-6 text-caption text-subtle">
+                Offre {plan.name} : vidéos de {formatMinutes(plan.max_video_seconds)} maximum ·{" "}
+                {Math.round(plan.max_upload_bytes / 1024 ** 3)} Go maximum · {Math.max(videosLeft, 0)} vidéo(s) restante(s)
+                ce mois-ci.
               </p>
             )}
           </CardBody>

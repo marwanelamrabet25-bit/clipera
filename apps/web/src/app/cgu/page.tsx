@@ -49,10 +49,11 @@ export default function TermsPage() {
             le compte concerné.
           </li>
           <li>
-            <strong>Import par lien YouTube</strong> : réservé aux vidéos publiques sur lesquelles tu détiens les droits
-            (ta propre chaîne, ou autorisation de son auteur). Clipera récupère la vidéo uniquement pour fabriquer tes
-            clips, la conserve 30 jours au plus et ne la redistribue jamais. Tu restes responsable du respect des droits
-            d&apos;auteur et des conditions d&apos;utilisation de la plateforme d&apos;origine.
+            <strong>Import par lien</strong> (Google Drive, Dropbox) : réservé aux vidéos dont tu es le créateur ou pour
+            lesquelles tu as l&apos;autorisation du créateur (par exemple une campagne de clipping). Clipera récupère la
+            vidéo uniquement pour fabriquer tes clips, la conserve 30 jours au plus et ne la redistribue jamais. Tu
+            restes responsable du respect des droits d&apos;auteur et des conditions du service d&apos;origine. Un
+            ayant droit peut demander le retrait d&apos;un contenu via la page Mentions légales.
           </li>
         </ul>
       </section>

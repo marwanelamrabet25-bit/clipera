@@ -45,6 +45,11 @@ Dernière mise à jour : 2026-11-20
 - [x] Transcription Deepgram branchée et testée avec la vraie API (dialogue français, 2 locuteurs) — 13 tests
 - [x] Premier comparatif Deepgram / AssemblyAI (même audio, COST_MODEL.md §7) : Deepgram retenu provisoirement
 - [ ] Confirmer le comparatif sur de vraies vidéos (corpus)
+- [x] Worker hébergé sur Railway (essai gratuit 30 jours, sans carte) — premiers clips réels en ligne
+- [x] Import par lien Google Drive / Dropbox + guides (YouTube Studio, campagne de clipping) — 36 tests + 6 E2E
+- [ ] Validation réelle Drive / Dropbox sur le serveur avec un lien du fondateur
+- [ ] Import YouTube direct : prêt mais masqué (blocage YouTube ; nécessiterait un service payant de connexions résidentielles)
+- [ ] Hébergement durable du worker avant la fin de l'essai Railway (carte bancaire classique, ou autre hébergeur)
 - [ ] Analyse et sélection des passages (comparatif Sonnet / Opus sur le corpus)
 - [x] Sélection de base sans IA (règles, gratuite) — 8 tests
 - [x] Job `clip_generation` : transcription + sélection + rendu + enregistrement des clips — 5 tests de bout en bout + essai réel Deepgram

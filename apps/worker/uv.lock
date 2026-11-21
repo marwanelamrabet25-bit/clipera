@@ -367,6 +367,7 @@ dependencies = [
     { name = "deno" },
     { name = "psycopg", extra = ["binary"] },
     { name = "pydantic" },
+    { name = "requests" },
     { name = "yt-dlp", extra = ["default"] },
 ]
 
@@ -382,6 +383,7 @@ requires-dist = [
     { name = "deno", specifier = ">=2.9.8" },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.2" },
     { name = "pydantic", specifier = ">=2.9" },
+    { name = "requests", specifier = ">=2.32" },
     { name = "yt-dlp", extras = ["default"], specifier = ">=2026.10.26" },
 ]
 

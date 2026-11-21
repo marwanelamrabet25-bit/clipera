@@ -588,7 +588,7 @@ def test_delete_account_requires_session():
         "https://www.youtube.com/shorts/aqz-KE-bpKQ",
         "youtube.com/live/aqz-KE-bpKQ",
         "  https://www.youtube.com/embed/aqz-KE-bpKQ  ",
-        "https://www.youtube.com/watch?v=aqz-KE-bpKQ;rm -rf /",  # le reste est ignoré : seul l'identifiant est gardé
+        "https://www.youtube.com/watch?v=aqz-KE-bpKQ;x=1",  # le reste est ignoré : seul l'identifiant est gardé
     ],
 )
 def test_url_import_accepts_youtube_forms_and_normalises(url):
@@ -600,7 +600,8 @@ def test_url_import_accepts_youtube_forms_and_normalises(url):
         job = c.execute("select kind, status, options, project_id from processing_jobs where source_video_id = %s",
                         (vid,)).fetchall()
     assert sv == ("importing", "https://www.youtube.com/watch?v=aqz-KE-bpKQ", f"sources/{uid}/{vid}/source.mp4")
-    assert job == [("import_url", "queued", {"url": "https://www.youtube.com/watch?v=aqz-KE-bpKQ"}, pid)]
+    assert job == [("import_url", "queued", {"url": "https://www.youtube.com/watch?v=aqz-KE-bpKQ", "provider": "youtube"},
+                    pid)]
 
 
 @pytest.mark.parametrize(
@@ -651,3 +652,48 @@ def test_import_job_claimed_as_uploading_and_failure_rejects_video():
                   (job[0],))
         sv = c.execute("select status, rejection_reason from source_videos where id = %s", (vid,)).fetchone()
     assert sv == ("rejected", "Vidéo privée.")
+
+
+@pytest.mark.parametrize(
+    "url,provider,canonical",
+    [
+        ("https://drive.google.com/file/d/1AbCdEfGhIjKlMnOpQrStUvWxYz012345/view?usp=sharing", "gdrive",
+         "https://drive.google.com/file/d/1AbCdEfGhIjKlMnOpQrStUvWxYz012345"),
+        ("https://drive.google.com/open?id=1AbCdEfGhIjKlMnOpQrStUvWxYz012345", "gdrive",
+         "https://drive.google.com/file/d/1AbCdEfGhIjKlMnOpQrStUvWxYz012345"),
+        ("drive.google.com/uc?export=download&id=1AbCdEfGhIjKlMnOpQrStUvWxYz012345", "gdrive",
+         "https://drive.google.com/file/d/1AbCdEfGhIjKlMnOpQrStUvWxYz012345"),
+        ("https://www.dropbox.com/scl/fi/abc123/Episode%2012.mp4?rlkey=k9z8y7&st=xyz&dl=0", "dropbox",
+         "https://www.dropbox.com/scl/fi/abc123/Episode%2012.mp4?rlkey=k9z8y7"),
+        ("https://dropbox.com/s/abc123/video.mov?dl=0", "dropbox", "https://www.dropbox.com/s/abc123/video.mov"),
+        ("https://youtu.be/aqz-KE-bpKQ", "youtube", "https://www.youtube.com/watch?v=aqz-KE-bpKQ"),
+    ],
+)
+def test_import_links_recognised_and_rebuilt(url, provider, canonical):
+    uid = make_user()
+    vid, pid = As(uid).q("select * from create_url_import(%s, true)", (url,))[0]
+    with admin() as c:
+        sv = c.execute("select source_url from source_videos where id = %s", (vid,)).fetchone()[0]
+        opts = c.execute("select options from processing_jobs where source_video_id = %s", (vid,)).fetchone()[0]
+        title = c.execute("select title from projects where id = %s", (pid,)).fetchone()[0]
+    assert sv == canonical and opts == {"url": canonical, "provider": provider}
+    assert title.startswith("Vidéo ")
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "https://drive.google.com/drive/folders/1AbCdEfGhIjKlMnOpQrStUvWxYz012345",  # dossier, pas un fichier
+        "https://drive.google.com.evil.com/file/d/1AbCdEfGhIjKlMnOpQrStUvWxYz012345",
+        "https://www.dropbox.com/home/Videos",
+        "https://www.dropbox.com/scl/fi/../../etc/passwd",
+        "https://evil.com/?u=https://www.dropbox.com/s/abc/v.mp4",
+        "https://www.dropbox.com/s/abc/v.mp4 https://evil.com",
+        "http://169.254.169.254/latest/meta-data",
+        "https://wetransfer.com/downloads/abc",
+        "https://www.youtube.com/watch?v=aqz-KE-bpKQ;rm -rf /",  # espaces refusés
+    ],
+)
+def test_unrecognised_or_dangerous_links_refused(url):
+    with pytest.raises(psycopg.Error, match="invalid_url"):
+        As(make_user()).q("select * from create_url_import(%s, true)", (url,))

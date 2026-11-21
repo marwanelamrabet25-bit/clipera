@@ -108,9 +108,9 @@ export default async function ProjectPage({ params }: PageProps<"/app/projets/[i
       />
 
       {video?.status === "importing" && (
-        <Alert title="Import depuis YouTube en cours" className="mb-6">
-          Nos serveurs téléchargent la vidéo, puis la vérifient (format, durée, son). Compte une à quelques minutes
-          selon sa longueur ; cette page se met à jour toute seule.
+        <Alert title="Import en cours" className="mb-6">
+          Nos serveurs récupèrent la vidéo depuis le lien, puis la vérifient (format, durée, son). Compte une à
+          quelques minutes selon sa taille ; cette page se met à jour toute seule.
         </Alert>
       )}
       {status.busy && video?.status !== "importing" && (

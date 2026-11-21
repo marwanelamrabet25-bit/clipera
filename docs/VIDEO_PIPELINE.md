@@ -12,7 +12,15 @@ Légende : ✅ implémenté et testé · 🔜 prochaine étape · ⏳ plus tard
 - Testé : fichier stocké identique à l'original (MD5), annulation à deux moments, accès refusé sans session ou
   sur la vidéo d'un autre utilisateur.
 
-## 1b. Import par lien YouTube — ✅ code et tests / 🔜 validation réelle sur le serveur
+## 1b. Import par lien Google Drive / Dropbox — ✅ (testé ; validation réelle sur le serveur avec un lien du fondateur)
+- `normalize_import_url` (SQL) reconnaît Drive (`/file/d/<id>`, `?id=`) et Dropbox (`/s/…`, `/scl/fi/…?rlkey=`) et
+  **reconstruit** un lien canonique ; dossiers, autres sites, espaces et `..` refusés.
+- Worker (`media/cloud.py`) : téléchargement direct, **chaque redirection vérifiée** (domaines Google Drive / Dropbox
+  uniquement), page de connexion ou HTML → « fichier non partagé » avec la marche à suivre, taille plafonnée pendant
+  le téléchargement, nom du fichier repris comme titre du projet, puis vérification habituelle.
+- Page « Nouveau projet » : champ lien + guides pas à pas (Drive, Dropbox, YouTube Studio, campagne de clipping).
+
+## 1c. Import par lien YouTube — ✅ code et tests / ⛔ masqué : YouTube bloque les serveurs (test réel 21/11/2026)
 - `create_url_import` (SQL) : droits confirmés, lien YouTube reconnu (watch, youtu.be, shorts, live, embed) et
   **reconstruit à partir de l'identifiant seul** (aucune URL libre transmise au worker), quota, ≤ 3 imports inachevés.
 - Worker `import_url` (yt-dlp + Deno) : lit d'abord les informations (direct, durée max de l'offre, < 20 s →

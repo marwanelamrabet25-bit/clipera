@@ -9,6 +9,7 @@ dependencies = [
   "boto3>=1.35",
   "yt-dlp[default]>=2026.10.26",
   "deno>=2.9.8",
+  "requests>=2.32",
 ]
 
 [dependency-groups]

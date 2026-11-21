@@ -7,18 +7,22 @@ export type LinkImportState = { status: "idle" | "error"; message?: string; url?
 
 const ERRORS: Record<string, string> = {
   rights_not_confirmed: "Confirme que tu détiens les droits sur cette vidéo.",
-  invalid_url: "Ce lien n'est pas un lien de vidéo YouTube valide (ex. https://www.youtube.com/watch?v=…).",
+  invalid_url: "Lien non reconnu. Colle le lien de partage d'un fichier vidéo Google Drive ou Dropbox.",
   quota_videos_exceeded: "Tu as utilisé toutes tes vidéos ce mois-ci.",
   too_many_pending_uploads: "Tu as déjà 3 imports en cours. Attends qu'ils se terminent.",
   not_authenticated: "Session expirée. Reconnecte-toi.",
 };
 
-/** Import par lien : la base valide et normalise le lien, puis met le téléchargement en file pour le worker. */
+/** Import par lien : la base reconnaît et reconstruit le lien, puis met le téléchargement en file pour le worker. */
 export async function importFromLink(_prev: LinkImportState, form: FormData): Promise<LinkImportState> {
   const url = String(form.get("url") ?? "").trim();
   const rights = form.get("rights") === "on";
   if (!url) return { status: "error", message: "Colle le lien de la vidéo.", url };
   if (!rights) return { status: "error", message: ERRORS.rights_not_confirmed, url };
+  // YouTube direct désactivé côté site (YouTube bloque nos serveurs) : on n'accepte pas ce lien ici.
+  if (/(youtube\.com|youtu\.be)\//i.test(url) && process.env.YOUTUBE_IMPORT_ENABLED !== "1") {
+    return { status: "error", message: "L'import direct depuis YouTube n'est pas encore disponible.", url };
+  }
 
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("create_url_import", { p_url: url, p_rights_confirmed: true });
