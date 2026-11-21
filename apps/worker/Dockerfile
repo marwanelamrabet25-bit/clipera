@@ -7,7 +7,10 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/* \
  && fc-cache -f
 
-RUN pip install --no-cache-dir uv==0.5.11
+RUN pip install --no-cache-dir uv==0.11.32
+
+# Python de l'image (pas de téléchargement), copie des paquets (compatible avec les couches Docker)
+ENV UV_PYTHON_DOWNLOADS=never UV_LINK_MODE=copy
 
 WORKDIR /app
 COPY pyproject.toml uv.lock ./

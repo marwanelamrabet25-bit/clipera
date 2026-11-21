@@ -77,3 +77,15 @@ l'équipe (je t'enverrai le lien le moment venu). Offre Hobby gratuite pendant l
 Rassemble 7 vidéos dont tu détiens les droits (10–20 min idéalement) :
 podcast solo, interview à deux, plusieurs intervenants, musique de fond, silences, son de mauvaise qualité,
 changements de scène. On les déposera dans le bucket R2, jamais dans Git.
+
+## 7. Railway — hébergement du worker (validé par le fondateur, 5 $/mois)
+1. railway.com → **Login with GitHub** → offre **Hobby** (5 $/mois, 5 $ de consommation inclus) → carte bancaire.
+2. **Plafond de dépense** : Workspace → Usage → *Usage limits* → limite stricte (ex. 10 $). Au-delà, le service
+   s'arrête au lieu de facturer.
+3. New Project → *Deploy from GitHub repo* → `clipera` → service : **Root Directory = `apps/worker`**
+   (Railway lit `railway.json` et construit le `Dockerfile`). Région : Europe (Amsterdam).
+4. Variables (onglet *Variables*, jamais dans le chat) :
+   - `CLIPERA_DATABASE_URL` : Supabase → *Connect* → **Session pooler** (port 5432, compatible IPv4), avec le mot de passe de la base
+   - `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET=clipera-media`
+   - `DEEPGRAM_API_KEY` : clé dédiée à la production (rôle *Member*)
+5. Aucun domaine public nécessaire : le worker ne reçoit aucune requête, il lit la file de jobs.
