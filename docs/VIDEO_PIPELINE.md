@@ -113,6 +113,15 @@ coût 0,0034 $ (crédit gratuit).
 
 Performances mesurées (4 vCPU) : 60 s de clip 1080×1920 sous-titré ≈ 16,5 s de calcul.
 
+## 7a. Trois modes de cadrage — ✅ (choix mémorisé comme préférence, enregistré avec chaque clip)
+- **Stable (par défaut)** : cadrage posé ; changement seulement si une autre personne parle durablement (≥ 3,5 s,
+  plans ≥ 5 s) ou si la personne va sortir du cadre (recentrage lent). Mouvements de tête ignorés.
+- **Suivi de l'intervenant** : changement confirmé en 1 s, plans ≥ 2 s, suivi doux.
+- **Large** : aucune découpe ; image entière sur fond flouté ; sous-titres sous l'image (jamais sur un visage).
+- Communs : changements de caméra de la source détectés (coupe nette pile sur la coupe, jamais de mouvement après),
+  aucune tête à moitié dans le cadre, vitesse du cadre plafonnée (12 % de largeur/s). Indicateur enregistré :
+  changements de cadrage par minute (dialogue réel : Stable 1,5/min, Suivi 4,6/min).
+
 ## 7. Recadrage intelligent (visages) — ✅
 Code : `media/reframe.py` (YuNet, modèle libre MIT, 230 Ko ; OpenCV). Appliqué automatiquement en 9:16 et 1:1.
 1. Lecture de l'extrait à 5 images/s en 640 px, image par image (mémoire constante : 76 Mo mesurés).
