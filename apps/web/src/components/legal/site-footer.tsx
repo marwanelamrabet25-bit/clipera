@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand/logo";
-import { SOLUTION_PAGES } from "@/lib/seo";
+import { SOCIAL_PROFILES, SOLUTION_PAGES } from "@/lib/seo";
 
 const COLUMNS = [
   { title: "Solutions", links: SOLUTION_PAGES.map((p) => [p.href, p.label] as const) },
@@ -34,6 +34,17 @@ export function SiteFooter() {
             Clipera transforme tes vidéos longues en clips courts sous-titrés, prêts pour TikTok, YouTube Shorts et
             Instagram Reels.
           </p>
+          {SOCIAL_PROFILES.length > 0 && (
+            <ul aria-label="Clipera sur les réseaux sociaux" className="mt-4 flex flex-wrap gap-3 text-caption">
+              {SOCIAL_PROFILES.map((p) => (
+                <li key={p.url}>
+                  <a href={p.url} target="_blank" rel="me noopener" className="text-primary-soft hover:underline">
+                    Clipera sur {p.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
         {COLUMNS.map((c) => (
           <nav key={c.title} aria-label={c.title}>

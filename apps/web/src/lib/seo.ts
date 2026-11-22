@@ -8,7 +8,9 @@ export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3
 export const BRAND = "Clipera";
 
 /** Profils officiels de la marque. À compléter seulement quand ils existent réellement. */
-export const SOCIAL_PROFILES: string[] = [];
+export const SOCIAL_PROFILES: { name: string; url: string }[] = [
+  { name: "TikTok", url: "https://www.tiktok.com/@clipera.fr" },
+];
 
 /** Pages publiques de contenu (une par besoin réel), utilisées par le menu, le pied de page et le sitemap. */
 export const SOLUTION_PAGES = [
@@ -32,7 +34,7 @@ export function organizationLd() {
     name: BRAND,
     url: abs("/"),
     logo: { "@type": "ImageObject", url: abs("/brand/clipera-app-icon.png"), width: 256, height: 256 },
-    ...(SOCIAL_PROFILES.length ? { sameAs: SOCIAL_PROFILES } : {}),
+    ...(SOCIAL_PROFILES.length ? { sameAs: SOCIAL_PROFILES.map((p) => p.url) } : {}),
   };
 }
 
