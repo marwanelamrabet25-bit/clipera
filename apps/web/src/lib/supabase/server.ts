@@ -1,6 +1,7 @@
 import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { cache } from "react";
 import type { Database } from "./database.types";
@@ -8,6 +9,8 @@ import type { Database } from "./database.types";
 /** Client Supabase côté serveur, lié à la session (cookies) de l'utilisateur. Soumis à la RLS. */
 export async function createClient() {
   const cookieStore = await cookies();
+  // La lecture de session utilise l'heure courante : on force le rendu à la demande (jamais pré-rendu).
+  await connection();
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
