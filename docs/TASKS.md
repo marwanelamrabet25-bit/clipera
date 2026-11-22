@@ -30,8 +30,8 @@ Dernière mise à jour : 2026-11-20
 - [x] Adresse officielle du site (`NEXT_PUBLIC_SITE_URL`) passée de clipera-clipera1.vercel.app (protégée) à clipera.fr
 
 ## En attente du fondateur
-- [ ] Vercel : ajouter STRIPE_SECRET_KEY (test), STRIPE_WEBHOOK_SECRET, SUPABASE_SECRET_KEY (SETUP_ACCOUNTS §9)
-- [ ] Supabase → Authentication → URL Configuration : Site URL = https://clipera.fr, ajouter https://clipera.fr/** aux
+- [x] Vercel : STRIPE_SECRET_KEY (test), STRIPE_WEBHOOK_SECRET, SUPABASE_SECRET_KEY (clé sb_secret_, corrigée le 22/11)
+- [x] Supabase → Authentication → URL Configuration : Site URL = https://clipera.fr, ajouter https://clipera.fr/** aux
   Redirect URLs (liens de confirmation par e-mail)
 - [ ] Vidéos réelles (podcast / interview, 1–3 min) pour valider le cadrage sur de vraies images
 - [ ] Identité légale, CGV, médiateur avant tout paiement réel ; hébergement durable du worker (fin d'essai Railway)
@@ -70,7 +70,9 @@ Dernière mise à jour : 2026-11-20
 - [ ] Validation réelle Drive / Dropbox sur le serveur avec un lien du fondateur
 - [ ] Import YouTube direct : prêt mais masqué (blocage YouTube ; nécessiterait un service payant de connexions résidentielles)
 - [x] Page tarifs mensuel / annuel (2 mois offerts) + récapitulatif avant paiement — 11 vérifications navigateur
-- [ ] Paiement Stripe (mode test d'abord) : produits, prix mensuels et annuels, Checkout, webhooks, portail client
+- [x] Paiement Stripe en mode test : vérifié en réel sur clipera.fr le 22/11 (Pro mensuel → annuel → résiliation → Free,
+  webhook signé reçu, base à jour, données de test supprimées)
+- [x] DNS IONOS : clipera.fr (A 216.198.79.1) et www (CNAME Vercel) reliés
 - [ ] Avant tout encaissement réel : identité légale, CGV (droit de rétractation), médiateur de la consommation
 - [ ] Hébergement durable du worker avant la fin de l'essai Railway (carte bancaire classique, ou autre hébergeur)
 - [ ] Analyse et sélection des passages (comparatif Sonnet / Opus sur le corpus)
