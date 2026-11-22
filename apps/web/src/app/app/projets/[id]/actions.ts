@@ -4,7 +4,9 @@ import { revalidatePath } from "next/cache";
 import { CAPTION_STYLES, CREATE_JOB_ERRORS, FORMATS, FRAMINGS } from "@/lib/jobs";
 import { createClient } from "@/lib/supabase/server";
 
-export type GenerateState = { status: "idle" | "error"; message?: string };
+export type GenerateState = { status: "idle" | "error"; message?: string; upgrade?: boolean };
+
+const UPGRADE_CODES = ["quota_videos_exceeded", "quota_minutes_exceeded", "video_too_long_for_plan"];
 
 const UUID_RE = /^[0-9a-f-]{36}$/i;
 
@@ -49,7 +51,11 @@ export async function generateClips(_prev: GenerateState, form: FormData): Promi
     if (error.message.includes("not_authenticated")) {
       return { status: "error", message: "Session expirée. Reconnecte-toi." };
     }
-    return { status: "error", message: code ? CREATE_JOB_ERRORS[code] : "Impossible de lancer la génération. Réessaie." };
+    return {
+      status: "error",
+      message: code ? CREATE_JOB_ERRORS[code] : "Impossible de lancer la génération. Réessaie.",
+      upgrade: code ? UPGRADE_CODES.includes(code) : false,
+    };
   }
   // Le mode de cadrage choisi devient la préférence de l'utilisateur pour ses prochaines générations.
   const { data: claims } = await supabase.auth.getClaims();

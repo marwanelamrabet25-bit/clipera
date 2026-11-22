@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { ImportGuides } from "@/components/app/import-guides";
 import { LinkImport } from "@/components/app/link-import";
 import { PageHeader } from "@/components/app/page-header";
@@ -37,7 +38,11 @@ export default async function NewProjectPage() {
       )}
       {storageReady && videosLeft <= 0 && (
         <Alert tone="warning" title="Tu as utilisé toutes tes vidéos ce mois-ci" className="mb-6">
-          Ton quota se renouvelle au début de la prochaine période.
+          Ton quota se renouvelle au début de la prochaine période. Besoin de plus de vidéos dès maintenant ?{" "}
+          <Link href="/app/abonnement" className="font-medium text-primary-soft underline">
+            Voir les offres
+          </Link>
+          .
         </Alert>
       )}
       <div className="grid gap-4 lg:grid-cols-[1fr_320px]">

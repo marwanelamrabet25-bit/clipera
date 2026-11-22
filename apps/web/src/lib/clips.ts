@@ -25,6 +25,12 @@ export type ClipRow = {
 
 export type ClipLinks = { video: string | null; thumbnail: string | null; download: string | null };
 
+/** Liens stables vers un clip, servis par /api/clips/[id]/… (lien signé frais à chaque ouverture). */
+export function clipRoutes(clip: { id: string; thumbnail_key?: string | null }): ClipLinks {
+  const base = `/api/clips/${clip.id}`;
+  return { video: `${base}/video`, download: `${base}/download`, thumbnail: clip.thumbnail_key ? `${base}/thumbnail` : null };
+}
+
 function slug(text: string | null) {
   const s = (text ?? "clip")
     .normalize("NFD")

@@ -159,6 +159,14 @@ export function GenerateForm({
       {state.status === "error" && (
         <Alert tone="danger" title="Génération non lancée">
           {state.message}
+          {state.upgrade && (
+            <>
+              {" "}
+              <a href="/app/abonnement" className="font-medium text-primary-soft underline">
+                Voir les offres
+              </a>
+            </>
+          )}
         </Alert>
       )}
 

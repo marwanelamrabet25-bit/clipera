@@ -12,7 +12,8 @@ import { Card, CardBody, CardDescription, CardHeader, CardTitle } from "@/compon
 import { Alert } from "@/components/ui/feedback";
 import { PipelineSteps } from "@/components/ui/pipeline-steps";
 import { formatDate, formatMinutes, getAccount } from "@/lib/account";
-import { signClip, type ClipRow } from "@/lib/clips";
+import { clipRoutes, type ClipRow } from "@/lib/clips";
+import { isStorageConfigured } from "@/lib/storage";
 import { isActive, lastStepReached, type JobStatus } from "@/lib/jobs";
 import { createClient } from "@/lib/supabase/server";
 import { formatDuration, formatSize, videoStatus } from "@/lib/video-status";
@@ -62,7 +63,8 @@ export default async function ProjectPage({ params }: PageProps<"/app/projets/[i
   const clips: (ClipRow & { job_id: string })[] = (clipRows ?? []).filter((c) =>
     completedJobs.some((j) => j.id === c.job_id),
   );
-  const links = await Promise.all(clips.map((c) => signClip(c)));
+  const storage = isStorageConfigured();
+  const links = clips.map((c) => (storage ? clipRoutes(c) : { video: null, download: null, thumbnail: null }));
   const rulesBased = clips.some((c) => (c.score_details as { method?: string } | null)?.method?.startsWith("rules"));
   const latestExplanation = (completedJobs[0]?.metrics as { selection?: { explanation?: string } } | null)?.selection
     ?.explanation;
@@ -117,8 +119,8 @@ export default async function ProjectPage({ params }: PageProps<"/app/projets/[i
       )}
       {status.busy && video?.status !== "importing" && (
         <Alert title="Ta vidéo est bien reçue" className="mb-6">
-          Elle est en file d&apos;attente pour sa vérification (format, durée, son). Pendant l&apos;accès anticipé, cette
-          étape peut prendre plus de temps ; cette page se met à jour toute seule.
+          Elle est en file d&apos;attente pour sa vérification (format, durée, son). Cela prend en général moins
+          d&apos;une minute ; cette page se met à jour toute seule.
         </Alert>
       )}
       {video?.status === "rejected" && (
@@ -171,8 +173,8 @@ export default async function ProjectPage({ params }: PageProps<"/app/projets/[i
                 <PipelineSteps status={job.status as JobStatus} />
                 {job.status === "queued" && (
                   <Alert title="En attente d'un serveur de traitement">
-                    Ta demande est bien enregistrée. Pendant l&apos;accès anticipé, le démarrage peut prendre du temps ;
-                    cette page se met à jour toute seule.
+                    Ta demande est bien enregistrée et démarre dès qu&apos;un serveur se libère. Tu peux fermer cette
+                    page : la génération continue et tes clips t&apos;attendront ici.
                   </Alert>
                 )}
                 <form action={cancelGeneration}>
@@ -231,7 +233,7 @@ export default async function ProjectPage({ params }: PageProps<"/app/projets/[i
             <h2 id="clips-title" className="text-h3 font-semibold">
               Tes clips
             </h2>
-            <p className="text-caption text-subtle">Liens d&apos;aperçu et de téléchargement valables 1 heure.</p>
+            <p className="text-caption text-subtle">Aperçu et téléchargement en qualité d&apos;origine (MP4).</p>
           </div>
           {rulesBased && (
             <Alert className="mb-5" title="Sélection automatique de base">
