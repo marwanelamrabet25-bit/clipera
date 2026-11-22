@@ -28,8 +28,9 @@ export default function TermsPage() {
         <h2>3. Offres et quotas</h2>
         <p>
           Chaque offre donne droit à un nombre de vidéos et de minutes de vidéo par mois, indiqués sur la page Abonnement.
-          Un traitement qui échoue sans produire de clip ne consomme pas de quota. Les offres payantes, leurs prix et leurs
-          conditions de paiement et de rétractation seront précisés avant leur ouverture.
+          Un traitement qui échoue sans produire de clip ne consomme pas de quota. Les prix, le paiement, le renouvellement,
+          la résiliation et le droit de rétractation des offres payantes sont décrits dans les{" "}
+          <a href="/cgv">conditions générales de vente</a>.
         </p>
       </section>
       <section>

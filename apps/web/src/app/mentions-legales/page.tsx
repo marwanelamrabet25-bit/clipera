@@ -15,7 +15,8 @@ export default function LegalNoticePage() {
         <p>
           Le site et le service {LEGAL.tradeName} sont édités par <strong><Value v={LEGAL.publisherName} /></strong>,{" "}
           <Value v={LEGAL.legalForm} /> exerçant sous le nom commercial « {LEGAL.tradeName} », domicilié(e){" "}
-          <Value v={LEGAL.address} />, SIRET <Value v={LEGAL.siret} />
+          <Value v={LEGAL.address} />
+          {LEGAL.siret ? <>, SIRET {LEGAL.siret}</> : <>, non immatriculé au registre des entreprises à ce jour</>}
           {LEGAL.vatNumber ? <>, TVA intracommunautaire {LEGAL.vatNumber}</> : null}.
         </p>
         <p>

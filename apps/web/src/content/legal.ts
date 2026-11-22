@@ -5,13 +5,13 @@
 export const LEGAL = {
   /** Nom commercial du service. */
   tradeName: "Clipera",
-  /** Micro-entreprise : nom et prénom de l'entrepreneur (l'éditeur légal est la personne physique). */
-  publisherName: null as string | null,
+  /** Nom et prénom de l'éditeur (personne physique, titulaire du compte Stripe qui encaisse les paiements). */
+  publisherName: "Marwane Lamrabet" as string | null,
   /** Forme juridique. */
-  legalForm: "Entrepreneur individuel (micro-entreprise)" as string | null,
-  /** Adresse du siège (ou de domiciliation). */
-  address: null as string | null,
-  /** SIREN ou SIRET. */
+  legalForm: "personne physique" as string | null,
+  /** Adresse de l'éditeur. */
+  address: "3 cité Yves Authier, 09600 Laroque-d'Olmes, France" as string | null,
+  /** SIREN ou SIRET (null tant que l'activité n'est pas immatriculée : affiché tel quel, jamais inventé). */
   siret: null as string | null,
   /** Numéro de TVA intracommunautaire (si assujetti). */
   vatNumber: null as string | null,
@@ -22,7 +22,7 @@ export const LEGAL = {
   /** Médiateur de la consommation (obligatoire pour vendre à des particuliers en France) : nom + site. */
   consumerMediator: null as string | null,
   /** Date de dernière mise à jour des documents. */
-  updatedAt: "20 novembre 2026",
+  updatedAt: "22 novembre 2026",
 };
 
 export const HOSTS = [
@@ -30,6 +30,9 @@ export const HOSTS = [
   { name: "Supabase", role: "Base de données et comptes utilisateurs", location: "Union européenne (Paris)", url: "https://supabase.com" },
   { name: "Cloudflare (R2)", role: "Stockage des vidéos et des clips", location: "Union européenne", url: "https://www.cloudflare.com" },
 ];
+
+/** Version des CGV acceptée au moment du paiement (enregistrée avec chaque abonnement). */
+export const CGV_VERSION = "2026-11-22";
 
 export function legalIsComplete() {
   // TVA : facultative (franchise en base des micro-entreprises). Directeur de publication : l'entrepreneur par défaut.

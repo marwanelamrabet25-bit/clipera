@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { apiError, apiUser, readJson } from "@/lib/api";
 import { customerFor } from "@/lib/billing";
+import { CGV_VERSION } from "@/content/legal";
 import type { Billing } from "@/lib/pricing";
 import { isStripeConfigured, siteOrigin, stripe, verifiedPrice } from "@/lib/stripe";
 
@@ -14,10 +15,15 @@ export async function POST(request: Request) {
   if (!isStripeConfigured()) return apiError(503, "billing_unavailable", "Le paiement en ligne n'est pas encore ouvert.");
   const auth = await apiUser();
   if (!auth) return apiError(401, "not_authenticated", "Session expirée. Reconnecte-toi.");
-  const body = await readJson<{ plan?: string; billing?: string }>(request);
+  const body = await readJson<{ plan?: string; billing?: string; acceptCgv?: boolean; startNow?: boolean }>(request);
   const planId = body?.plan ?? "";
   const billing: Billing | null = body?.billing === "annual" ? "annual" : body?.billing === "monthly" ? "monthly" : null;
   if (!/^[a-z_]+$/.test(planId) || !billing) return apiError(400, "invalid_request", "Offre invalide.");
+  // Accords obligatoires (CGV + démarrage immédiat pendant le délai de rétractation), revérifiés ici.
+  if (body?.acceptCgv !== true || body?.startNow !== true) {
+    return apiError(400, "consent_required", "Coche les deux cases (CGV et démarrage immédiat) pour continuer.");
+  }
+  const consent = { cgv_version: CGV_VERSION, consent_at: new Date().toISOString() };
 
   const { supabase, userId } = auth;
   const [{ data: plan }, { data: sub }, { data: claims }] = await Promise.all([
@@ -44,8 +50,8 @@ export async function POST(request: Request) {
       customer,
       client_reference_id: userId,
       line_items: [{ price, quantity: 1 }],
-      subscription_data: { metadata: { user_id: userId, plan_id: plan.id, billing } },
-      metadata: { user_id: userId, plan_id: plan.id, billing },
+      subscription_data: { metadata: { user_id: userId, plan_id: plan.id, billing, ...consent } },
+      metadata: { user_id: userId, plan_id: plan.id, billing, ...consent },
       locale: "fr",
       customer_update: { address: "auto", name: "auto" },
       billing_address_collection: "auto",

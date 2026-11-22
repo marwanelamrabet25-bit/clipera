@@ -70,8 +70,8 @@ export default async function BillingPage({ searchParams }: PageProps<"/app/abon
 
       {paiement === "ok" && (
         <Alert tone="success" title="Merci ! Ton paiement est validé" className="mb-8">
-          Ton offre s&apos;active dans quelques secondes (recharge la page si elle n&apos;apparaît pas encore). Un reçu
-          t&apos;a été envoyé par e-mail.
+          Ton offre s&apos;active dans quelques secondes (recharge la page si elle n&apos;apparaît pas encore). Ta facture est disponible
+          dans « Gérer mon abonnement ».
         </Alert>
       )}
       {!billingOpen && (

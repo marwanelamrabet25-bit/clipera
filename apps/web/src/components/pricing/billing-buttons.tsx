@@ -16,21 +16,58 @@ async function go(url: string, body?: unknown): Promise<string> {
   return data.url as string;
 }
 
-/** Redirige vers la page de paiement sécurisée de Stripe (montant vérifié côté serveur). */
+/**
+ * Redirige vers la page de paiement sécurisée de Stripe (montant vérifié côté serveur).
+ * Deux accords explicites sont exigés (et revérifiés par le serveur) : les CGV, et le démarrage immédiat du service
+ * pendant le délai de rétractation (article L221-25 du Code de la consommation).
+ */
 export function PayButton({ plan, billing, label }: { plan: string; billing: "monthly" | "annual"; label: string }) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [acceptCgv, setAcceptCgv] = useState(false);
+  const [startNow, setStartNow] = useState(false);
+  const ready = acceptCgv && startNow;
   return (
     <div className="mt-6 flex flex-col gap-3">
+      <label className="flex cursor-pointer items-start gap-3 text-small text-muted">
+        <input
+          type="checkbox"
+          id="accept-cgv"
+          checked={acceptCgv}
+          onChange={(e) => setAcceptCgv(e.target.checked)}
+          className="mt-0.5 size-4 shrink-0 accent-primary"
+        />
+        <span>
+          J&apos;ai lu et j&apos;accepte les{" "}
+          <a href="/cgv" target="_blank" className="text-primary-soft underline">
+            conditions générales de vente
+          </a>
+          .
+        </span>
+      </label>
+      <label className="flex cursor-pointer items-start gap-3 text-small text-muted">
+        <input
+          type="checkbox"
+          id="start-now"
+          checked={startNow}
+          onChange={(e) => setStartNow(e.target.checked)}
+          className="mt-0.5 size-4 shrink-0 accent-primary"
+        />
+        <span>
+          Je demande que mon abonnement commence immédiatement. Je sais que si j&apos;exerce mon droit de rétractation dans
+          les 14 jours, seule la part du service déjà fournie restera due.
+        </span>
+      </label>
       <Button
         size="lg"
         className="w-full sm:w-auto"
         loading={pending}
+        disabled={!ready}
         onClick={async () => {
           setPending(true);
           setError(null);
           try {
-            window.location.assign(await go("/api/billing/checkout", { plan, billing }));
+            window.location.assign(await go("/api/billing/checkout", { plan, billing, acceptCgv, startNow }));
           } catch (e) {
             setError((e as Error).message);
             setPending(false);

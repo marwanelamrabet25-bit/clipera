@@ -19,7 +19,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   ];
   // Les pages légales ne sont référencées qu'une fois complètes (identité de l'éditeur renseignée).
   if (legalIsComplete()) {
-    for (const p of ["/mentions-legales", "/confidentialite", "/cgu"]) {
+    for (const p of ["/mentions-legales", "/confidentialite", "/cgu", "/cgv"]) {
       pages.push({ url: abs(p), changeFrequency: "yearly", priority: 0.2 });
     }
   }

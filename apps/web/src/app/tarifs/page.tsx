@@ -32,8 +32,8 @@ const QUESTIONS = [
     a: "Si aucun clip n'est produit, la vidéo n'est pas décomptée de ton quota : elle t'est restituée automatiquement.",
   },
   {
-    q: "Le paiement est-il déjà ouvert ?",
-    a: "Le paiement en ligne des offres payantes ouvre très bientôt. L'offre gratuite est disponible dès maintenant.",
+    q: "Comment se passe le paiement ?",
+    a: "Par carte bancaire, sur la page sécurisée de Stripe : Clipera ne voit jamais ta carte. Tes factures sont disponibles à tout moment dans ton espace. Détails dans les conditions générales de vente.",
   },
 ];
 

@@ -104,7 +104,7 @@ const FAQ = [
   },
   {
     q: "Clipera est-il déjà disponible ?",
-    a: "Oui. Tu peux créer un compte gratuit, importer tes vidéos et générer tes clips dès maintenant. Le paiement en ligne des offres payantes ouvre très bientôt.",
+    a: "Oui. Tu peux créer un compte gratuit, importer tes vidéos et générer tes clips dès maintenant. Les offres payantes se règlent par carte bancaire, sur la page sécurisée de Stripe.",
   },
   {
     q: "Quelles vidéos puis-je utiliser ?",
@@ -265,7 +265,7 @@ export default async function Home() {
               id="tarifs"
               eyebrow="Tarifs"
               title="Des offres simples, sans engagement."
-              text="Prix TTC. Mensuel sans engagement, ou annuel avec 2 mois offerts. L'offre gratuite est disponible dès maintenant ; le paiement en ligne des offres payantes ouvre très bientôt."
+              text="Prix TTC. Mensuel sans engagement, ou annuel avec 2 mois offerts. Commence avec l'offre gratuite, sans carte bancaire."
             />
             {plans.length > 0 ? (
               <div className="mt-12">

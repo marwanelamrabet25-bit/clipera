@@ -19,6 +19,7 @@ const COLUMNS = [
       ["/mentions-legales", "Mentions légales"],
       ["/confidentialite", "Confidentialité"],
       ["/cgu", "Conditions d'utilisation"],
+      ["/cgv", "Conditions de vente"],
     ] as const,
   },
 ];
