@@ -11,3 +11,6 @@ test-corpus/videos/
 .DS_Store
 .pytest_cache/
 .ruff_cache/
+
+# Vidéos marketing publiées sur le site (exception volontaire)
+!apps/web/public/media/*.mp4
