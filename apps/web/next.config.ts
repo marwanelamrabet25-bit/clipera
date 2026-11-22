@@ -11,7 +11,11 @@ const nextConfig: NextConfig = {
       {
         source: "/media/:file*",
         has: [{ type: "query", key: "telecharger" }],
-        headers: [{ key: "Content-Disposition", value: "attachment" }],
+        headers: [
+          { key: "Content-Disposition", value: 'attachment; filename="clipera-video.mp4"' },
+          // Type générique : les navigateurs intégrés aux applications (qui lisent toute vidéo) téléchargent aussi.
+          { key: "Content-Type", value: "application/octet-stream" },
+        ],
       },
     ];
   },
