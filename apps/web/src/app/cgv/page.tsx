@@ -132,8 +132,32 @@ export default async function SalesTermsPage() {
         </p>
       </section>
 
+      <section id="parrainage">
+        <h2>6. Parrainage</h2>
+        <ul>
+          <li>
+            Chaque client dispose d&apos;un lien de parrainage personnel (page Parrainage de son espace). Un nouvel
+            utilisateur qui crée son compte avec ce lien, dans les 30 jours suivant le clic, devient son filleul. Un compte
+            ne peut avoir qu&apos;un seul parrain, et se parrainer soi-même est impossible.
+          </li>
+          <li>
+            Le filleul bénéficie de <strong>50 % de réduction sur son premier mois</strong> d&apos;abonnement mensuel. La
+            réduction ne s&apos;applique pas aux abonnements annuels.
+          </li>
+          <li>
+            Dès que le filleul a réellement payé une première facture, le parrain reçoit un <strong>crédit égal à un mois
+            de son offre</strong> (un mois de l&apos;offre Starter s&apos;il est en offre gratuite). Ce crédit est déduit
+            automatiquement de ses prochaines factures ; il n&apos;est ni remboursable ni convertible en argent.
+          </li>
+          <li>
+            Un parrain peut recevoir au maximum 12 mois offerts sur 12 mois glissants. En cas d&apos;abus (faux comptes,
+            fraude), les crédits concernés peuvent être annulés.
+          </li>
+        </ul>
+      </section>
+
       <section>
-        <h2>6. Exécution du service et responsabilité</h2>
+        <h2>7. Exécution du service et responsabilité</h2>
         <p>
           Clipera fournit les clips en fonction du contenu des vidéos importées ; les notes affichées sont indicatives et aucun
           résultat (vues, abonnés, revenus) n&apos;est garanti. Un traitement qui échoue sans produire de clip ne consomme pas
@@ -144,7 +168,7 @@ export default async function SalesTermsPage() {
       </section>
 
       <section>
-        <h2>7. Réclamations et médiation</h2>
+        <h2>8. Réclamations et médiation</h2>
         <p>
           Toute réclamation peut être adressée à <Value v={LEGAL.contactEmail} />. Nous répondons dans les meilleurs délais.
         </p>
@@ -155,7 +179,7 @@ export default async function SalesTermsPage() {
       </section>
 
       <section>
-        <h2>8. Données personnelles et droit applicable</h2>
+        <h2>9. Données personnelles et droit applicable</h2>
         <p>
           Les données nécessaires à la commande (identité, adresse e-mail, informations de facturation) sont traitées comme
           décrit dans la <a href="/confidentialite">politique de confidentialité</a>. Les présentes CGV sont soumises au droit

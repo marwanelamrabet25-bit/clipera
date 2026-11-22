@@ -10,6 +10,7 @@ import { Alert } from "@/components/ui/feedback";
 import { getAccount } from "@/lib/account";
 import { type Billing, euros, planPerks, planPrice, renewalDate } from "@/lib/pricing";
 import { isStripeConfigured } from "@/lib/stripe";
+import { hasReferralDiscount } from "@/lib/referral";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Récapitulatif" };
@@ -25,21 +26,26 @@ export default async function SummaryPage({ searchParams }: PageProps<"/app/abon
   if (!/^[a-z_]+$/.test(planId)) notFound();
 
   const supabase = await createClient();
-  const [{ data: plan }, { plan: current }] = await Promise.all([
+  const [{ data: plan }, account] = await Promise.all([
     supabase.from("plans").select("*").eq("id", planId).eq("is_public", true).maybeSingle(),
     getAccount(),
   ]);
+  const current = account.plan;
   if (!plan || plan.price_cents === 0) notFound();
 
   const price = planPrice(plan);
   const annual = billing === "annual";
-  const today = annual ? price.annualCents : price.monthlyCents;
+  const renewal = annual ? price.annualCents : price.monthlyCents;
+  // Filleul : -50 % sur le premier mois d'un abonnement mensuel (même règle que le serveur de paiement).
+  const referral = !annual && (await hasReferralDiscount(account.user.id));
+  // Même arrondi que Stripe : la remise (50 %) est arrondie au centime supérieur (9,99 € → 4,99 €).
+  const today = referral ? renewal - Math.round(renewal / 2) : renewal;
   const rows: [string, string][] = [
     ["Formule", `${plan.name} — ${annual ? "annuelle" : "mensuelle"}`],
     ...(annual ? [["Prix équivalent", `${euros(price.equivalentMonthlyCents)} / mois`] as [string, string]] : []),
     ["Période", annual ? "12 mois" : "1 mois"],
     ["Prochain renouvellement", renewalDate(billing)],
-    ["Prix au renouvellement", `${euros(today)} ${annual ? "/ an" : "/ mois"}`],
+    ["Prix au renouvellement", `${euros(renewal)} ${annual ? "/ an" : "/ mois"}`],
   ];
 
   return (
@@ -57,7 +63,9 @@ export default async function SummaryPage({ searchParams }: PageProps<"/app/abon
               <p className="mt-1 text-caption text-muted">
                 {annual
                   ? `Paiement unique pour 12 mois. Économie de ${euros(price.savingsCents)} par rapport au mensuel (2 mois offerts).`
-                  : "Puis le même montant chaque mois, résiliable à tout moment."}
+                  : referral
+                    ? `Parrainage : -50 % sur ton premier mois. Puis ${euros(renewal)} chaque mois, résiliable à tout moment.`
+                    : "Puis le même montant chaque mois, résiliable à tout moment."}
               </p>
             </div>
             <dl className="mt-6 divide-y divide-line" data-testid="summary-rows">

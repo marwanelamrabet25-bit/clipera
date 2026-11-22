@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Sidebar, SidebarSkeleton } from "@/components/app/sidebar";
 import { getAccount } from "@/lib/account";
+import { claimReferralFromCookie } from "@/lib/referral";
 import { signOut } from "../connexion/actions";
 
 export const metadata: Metadata = { title: { default: "Dashboard", template: "%s · Clipera" }, robots: { index: false } };
@@ -21,6 +22,8 @@ export default function AppLayout({ children }: LayoutProps<"/app">) {
 }
 
 async function AccountSidebar() {
+  // Venu par un lien de parrainage : rattachement au parrain (une seule fois, règles vérifiées par la base).
+  await claimReferralFromCookie();
   const account = await getAccount();
   return (
     <Sidebar

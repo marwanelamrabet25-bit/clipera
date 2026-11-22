@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { apiError, apiUser, readJson } from "@/lib/api";
 import { customerFor } from "@/lib/billing";
+import { hasReferralDiscount, REFERRAL_COUPON } from "@/lib/referral";
 import { CGV_VERSION } from "@/content/legal";
 import type { Billing } from "@/lib/pricing";
 import { isStripeConfigured, siteOrigin, stripe, verifiedPrice } from "@/lib/stripe";
@@ -45,11 +46,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ url: portal.url, mode: "portal" });
     }
     const price = await verifiedPrice(plan, billing);
+    const referral = billing === "monthly" && (await hasReferralDiscount(userId));
     const session = await stripe().checkout.sessions.create({
       mode: "subscription",
       customer,
       client_reference_id: userId,
       line_items: [{ price, quantity: 1 }],
+      ...(referral ? { discounts: [{ coupon: REFERRAL_COUPON }] } : {}),
       subscription_data: { metadata: { user_id: userId, plan_id: plan.id, billing, ...consent } },
       metadata: { user_id: userId, plan_id: plan.id, billing, ...consent },
       locale: "fr",
@@ -58,7 +61,7 @@ export async function POST(request: Request) {
       success_url: `${origin}/app/abonnement?paiement=ok`,
       cancel_url: `${origin}/app/abonnement/recapitulatif?offre=${plan.id}&periode=${billing === "annual" ? "annuel" : "mensuel"}`,
     });
-    console.log(JSON.stringify({ event: "checkout_created", user: userId, plan: plan.id, billing, session: session.id }));
+    console.log(JSON.stringify({ event: "checkout_created", user: userId, plan: plan.id, billing, referral, session: session.id }));
     return NextResponse.json({ url: session.url, mode: "checkout" });
   } catch (e) {
     console.error(JSON.stringify({ event: "checkout_failed", user: userId, plan: plan.id, error: String(e) }));

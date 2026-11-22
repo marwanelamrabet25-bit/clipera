@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { syncSubscription } from "@/lib/billing";
+import { rewardReferrer } from "@/lib/referral";
 import { stripe } from "@/lib/stripe";
 import { adminClient } from "@/lib/supabase/admin";
 
@@ -40,7 +41,8 @@ export async function POST(request: Request) {
 
   try {
     const obj = event.data.object as { subscription?: string | { id: string } | null; id: string; object: string;
-      client_reference_id?: string | null; parent?: { subscription_details?: { subscription?: string } } };
+      client_reference_id?: string | null; parent?: { subscription_details?: { subscription?: string } };
+      amount_paid?: number };
     let subscriptionId: string | null = null;
     if (obj.object === "subscription") subscriptionId = obj.id;
     else if (typeof obj.subscription === "string") subscriptionId = obj.subscription;
@@ -51,6 +53,8 @@ export async function POST(request: Request) {
       const sub = await stripe().subscriptions.retrieve(subscriptionId);
       const res = await syncSubscription(sub, obj.client_reference_id ?? null);
       console.log(JSON.stringify({ event: "stripe_synced", type: event.type, id: event.id, ...res, status: sub.status }));
+      // Parrainage : le parrain n'est récompensé que lorsque le filleul a réellement payé (facture > 0 €).
+      if (event.type === "invoice.paid" && (obj.amount_paid ?? 0) > 0) await rewardReferrer(res.userId);
     }
     return NextResponse.json({ received: true });
   } catch (e) {

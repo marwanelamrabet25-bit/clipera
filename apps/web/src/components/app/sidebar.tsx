@@ -1,6 +1,6 @@
 "use client";
 
-import { CreditCard, Film, FolderOpen, LayoutDashboard, LogOut, Plus, Settings } from "lucide-react";
+import { CreditCard, Film, FolderOpen, Gift, LayoutDashboard, LogOut, Plus, Settings } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "@/components/brand/logo";
@@ -12,6 +12,7 @@ export const NAV = [
   { href: "/app/projets", label: "Mes projets", icon: FolderOpen },
   { href: "/app/bibliotheque", label: "Bibliothèque", icon: Film },
   { href: "/app/abonnement", label: "Abonnement", icon: CreditCard },
+  { href: "/app/parrainage", label: "Parrainage", icon: Gift },
   { href: "/app/parametres", label: "Paramètres", icon: Settings },
 ] as const;
 

@@ -763,3 +763,102 @@ def test_users_cannot_grant_themselves_a_subscription():
             As(uid).q(fn, (uid,))
     with pytest.raises(errors.InsufficientPrivilege):
         As(uid).q("select * from stripe_events")
+
+
+# ───────────── Parrainage ─────────────
+
+
+def _code(uid):
+    u = As(uid)
+    try:
+        return u.q("select my_referral_code()")[0][0]
+    finally:
+        u.close()
+
+
+def _claim(uid, code):
+    u = As(uid)
+    try:
+        return u.q("select claim_referral(%s)", (code,))[0][0]
+    finally:
+        u.close()
+
+
+def _reward(referee):
+    with admin() as c:
+        return c.execute("select * from referral_reward(%s)", (referee,)).fetchall()
+
+
+def test_referral_code_is_stable_and_readable():
+    a = make_user()
+    c1, c2 = _code(a), _code(a)
+    assert c1 == c2 and len(c1) == 8 and not set(c1) & set("01OI")
+
+
+def test_referral_claim_rules():
+    parrain, filleul, autre = make_user(), make_user(), make_user()
+    code = _code(parrain)
+    assert _claim(parrain, code) == "self"  # pas d'auto-parrainage
+    assert _claim(filleul, "XXXXXXXX") == "unknown"
+    assert _claim(filleul, code.lower()) == "ok"  # insensible à la casse
+    assert _claim(filleul, _code(autre)) == "already"  # un seul parrain
+    vieux = make_user()
+    with admin() as c:
+        c.execute("update auth.users set created_at = now() - interval '8 days' where id = %s", (vieux,))
+    assert _claim(vieux, code) == "too_late"
+    client = make_user()
+    with admin() as c:
+        c.execute("update subscriptions set stripe_subscription_id = 'sub_x' where user_id = %s", (client,))
+    assert _claim(client, code) == "customer"
+
+
+def test_referral_visible_only_to_its_members():
+    parrain, filleul, curieux = make_user(), make_user(), make_user()
+    _claim(filleul, _code(parrain))
+    for uid, expected in ((parrain, 1), (filleul, 1), (curieux, 0)):
+        u = As(uid)
+        assert len(u.q("select * from referrals where referee_id = %s", (filleul,))) == expected
+        u.close()
+
+
+def test_users_cannot_reward_themselves():
+    parrain, filleul = make_user(), make_user()
+    _claim(filleul, _code(parrain))
+    u = As(filleul)
+    with pytest.raises(psycopg.errors.InsufficientPrivilege):
+        u.q("select * from referral_reward(%s)", (filleul,))
+    with pytest.raises(psycopg.errors.InsufficientPrivilege):
+        u.q("update referrals set status = 'rewarded' where referee_id = %s", (filleul,))
+    u.close()
+
+
+def test_referral_reward_once_with_plan_price_and_retry():
+    parrain, filleul = make_user("pro"), make_user()
+    _claim(filleul, _code(parrain))
+    (row,) = _reward(filleul)
+    assert row[2] == 1999  # 1 mois de l'offre du parrain (Pro)
+    # Crédit Stripe pas encore confirmé : le même crédit est redonné (reprise), jamais un second.
+    (again,) = _reward(filleul)
+    assert again[0] == row[0] and again[2] == 1999
+    with admin() as c:
+        c.execute("select referral_mark_credited(%s)", (row[0],))
+    assert _reward(filleul) == []
+    free_parrain, f2 = make_user(), make_user()
+    _claim(f2, _code(free_parrain))
+    assert _reward(f2)[0][2] == 999  # parrain en gratuit : 1 mois de Starter
+
+
+def test_referral_reward_capped_at_12_per_year():
+    parrain = make_user("starter")
+    code = _code(parrain)
+    for _ in range(12):
+        f = make_user()
+        _claim(f, code)
+        (r,) = _reward(f)
+        with admin() as c:
+            c.execute("select referral_mark_credited(%s)", (r[0],))
+    f13 = make_user()
+    _claim(f13, code)
+    assert _reward(f13) == []  # 13e : parrainage enregistré, mais plus de crédit
+    with admin() as c:
+        assert c.execute("select status, credit_cents from referrals where referee_id = %s", (f13,)).fetchone() == ("rewarded", 0)

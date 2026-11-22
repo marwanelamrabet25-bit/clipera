@@ -239,6 +239,36 @@ export type Database = {
           { foreignKeyName: "source_videos_project_id_fkey"; columns: ["project_id"]; isOneToOne: false; referencedRelation: "projects"; referencedColumns: ["id"] },
         ];
       };
+      referral_codes: {
+        Row: { user_id: string; code: string; created_at: string };
+        Insert: { user_id: string; code: string; created_at?: string };
+        Update: { user_id?: string; code?: string; created_at?: string };
+        Relationships: [];
+      };
+      referrals: {
+        Row: {
+          id: string;
+          referrer_id: string;
+          referee_id: string;
+          status: Database["public"]["Enums"]["referral_status"];
+          credit_cents: number | null;
+          created_at: string;
+          rewarded_at: string | null;
+          stripe_credited_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          referrer_id: string;
+          referee_id: string;
+          status?: Database["public"]["Enums"]["referral_status"];
+          credit_cents?: number | null;
+          created_at?: string;
+          rewarded_at?: string | null;
+          stripe_credited_at?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["referrals"]["Insert"]>;
+        Relationships: [];
+      };
       stripe_events: {
         Row: { id: string; type: string; received_at: string };
         Insert: { id: string; type: string; received_at?: string };
@@ -331,6 +361,13 @@ export type Database = {
         Returns: string;
       };
       stripe_set_customer: { Args: { p_user: string; p_customer_id: string }; Returns: undefined };
+      my_referral_code: { Args: Record<PropertyKey, never>; Returns: string };
+      claim_referral: { Args: { p_code: string }; Returns: string };
+      referral_reward: {
+        Args: { p_referee: string };
+        Returns: { referral_id: string; referrer_id: string; credit_cents: number }[];
+      };
+      referral_mark_credited: { Args: { p_referral: string }; Returns: undefined };
       cancel_job: { Args: { p_job_id: string } } & JobFnReturn;
       claim_next_job: { Args: { p_kinds?: Database["public"]["Enums"]["job_kind"][]; p_worker_id: string } } & JobFnReturn;
       create_clip_job: {
@@ -367,6 +404,7 @@ export type Database = {
         | "failed"
         | "cancelled";
       source_video_status: "pending_upload" | "uploaded" | "validated" | "rejected" | "deleted" | "importing";
+      referral_status: "pending" | "rewarded";
       subscription_status: "active" | "trialing" | "past_due" | "canceled" | "incomplete" | "unpaid";
       usage_kind: "reserve" | "refund" | "adjust";
     };
