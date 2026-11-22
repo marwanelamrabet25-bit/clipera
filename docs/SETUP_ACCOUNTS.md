@@ -120,3 +120,11 @@ Variables à ajouter dans Vercel (Production, cocher *Sensitive*) — jamais dan
   uniquement côté serveur (webhooks).
 Passage au réel : recréer les prix et le webhook en mode live, remplacer les 3 variables et les Price ID en base,
 après identité légale + CGV + médiateur.
+
+### Stripe — mode réel (22/11/2026)
+- Compte réel activé (particulier, France). Clé `sk_live` et secret de webhook saisis par le fondateur dans Vercel.
+- Prix réels (TTC) : Starter `price_1UeZfo99DbnxVXrBfbTdfZwW` / `price_1UeZfo99DbnxVXrBLmuEiIy1`,
+  Pro `price_1UeZfo99DbnxVXrBxKhzX9Bs` / `price_1UeZfo99DbnxVXrBByTmrUsl`,
+  Ultimate `price_1UeZfp99DbnxVXrBzBIynuw4` / `price_1UeZfp99DbnxVXrBLZ301u00` (mensuel / annuel), enregistrés dans `plans`.
+- Portail client réel `bpc_1UeZg099DbnxVXrBNqiollhu` (résiliation en fin de période), webhook réel `we_1UeZqx99DbnxVXrBHvZWTTca`.
+- Les identifiants de test ont été retirés de la base ; l'Ultimate du fondateur est offert sans Stripe (jusqu'en 2099).

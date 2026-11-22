@@ -73,7 +73,10 @@ Dernière mise à jour : 2026-11-20
 - [x] Paiement Stripe en mode test : vérifié en réel sur clipera.fr le 22/11 (Pro mensuel → annuel → résiliation → Free,
   webhook signé reçu, base à jour, données de test supprimées)
 - [x] DNS IONOS : clipera.fr (A 216.198.79.1) et www (CNAME Vercel) reliés
-- [ ] Avant tout encaissement réel : identité légale, CGV (droit de rétractation), médiateur de la consommation
+- [x] Paiement réel ouvert le 22/11 : compte Stripe réel activé (particulier, FR), 6 prix réels créés et vérifiés
+  (sessions ouvertes puis expirées), portail client réel, webhook réel (6 événements), CGV + consentement L221-25
+- [ ] Encore manquants (choix du fondateur, risques signalés) : SIRET, adresse e-mail de contact (obligatoire,
+  affichée « à compléter »), médiateur de la consommation (obligatoire, payant)
 - [ ] Hébergement durable du worker avant la fin de l'essai Railway (carte bancaire classique, ou autre hébergeur)
 - [ ] Analyse et sélection des passages (comparatif Sonnet / Opus sur le corpus)
 - [x] Sélection de base sans IA (règles, gratuite) — 8 tests
