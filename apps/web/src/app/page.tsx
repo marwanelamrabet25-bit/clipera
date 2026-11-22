@@ -13,20 +13,23 @@ import {
   Wand2,
 } from "lucide-react";
 import Link from "next/link";
-import { Logo } from "@/components/brand/logo";
 import { BeforeAfter, HeroVisual } from "@/components/landing/visuals";
 import { SiteFooter } from "@/components/legal/site-footer";
+import { SiteHeader } from "@/components/marketing/site-header";
+import { JsonLd } from "@/components/seo/json-ld";
 import { buttonStyles } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import { PricingTable } from "@/components/pricing/pricing-table";
 import { getPublicPlans } from "@/lib/public-plans";
+import { graph, organizationLd, SOLUTION_PAGES, softwareLd, websiteLd } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: { absolute: "Clipera — Transforme tes vidéos longues en clips courts grâce à l'IA" },
   description:
-    "Importe une vidéo longue : Clipera repère les meilleurs passages, les recadre en vertical, ajoute des sous-titres synchronisés et te livre des clips prêts à publier sur TikTok, Shorts et Reels.",
+    "Clipera transforme tes vidéos longues en clips courts : meilleurs passages, recadrage vertical et sous-titres synchronisés, prêts pour TikTok, Shorts et Reels.",
   alternates: { canonical: "/" },
   openGraph: {
+    url: "/",
     title: "Clipera — Transforme tes vidéos. Multiplie tes opportunités.",
     description: "Des clips courts, naturels et prêts à publier, à partir de tes vidéos longues.",
     type: "website",
@@ -35,39 +38,44 @@ export const metadata: Metadata = {
   },
 };
 
-const NAV = [
-  ["#fonctionnement", "Fonctionnement"],
-  ["#fonctionnalites", "Fonctionnalités"],
-  ["#tarifs", "Tarifs"],
-  ["#faq", "FAQ"],
-] as const;
-
 const STEPS = [
-  { icon: Upload, title: "Importe ta vidéo", text: "Podcast, interview, live, vlog : un fichier MP4 ou MOV depuis ton ordinateur." },
-  { icon: Wand2, title: "Choisis ton style", text: "Naturel, dynamique ou minimaliste. Sous-titres, recadrage et silences, option par option." },
-  { icon: Download, title: "Récupère tes clips", text: "Prévisualise, ajuste si besoin, et télécharge des MP4 prêts à publier où tu veux." },
+  {
+    icon: Upload,
+    title: "Importe ta vidéo",
+    text: "Podcast, interview, live, vlog : un fichier MP4 ou MOV depuis ton ordinateur, ou un lien Google Drive ou Dropbox.",
+  },
+  {
+    icon: Wand2,
+    title: "Choisis tes réglages",
+    text: "Format (9:16, 1:1 ou 16:9), cadrage (Stable, Suivi de l'intervenant ou Large), sous-titres et leur style.",
+  },
+  {
+    icon: Download,
+    title: "Récupère tes clips",
+    text: "Prévisualise chaque clip, compare leurs notes et télécharge des MP4 prêts à publier où tu veux.",
+  },
 ];
 
 const FEATURES = [
   {
     icon: Sparkles,
     title: "Sélection des meilleurs passages",
-    text: "L'IA lit toute la transcription pour trouver les histoires, conseils et réactions qui tiennent debout seuls — pas un découpage toutes les 60 secondes.",
+    text: "La parole est transcrite par IA au mot près, puis chaque passage est noté (accroche, cohérence, conclusion, énergie de la voix) pour garder ceux qui tiennent debout seuls — pas un découpage toutes les 60 secondes.",
   },
   {
     icon: Captions,
     title: "Sous-titres synchronisés au mot",
-    text: "Quatre styles (Classic, Highlight, Modern, Minimal), taille lisible, placés au-dessus des boutons des applications.",
+    text: "Quatre styles (Classique, Mot surligné, Moderne, Minimal), typographie française respectée, placés au-dessus des boutons des applications.",
   },
   {
     icon: Crop,
     title: "Recadrage 9:16, 1:1 et 16:9",
-    text: "Le cadre suit la personne qui parle, sans à-coups. Correction manuelle possible si besoin.",
+    text: "Les visages sont détectés par IA et le cadre se place sur la personne qui parle, sans à-coups et sans jamais couper une tête. Trois modes au choix.",
   },
   {
     icon: Scissors,
     title: "Coupes propres",
-    text: "Début et fin calés sur les phrases, silences trop longs retirés, aucun passage coupé en plein milieu d'une idée.",
+    text: "Début et fin calés sur les phrases, changements de caméra respectés, aucun passage coupé en plein milieu d'une idée.",
   },
   {
     icon: Gauge,
@@ -91,12 +99,16 @@ const QUALITY = [
 
 const FAQ = [
   {
+    q: "Qu'est-ce que Clipera ?",
+    a: "Clipera (clipera.fr) est un logiciel en ligne qui transforme tes vidéos longues en clips courts grâce à l'intelligence artificielle : il transcrit la vidéo, choisit les meilleurs passages, les recadre en vertical et ajoute des sous-titres synchronisés. Rien à installer : tout se passe dans ton navigateur.",
+  },
+  {
     q: "Clipera est-il déjà disponible ?",
-    a: "Clipera est en accès anticipé. Tu peux créer ton compte et importer tes vidéos ; la génération automatique des clips est en cours de finalisation et sera ouverte progressivement.",
+    a: "Oui. Tu peux créer un compte gratuit, importer tes vidéos et générer tes clips dès maintenant. Le paiement en ligne des offres payantes ouvre très bientôt.",
   },
   {
     q: "Quelles vidéos puis-je utiliser ?",
-    a: "Des vidéos dont tu détiens les droits (tu en es l'auteur ou tu as l'autorisation de les exploiter), en MP4, MOV, M4V, MKV ou WEBM, avec de la parole. Clipera ne télécharge pas de vidéos depuis d'autres plateformes.",
+    a: "Des vidéos en français, avec de la parole, dont tu détiens les droits (tu en es l'auteur ou tu as l'autorisation de les exploiter) : fichiers MP4, MOV, M4V, MKV ou WEBM depuis ton ordinateur, ou lien de partage Google Drive ou Dropbox. Clipera ne télécharge pas de vidéos depuis YouTube, TikTok ou d'autres plateformes.",
   },
   {
     q: "Mes vidéos restent-elles privées ?",
@@ -134,28 +146,8 @@ export default async function Home() {
   const plans = await getPublicPlans();
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="sticky top-0 z-30 border-b border-line bg-canvas/85 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-6 px-4 sm:px-8">
-          <Link href="/" aria-label="Clipera — accueil">
-            <Logo size={28} />
-          </Link>
-          <nav aria-label="Sections" className="hidden items-center gap-7 text-small text-muted md:flex">
-            {NAV.map(([href, label]) => (
-              <a key={href} href={href} className="hover:text-fg">
-                {label}
-              </a>
-            ))}
-          </nav>
-          <div className="flex items-center gap-2">
-            <Link href="/connexion" className={buttonStyles({ variant: "ghost", size: "sm" })}>
-              Se connecter
-            </Link>
-            <Link href="/inscription" className={cn(buttonStyles({ size: "sm" }), "hidden sm:inline-flex")}>
-              Créer un compte
-            </Link>
-          </div>
-        </div>
-      </header>
+      <JsonLd data={graph(organizationLd(), websiteLd(), softwareLd(plans))} />
+      <SiteHeader />
 
       <main className="flex-1">
         {/* Hero */}
@@ -167,10 +159,11 @@ export default async function Home() {
           <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 pt-16 pb-20 sm:px-8 lg:grid-cols-[1.05fr_1fr] lg:pt-24">
             <div>
               <span className="inline-flex items-center gap-2 rounded-full border border-primary-line bg-primary-wash px-3 py-1 text-caption font-medium text-primary-soft">
-                <span className="size-1.5 rounded-full bg-primary-soft" /> Accès anticipé
+                <span className="size-1.5 rounded-full bg-primary-soft" /> Clipera · générateur de clips IA en français
               </span>
               <h1 className="mt-6 text-h1 font-bold text-balance sm:text-display">
-                Transforme tes vidéos longues en <span className="text-primary-soft">clips courts</span> grâce à l&apos;IA.
+                Clipera transforme tes vidéos longues en <span className="text-primary-soft">clips courts</span> grâce à
+                l&apos;IA.
               </h1>
               <p className="mt-6 max-w-xl text-body text-muted sm:text-h3 sm:font-normal">
                 Clipera repère les meilleurs passages de tes podcasts et interviews, les recadre en vertical et ajoute des
@@ -184,7 +177,7 @@ export default async function Home() {
                   Voir les tarifs
                 </a>
               </div>
-              <p className="mt-4 text-small text-subtle">Offre gratuite · sans carte bancaire · génération de clips en cours d&apos;ouverture</p>
+              <p className="mt-4 text-small text-subtle">Offre gratuite · sans carte bancaire · rien à installer</p>
             </div>
             <HeroVisual />
           </div>
@@ -232,7 +225,7 @@ export default async function Home() {
               id="fonctionnalites"
               eyebrow="Fonctionnalités"
               title="Tout ce qu'il faut pour des clips propres, rien de superflu."
-              text="Clipera est en accès anticipé : ces fonctionnalités ouvrent progressivement."
+              text="Toutes ces fonctionnalités sont incluses dès l'offre gratuite."
             />
             <div className="mt-12 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
               {FEATURES.map((f) => (
@@ -284,6 +277,39 @@ export default async function Home() {
           </div>
         </section>
 
+        {/* Pour qui : maillage vers les pages de contenu */}
+        <section className="border-t border-line">
+          <div className="mx-auto max-w-6xl px-4 py-20 sm:px-8">
+            <SectionTitle
+              eyebrow="Pour qui ?"
+              title="Pour tous ceux qui parlent face caméra."
+              text="Podcasteurs, coachs, formateurs, créateurs YouTube, entrepreneurs et agences : si ta vidéo contient de la parole, Clipera peut en tirer des clips courts. Découvre comment selon ton besoin."
+            />
+            <ul className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {SOLUTION_PAGES.map((p) => (
+                <li key={p.href}>
+                  <Link
+                    href={p.href}
+                    className="flex h-full items-center justify-between gap-3 rounded-xl border border-line bg-surface/40 px-5 py-4 text-small font-medium text-fg transition-colors hover:border-primary-line"
+                  >
+                    {p.label}
+                    <ArrowRight className="size-4 shrink-0 text-primary-soft" aria-hidden />
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <Link
+                  href="/blog"
+                  className="flex h-full items-center justify-between gap-3 rounded-xl border border-line bg-surface/40 px-5 py-4 text-small font-medium text-fg transition-colors hover:border-primary-line"
+                >
+                  Guides et conseils (blog)
+                  <ArrowRight className="size-4 shrink-0 text-primary-soft" aria-hidden />
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </section>
+
         {/* FAQ */}
         <section className="border-t border-line">
           <div className="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-8 lg:grid-cols-[1fr_1.5fr]">
@@ -313,7 +339,7 @@ export default async function Home() {
                 Transforme tes vidéos. <span className="text-primary-soft">Multiplie tes opportunités.</span>
               </h2>
               <p className="relative mx-auto mt-4 max-w-xl text-muted">
-                Crée ton compte gratuit dès maintenant et sois parmi les premiers à générer tes clips.
+                Crée ton compte gratuit et génère tes premiers clips dès aujourd&apos;hui.
               </p>
               <Link href="/inscription" className={cn(buttonStyles({ size: "lg" }), "relative mt-8")}>
                 Créer un compte gratuit <ArrowRight />

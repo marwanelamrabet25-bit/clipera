@@ -77,6 +77,7 @@ def test_params():
     p = build_params("fr")
     assert p["model"] == "nova-3" and p["language"] == "fr" and p["diarize"] == "true"
     assert p["smart_format"] == "false"
+    assert p["mip_opt_out"] == "true"  # jamais d'entraînement sur les vidéos des utilisateurs
     assert build_params(None)["detect_language"] == "true" and "language" not in build_params(None)
 
 

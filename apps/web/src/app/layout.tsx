@@ -22,6 +22,9 @@ export const metadata: Metadata = {
   description:
     "Clipera transforme tes vidéos longues en clips courts grâce à l'intelligence artificielle : sélection des meilleurs passages, sous-titres et recadrage vertical.",
   applicationName: "Clipera",
+  openGraph: { siteName: "Clipera", locale: "fr_FR", type: "website" },
+  twitter: { card: "summary_large_image" },
+  formatDetection: { telephone: false },
 };
 
 export const viewport: Viewport = {

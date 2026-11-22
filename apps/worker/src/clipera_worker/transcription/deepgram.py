@@ -42,6 +42,8 @@ def build_params(language: str | None) -> dict[str, str]:
         "punctuate": "true",
         "diarize": "true",  # locuteurs
         "filler_words": "false",
+        # Les audios des utilisateurs ne servent pas à entraîner les modèles de Deepgram (sans surcoût, mars 2026).
+        "mip_opt_out": "true",
     }
     if language:
         params["language"] = language
