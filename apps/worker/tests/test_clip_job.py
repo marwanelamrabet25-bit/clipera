@@ -113,7 +113,7 @@ def test_video_becomes_real_clip(env, video):
     assert job["clips_produced"] == 1  # 48 s de dialogue = un seul vrai moment, pas de remplissage
     assert float(job["cost_estimate_usd"]) == pytest.approx(47.6 / 60 * 0.0043, abs=1e-4)
     m = job["metrics"]
-    assert m["selection_method"] == "rules-v2" and m["transcription"]["words"] > 100
+    assert m["selection_method"] == "rules-v3" and m["transcription"]["words"] > 100
 
     steps = [r["to_status"] for r in rows(url, "select to_status from job_events where job_id = %s order by id",
                                           job_id)]

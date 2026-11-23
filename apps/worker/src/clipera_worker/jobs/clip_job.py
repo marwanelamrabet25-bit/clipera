@@ -9,8 +9,12 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import subprocess
+import threading
 import time
+import zipfile
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict
 from pathlib import Path
 from typing import Protocol
@@ -25,6 +29,7 @@ from ..media.render import RenderSpec, compute_geometry, render_clip
 from ..queue import Job, JobQueue
 from ..selection import Clip, Transcript, select_clips, split_sentences
 from ..selection.heuristic import METHOD, propose_candidates
+from ..selection.topics import Vocabulary, segment_topics
 from ..storage import Storage
 from ..transcription import TranscriptionResult
 
@@ -35,6 +40,14 @@ DEEPGRAM_USD_PER_MIN = 0.0043  # tarif public Nova-3 pré-enregistré (COST_MODE
 FORMATS = ("9:16", "1:1", "16:9")
 CAPTION_STYLES = ("classic", "highlight", "modern", "minimal")
 FRAMINGS = ("stable", "speaker", "wide")
+
+
+def render_concurrency() -> int:
+    """Clips montés en parallèle : borné par les processeurs disponibles (FFmpeg utilise déjà plusieurs cœurs)."""
+    env = os.environ.get("CLIPERA_RENDER_CONCURRENCY")
+    if env and env.isdigit() and int(env) >= 1:
+        return min(int(env), 6)
+    return max(1, min(3, (os.cpu_count() or 2) // 2))
 
 
 class Transcriber(Protocol):
@@ -59,6 +72,7 @@ def _options(job: Job) -> dict:
         "watermark": bool(o.get("watermark", True)),  # par défaut : filigrane (offre Free)
         "framing": o.get("framing") if o.get("framing") in FRAMINGS else "stable",
         "max_short_side": int(o.get("export_max_height") or 720),
+        "auto": bool(o.get("auto", False)),
     }
 
 
@@ -118,8 +132,8 @@ def run_clip_job(job: Job, *, queue: JobQueue, storage: Storage, work: Path, can
     storage.upload(tjson, f"{base}/transcript.json", "application/json")
     _check(cancel)
 
-    # 2. Sélection
-    queue.set_status(job.id, "selecting", "Recherche des meilleurs passages")
+    # 2. Sélection : vue d'ensemble (vocabulaire, sujets), propositions, notes, choix diversifié.
+    queue.set_status(job.id, "selecting", "Analyse des sujets et recherche des meilleurs passages")
     t = time.monotonic()
     sentences = split_sentences(tr.transcript)
     try:
@@ -127,10 +141,18 @@ def run_clip_job(job: Job, *, queue: JobQueue, storage: Storage, work: Path, can
     except Exception:  # noqa: BLE001 — signal d'appoint : sans lui, la sélection fonctionne quand même
         log.warning("loudness failed", exc_info=True)
         energy = None
-    result = select_clips(propose_candidates(sentences, energy), sentences, requested=requested)
+    vocab = Vocabulary(sentences) if sentences else None
+    topics = segment_topics(sentences, vocab) if sentences else []
+    result = select_clips(propose_candidates(sentences, energy, vocab), sentences, requested=requested,
+                          auto=opts["auto"], topics=topics, vocab=vocab)
     timings["selection_s"] = round(time.monotonic() - t, 3)
-    metrics["selection"] = {"sentences": len(sentences), "selected": len(result.selected),
-                            "rejected": len(result.rejected), "explanation": result.explanation}
+    metrics["selection"] = {
+        "sentences": len(sentences), "selected": len(result.selected), "rejected": len(result.rejected),
+        "explanation": result.explanation, "requested": requested, "auto": opts["auto"], "cap": result.cap,
+        "cap_reason": result.cap_reason,
+        "topics": [{"start": round(tp.start, 1), "end": round(tp.end, 1), "keywords": list(tp.keywords)}
+                   for tp in topics],
+    }
     if not result.selected:
         msg = ("Aucune parole détectée dans cette vidéo." if not tr.transcript.words else
                "Aucun passage de cette vidéo n'atteint notre niveau de qualité : nous préférons ne pas "
@@ -138,14 +160,17 @@ def run_clip_job(job: Job, *, queue: JobQueue, storage: Storage, work: Path, can
         raise JobError("no_good_moment", msg, detail=result.explanation)
     _check(cancel)
 
-    # 3. Rendu de chaque clip (un échec isolé n'annule pas les autres)
-    queue.set_status(job.id, "rendering", f"Montage de {len(result.selected)} clip(s)")
+    # 3. Montage : chaque clip a sa ligne (statut « rendering » → « ready » ou « failed »), plusieurs en parallèle.
+    #    Un échec isolé n'annule pas les autres.
     t = time.monotonic()
     geo = compute_geometry(info.width, info.height, opts["format"], opts["max_short_side"])
-    produced, failures, uploaded = 0, [], []
+    plan = _insert_pending(job, queue, result.selected, tr.transcript, opts)
+    queue.set_status(job.id, "rendering", f"Montage : 0/{len(plan)} clip(s) prêt(s)")
+    failures: list[dict] = []
+    uploaded: list[str] = []
     try:
-        produced = _render_all(job, queue, storage, work, cancel, source, result.selected, tr.transcript, info,
-                               geo, opts, base, failures, uploaded)
+        produced = _render_all(job, queue, storage, work, cancel, source, plan, tr.transcript, info, geo, opts, base,
+                               failures, uploaded)
     except BaseException:
         # Annulation ou erreur imprévue : on ne laisse aucun clip à moitié livré.
         queue.execute("delete from clips where job_id = %s", (job.id,))
@@ -157,11 +182,56 @@ def run_clip_job(job: Job, *, queue: JobQueue, storage: Storage, work: Path, can
         raise
     timings["render_s"] = round(time.monotonic() - t, 2)
     if produced == 0:
+        queue.execute("delete from clips where job_id = %s", (job.id,))
         raise JobError("render_failed", "Le montage des clips a échoué. Ton quota a été recrédité.",
                        retryable=True, detail=json.dumps(failures))
 
-    metrics.update(timings=timings, render_failures=failures, clips_produced=produced, cost_usd=cost)
+    # 4. Archive de tous les clips (téléchargement en une fois). Facultative : son échec n'annule rien.
+    zip_key = None
+    if produced > 1:
+        try:
+            zip_key = _zip_clips(queue, storage, work, job, base)
+        except Exception:  # noqa: BLE001
+            log.warning("zip failed", exc_info=True)
+
+    metrics.update(timings=timings, render_failures=failures, clips_produced=produced, cost_usd=cost,
+                   zip_key=zip_key, render_concurrency=render_concurrency())
     return metrics
+
+
+def _insert_pending(job, queue, selected: list[Clip], transcript, opts) -> list[tuple[int, Clip, str]]:
+    """Crée une ligne par clip à monter (statut « rendering ») pour que l'interface suive chaque clip."""
+    plan = []
+    for rank, c in enumerate(selected, start=1):
+        cand = c.candidate
+        details = {"criteria": c.criteria, "reasons": cand.reasons, "flags": c.flags, "method": METHOD,
+                   "topic": c.topic, "content_type": cand.content_type, "diversity": c.diversity}
+        row = queue.execute(
+            "insert into clips (user_id, project_id, job_id, source_video_id, status, rank, start_seconds, "
+            "end_seconds, title, transcript_excerpt, score_total, score_details, render_options) "
+            "values (%s,%s,%s,%s,'rendering',%s,%s,%s,%s,%s,%s,%s::jsonb,%s::jsonb) returning id",
+            (job.user_id, job.project_id, job.id, job.source_video_id, rank, c.start, c.end, cand.title,
+             _excerpt(transcript, c), c.total, json.dumps(details),
+             json.dumps({k: opts[k] for k in ("format", "captions", "caption_style", "watermark")})),
+        )
+        plan.append((rank, c, str(row[0]["id"])))
+    return plan
+
+
+def _zip_clips(queue, storage, work: Path, job, base: str) -> str:
+    rows = queue.execute("select rank, storage_key from clips where job_id = %s and status = 'ready' order by rank",
+                         (job.id,))
+    out = work / "clips.zip"
+    with zipfile.ZipFile(out, "w", compression=zipfile.ZIP_STORED) as z:  # MP4 déjà compressé : on stocke tel quel
+        for r in rows:
+            local = work / f"zip-{r['rank']}.mp4"
+            storage.download(r["storage_key"], local)
+            z.write(local, f"clipera-clip-{r['rank']:02d}.mp4")
+            local.unlink(missing_ok=True)
+    key = f"{base}/clips.zip"
+    storage.upload(out, key, "application/zip")
+    out.unlink(missing_ok=True)
+    return key
 
 
 def _framing(source: Path, start: float, end: float, crop_fraction: float, mode: str) -> ReframeResult:
@@ -173,48 +243,82 @@ def _framing(source: Path, start: float, end: float, crop_fraction: float, mode:
         return ReframeResult((), "center", 0.0, 0, 0, mode)
 
 
-def _render_all(job, queue, storage, work, cancel, source, selected, transcript, info, geo, opts, base, failures,
+def _render_all(job, queue, storage, work, cancel, source, plan, transcript, info, geo, opts, base, failures,
                 uploaded) -> int:
-    produced = 0
-    for rank, c in enumerate(selected, start=1):
+    lock = threading.Lock()
+    done = {"ready": 0, "finished": 0}
+    total = len(plan)
+
+    def one(item) -> None:
+        rank, c, clip_id = item
         _check(cancel)
-        out = work / f"clip-{rank}.mp4"
-        ass = None
-        if opts["captions"]:
-            ass = work / f"clip-{rank}.ass"
-            ass.write_text(build_ass(clip_words(transcript, c.start, c.end), width=geo.out_w, height=geo.out_h,
-                                     opts=CaptionOptions(style=opts["caption_style"])))
-        end = min(c.end, info.duration_seconds)
-        framing = (ReframeResult((), "wide", 0.0, 0, 0, "wide") if opts["framing"] == "wide"
-                   else _framing(source, c.start, end, geo.crop_w / info.width, opts["framing"]))
-        spec = RenderSpec(source=source, output=out, start=c.start, end=end, crop_track=framing.keyframes,
-                          layout="fit" if opts["framing"] == "wide" else "crop",
-                          aspect=opts["format"], max_short_side=opts["max_short_side"], ass_file=ass,
-                          watermark_file=ASSETS / "watermark.png" if opts["watermark"] else None)
-        try:
-            r = render_clip(spec, info)
-            thumb = _thumbnail(out, work / f"clip-{rank}.jpg", min(1.0, r.duration / 2))
-        except (JobError, subprocess.SubprocessError) as e:
-            log.warning("clip %s failed: %r", rank, e)
-            failures.append({"rank": rank, "error": getattr(e, "code", repr(e))})
-            continue
-        key, tkey = f"{base}/{rank}.mp4", f"{base}/{rank}.jpg"
-        storage.upload(out, key, "video/mp4")
-        uploaded.append(key)
-        storage.upload(thumb, tkey, "image/jpeg")
-        uploaded.append(tkey)
-        cand = c.candidate
+        error = None
+        for attempt in (1, 2):  # 2e essai : cadrage centré, le plus simple (évite un échec dû au recadrage)
+            try:
+                r, key, tkey, framing = _render_one(rank, c, source, transcript, info, geo, opts, base, work, storage,
+                                                    uploaded, lock, simple=attempt == 2)
+                break
+            except (JobError, subprocess.SubprocessError, OSError) as e:
+                error = getattr(e, "code", repr(e))[:200]
+                log.warning("clip %s attempt %s failed: %r", rank, attempt, e)
+                _check(cancel)
+        else:
+            with lock:
+                failures.append({"rank": rank, "error": error})
+                done["finished"] += 1
+            queue.execute("update clips set status = 'failed', score_details = score_details || %s::jsonb "
+                          "where id = %s", (json.dumps({"render_error": error}), clip_id))
+            return
         queue.execute(
-            "insert into clips (user_id, project_id, job_id, source_video_id, rank, start_seconds, end_seconds,"
-            " title, transcript_excerpt, score_total, score_details, render_options, storage_key, thumbnail_key,"
-            " width, height, size_bytes) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s::jsonb,%s::jsonb,%s,%s,%s,%s,%s)",
-            (job.user_id, job.project_id, job.id, job.source_video_id, rank, c.start, spec.end, cand.title,
-             _excerpt(transcript, c), c.total,
-             json.dumps({"criteria": c.criteria, "reasons": cand.reasons, "flags": c.flags, "method": METHOD}),
-             json.dumps({**{k: opts[k] for k in ("format", "captions", "caption_style", "watermark")},
-                         "framing": framing.as_dict()}),
-             key, tkey, r.width, r.height, r.size_bytes),
+            "update clips set status = 'ready', end_seconds = %s, storage_key = %s, thumbnail_key = %s, width = %s, "
+            "height = %s, size_bytes = %s, render_options = render_options || %s::jsonb where id = %s",
+            (min(c.end, info.duration_seconds), key, tkey, r.width, r.height, r.size_bytes,
+             json.dumps({"framing": framing.as_dict()}), clip_id),
         )
-        produced += 1
-        out.unlink(missing_ok=True)
-    return produced
+        with lock:
+            done["ready"] += 1
+            done["finished"] += 1
+            msg = f"Montage : {done['ready']}/{total} clip(s) prêt(s)"
+        queue.set_status(job.id, "rendering", msg)
+
+    workers = min(render_concurrency(), total)
+    if workers == 1:
+        for item in plan:
+            one(item)
+    else:
+        with ThreadPoolExecutor(max_workers=workers, thread_name_prefix="render") as pool:
+            for f in [pool.submit(one, item) for item in plan]:
+                f.result()  # remonte une annulation ou une erreur imprévue
+    return done["ready"]
+
+
+def _render_one(rank, c: Clip, source, transcript, info, geo, opts, base, work, storage, uploaded, lock, *,
+                simple: bool):
+    out = work / f"clip-{rank}.mp4"
+    ass = None
+    if opts["captions"]:
+        ass = work / f"clip-{rank}.ass"
+        ass.write_text(build_ass(clip_words(transcript, c.start, c.end), width=geo.out_w, height=geo.out_h,
+                                 opts=CaptionOptions(style=opts["caption_style"])))
+    end = min(c.end, info.duration_seconds)
+    if opts["framing"] == "wide":
+        framing = ReframeResult((), "wide", 0.0, 0, 0, "wide")
+    elif simple:
+        framing = ReframeResult((), "center", 0.0, 0, 0, opts["framing"])
+    else:
+        framing = _framing(source, c.start, end, geo.crop_w / info.width, opts["framing"])
+    spec = RenderSpec(source=source, output=out, start=c.start, end=end, crop_track=framing.keyframes,
+                      layout="fit" if opts["framing"] == "wide" else "crop",
+                      aspect=opts["format"], max_short_side=opts["max_short_side"], ass_file=ass,
+                      watermark_file=ASSETS / "watermark.png" if opts["watermark"] else None)
+    r = render_clip(spec, info)
+    thumb = _thumbnail(out, work / f"clip-{rank}.jpg", min(1.0, r.duration / 2))
+    key, tkey = f"{base}/{rank}.mp4", f"{base}/{rank}.jpg"
+    storage.upload(out, key, "video/mp4")
+    with lock:
+        uploaded.append(key)
+    storage.upload(thumb, tkey, "image/jpeg")
+    with lock:
+        uploaded.append(tkey)
+    out.unlink(missing_ok=True)
+    return r, key, tkey, framing

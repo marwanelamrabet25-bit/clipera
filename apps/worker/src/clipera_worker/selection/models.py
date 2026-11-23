@@ -86,6 +86,8 @@ class Clip:
     criteria: dict[str, float]  # notes finales 0–10 (après contrôles objectifs)
     flags: list[str] = field(default_factory=list)  # contrôles objectifs déclenchés (explications)
     rejected_reason: str | None = None
+    topic: str | None = None  # mots-clés du sujet (chapitre) auquel appartient le passage
+    diversity: dict | None = None  # ressemblance avec les clips déjà retenus au moment du choix
 
     @property
     def duration(self) -> float:
@@ -97,13 +99,24 @@ class SelectionResult:
     selected: list[Clip]
     rejected: list[Clip]
     requested: int
+    cap: int | None = None  # nombre maximal adapté à la vidéo (≤ requested)
+    cap_reason: str | None = None
+    auto: bool = False
+    topics: list = field(default_factory=list)
 
     @property
     def explanation(self) -> str:
         n = len(self.selected)
-        if n >= self.requested:
-            return f"{n} passages de qualité sélectionnés."
+        s = "s" if n > 1 else ""
+        topics = len({c.topic for c in self.selected if c.topic})
+        variety = f", sur {topics} sujets différents" if topics > 1 else ""
         if n == 0:
             return "Aucun passage n'atteint le niveau de qualité requis dans cette vidéo."
-        return (f"{n} passage{'s' if n > 1 else ''} de qualité trouvé{'s' if n > 1 else ''} sur {self.requested} "
-                "demandés : nous ne générons pas de clips médiocres pour atteindre un nombre.")
+        if self.auto:
+            return f"{n} passage{s} de qualité sélectionné{s} automatiquement{variety}."
+        if n >= self.requested:
+            return f"{n} passages de qualité sélectionnés{variety}."
+        if self.cap is not None and n >= self.cap and self.cap < self.requested:
+            return f"{n} clip{s} sur {self.requested} demandés : {self.cap_reason}."
+        return (f"{n} passage{s} de qualité trouvé{s} sur {self.requested} demandés{variety} : nous ne générons pas "
+                "de clips médiocres ni répétitifs pour atteindre un nombre.")

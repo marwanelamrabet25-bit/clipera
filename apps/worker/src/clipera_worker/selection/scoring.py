@@ -50,6 +50,18 @@ def duration_score(d: float) -> float:
     return 0.0
 
 
+LEADING_FILLERS = frozenset({"euh", "heu", "hum", "bon", "ben", "bah", "alors", "donc", "voilà", "ouais", "hein"})
+
+
+def speech_start(sentence: Sentence) -> float:
+    """Début du premier vrai mot : on saute jusqu'à 3 hésitations d'ouverture (« Euh, bon, … »)."""
+    words = sentence.words
+    k = 0
+    while k < min(3, len(words) - 1) and words[k].text.lower().strip(" ,.…!?;:") in LEADING_FILLERS:
+        k += 1
+    return words[k].start if words else sentence.start
+
+
 def evaluate(candidate: Candidate, sentences: list[Sentence]) -> Clip:
     """Calcule les bornes finales, applique les contrôles objectifs et la note totale."""
     by_id = {s.id: s for s in sentences}
@@ -58,7 +70,8 @@ def evaluate(candidate: Candidate, sentences: list[Sentence]) -> Clip:
 
     prev_end = by_id[first.id - 1].end if first.id - 1 in by_id else 0.0
     next_start = by_id[last.id + 1].start if last.id + 1 in by_id else last.end + TAIL_S
-    start = round(max(first.start - LEAD_IN_S, prev_end, 0.0), 3)
+    trimmed = speech_start(first)
+    start = round(max(trimmed - LEAD_IN_S, prev_end, 0.0), 3)
     end = round(min(last.end + TAIL_S, next_start), 3)
 
     criteria = {k: float(max(0.0, min(10.0, candidate.scores.get(k, 0.0)))) for k in LLM_CRITERIA}
@@ -79,6 +92,8 @@ def evaluate(candidate: Candidate, sentences: list[Sentence]) -> Clip:
         criteria["ending"] = max(0.0, criteria["ending"] - 3)
         flags.append("se termine sans fin de phrase nette")
 
+    if trimmed > first.start + 0.05:
+        flags.append("hésitation d'ouverture retirée")
     d = end - start
     criteria["duration"] = duration_score(d)
     total = round(sum(WEIGHTS[k] * criteria[k] for k in WEIGHTS) * 10)

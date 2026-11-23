@@ -69,8 +69,17 @@ def test_unclear_audio_lowers_interest():
     assert score_span(muddy, 0, n)[0]["interest"] == score_span(clear, 0, n)[0]["interest"] - 2
 
 
+STRONG_2 = [
+    ("Comment as-tu récupéré neuf mille euros de factures impayées ?", "A", 1.0),
+    ("Un client ne répondait plus au téléphone depuis quatre mois malgré mes relances.", "B", 0.3),
+    ("Je lui ai envoyé une mise en demeure par lettre recommandée avec accusé de réception.", "B", 0.3),
+    ("Il a réglé l'intégralité de la somme en quarante-huit heures, sans discuter.", "B", 0.3),
+    ("La leçon c'est simple : demande toujours un acompte de trente pour cent avant de commencer.", "B", 1.0),
+]
+
+
 def test_respects_requested_count_without_overlap():
-    s = talk(([(FILLER, "A", 0.3)] * 4 + STRONG) * 4)
+    s = talk([(FILLER, "A", 0.3)] * 4 + STRONG + [(FILLER, "A", 0.3)] * 4 + STRONG_2 + [(FILLER, "A", 0.3)] * 4)
     res = select_clips(propose_candidates(s), s, requested=2)
     assert len(res.selected) == 2
     a, b = sorted(res.selected, key=lambda c: c.start)
