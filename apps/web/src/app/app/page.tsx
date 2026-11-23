@@ -6,9 +6,8 @@ import { buttonStyles } from "@/components/ui/button";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/feedback";
 import { formatDate, formatMinutes, getAccount } from "@/lib/account";
-import { clipDuration, clipRoutes } from "@/lib/clips";
+import { clipDuration, signClip } from "@/lib/clips";
 import { cn } from "@/lib/cn";
-import { isStorageConfigured } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/server";
 import { videoStatus } from "@/lib/video-status";
 
@@ -29,7 +28,7 @@ export default async function DashboardPage() {
       .limit(5),
     supabase
       .from("clips")
-      .select("id, project_id, title, start_seconds, end_seconds, thumbnail_key, created_at")
+      .select("id, user_id, project_id, rank, title, start_seconds, end_seconds, storage_key, thumbnail_key, width, height, size_bytes, score_total, score_details, transcript_excerpt, created_at")
       .eq("status", "ready")
       .order("created_at", { ascending: false })
       .limit(4),
@@ -37,7 +36,6 @@ export default async function DashboardPage() {
 
   const projects = recentProjects.data ?? [];
   const clips = recentClips.data ?? [];
-  const storage = isStorageConfigured();
   const videosLeft = quota ? Math.max(quota.videosLimit - quota.videosUsed, 0) : 0;
   const secondsLeft = quota ? Math.max(quota.secondsLimit - quota.secondsUsed, 0) : 0;
   const stats = [
@@ -55,6 +53,7 @@ export default async function DashboardPage() {
   ];
   const onboarding = (clipCount.count ?? 0) === 0;
   const outOfQuota = quota !== null && videosLeft === 0;
+  const thumbs = await Promise.all(clips.map((c) => signClip(c).then((l) => l.thumbnail)));
 
   return (
     <>
@@ -197,8 +196,8 @@ export default async function DashboardPage() {
           <CardBody>
             {clips.length > 0 ? (
               <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4" data-testid="recent-clips">
-                {clips.map((c) => {
-                  const thumb = storage ? clipRoutes(c).thumbnail : null;
+                {clips.map((c, i) => {
+                  const thumb = thumbs[i];
                   return (
                     <li key={c.id}>
                       <Link href={`/app/projets/${c.project_id}`} className="group block" title={c.title ?? "Clip"}>

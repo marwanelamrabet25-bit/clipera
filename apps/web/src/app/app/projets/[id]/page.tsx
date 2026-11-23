@@ -12,8 +12,7 @@ import { Card, CardBody, CardDescription, CardHeader, CardTitle } from "@/compon
 import { Alert } from "@/components/ui/feedback";
 import { PipelineSteps } from "@/components/ui/pipeline-steps";
 import { formatDate, formatMinutes, getAccount } from "@/lib/account";
-import { clipRoutes, type ClipRow } from "@/lib/clips";
-import { isStorageConfigured } from "@/lib/storage";
+import { signClip, type ClipRow } from "@/lib/clips";
 import { isActive, lastStepReached, type JobStatus } from "@/lib/jobs";
 import { createClient } from "@/lib/supabase/server";
 import { formatDuration, formatSize, videoStatus } from "@/lib/video-status";
@@ -64,8 +63,7 @@ export default async function ProjectPage({ params }: PageProps<"/app/projets/[i
   const clips: (ClipRow & { job_id: string })[] = (clipRows ?? []).filter((c) =>
     completedJobs.some((j) => j.id === c.job_id),
   );
-  const storage = isStorageConfigured();
-  const links = clips.map((c) => (storage ? clipRoutes(c) : { video: null, download: null, thumbnail: null }));
+  const links = await Promise.all(clips.map((c) => signClip(c)));
   const rulesBased = clips.some((c) => (c.score_details as { method?: string } | null)?.method?.startsWith("rules"));
   const latestExplanation = (completedJobs[0]?.metrics as { selection?: { explanation?: string } } | null)?.selection
     ?.explanation;

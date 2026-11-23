@@ -3,8 +3,12 @@ import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { isStorageConfigured, s3 } from "./storage";
 
-/** Durée de validité des liens d'aperçu et de téléchargement. */
-const LINK_SECONDS = 60 * 60;
+/**
+ * Durée de validité des liens d'aperçu et de téléchargement, signés au rendu de la page.
+ * Liens directs vers le stockage (et non une route du site) : le lecteur vidéo de Safari sur iPhone n'envoie pas
+ * toujours les cookies de session, une route qui exige la connexion y échouerait. 12 h couvrent une page restée ouverte.
+ */
+const LINK_SECONDS = 12 * 60 * 60;
 
 export type ClipRow = {
   id: string;

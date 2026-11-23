@@ -22,7 +22,7 @@ async function login(ctx, email) {
     const imgs = a.getByTestId("recent-clips").locator("img");
     await imgs.first().waitFor();
     assert.equal(await imgs.count(), 1);
-    assert.equal(await imgs.first().getAttribute("src"), `/api/clips/${CLIP}/thumbnail`);
+    assert.match(await imgs.first().getAttribute("src"), /r2\.cloudflarestorage\.com.*X-Amz-Expires=43200/);
   });
   await step("Tableau de bord : projet récent cliquable", async () => {
     await a.getByRole("link", { name: /Podcast test nuit/ }).first().click();
@@ -32,10 +32,11 @@ async function login(ctx, email) {
     await a.goto(B + "/app");
     assert.equal(await a.getByText("Bien démarrer avec Clipera").count(), 0);
   });
-  await step("Page projet : aperçu et téléchargement via liens permanents", async () => {
+  await step("Page projet : aperçu et téléchargement par liens directs valables 12 h", async () => {
     await a.goto(B + "/app/projets/e2e00000-0000-4000-8000-0000000000d7");
-    assert.equal(await a.locator("video").first().getAttribute("src"), `/api/clips/${CLIP}/video`);
-    assert.equal(await a.getByRole("link", { name: /Télécharger le MP4/ }).getAttribute("href"), `/api/clips/${CLIP}/download`);
+    // Liens directs vers le stockage (le lecteur vidéo de l'iPhone n'envoie pas toujours les cookies de session).
+    assert.match(await a.locator("video").first().getAttribute("src"), /r2\.cloudflarestorage\.com.*X-Amz-Expires=43200/);
+    assert.match(await a.getByRole("link", { name: /Télécharger le MP4/ }).getAttribute("href"), /response-content-disposition=attachment/);
   });
   await step("Propriétaire : lien signé tout neuf (téléchargement nommé)", async () => {
     const r = await a.request.get(`${B}/api/clips/${CLIP}/download`, { maxRedirects: 0 });
@@ -65,7 +66,7 @@ async function login(ctx, email) {
   });
   await step("Bibliothèque : bouton de téléchargement direct", async () => {
     await a.goto(B + "/app/bibliotheque");
-    assert.equal(await a.getByRole("link", { name: /Télécharger « Le conseil/ }).getAttribute("href"), `/api/clips/${CLIP}/download`);
+    assert.match(await a.getByRole("link", { name: /Télécharger « / }).getAttribute("href"), /response-content-disposition=attachment/);
   });
   await step("Mobile : tableau de bord et bibliothèque sans débordement", async () => {
     const m = await b.newContext({ ...devices["Pixel 7"], storageState: await cA.storageState() });
