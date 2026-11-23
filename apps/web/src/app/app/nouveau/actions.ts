@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { looksLikeYouTube } from "@/lib/youtube-url";
 
 export type LinkImportState = { status: "idle" | "error"; message?: string; url?: string };
 
@@ -19,9 +20,9 @@ export async function importFromLink(_prev: LinkImportState, form: FormData): Pr
   const rights = form.get("rights") === "on";
   if (!url) return { status: "error", message: "Colle le lien de la vidéo.", url };
   if (!rights) return { status: "error", message: ERRORS.rights_not_confirmed, url };
-  // YouTube direct désactivé côté site (YouTube bloque nos serveurs) : on n'accepte pas ce lien ici.
-  if (/(youtube\.com|youtu\.be)\//i.test(url) && process.env.YOUTUBE_IMPORT_ENABLED !== "1") {
-    return { status: "error", message: "L'import direct depuis YouTube n'est pas encore disponible.", url };
+  // Pas de téléchargement direct depuis YouTube : interdit par ses conditions (voir docs/IMPORT_YOUTUBE.md).
+  if (looksLikeYouTube(url)) {
+    return { status: "error", message: "Pour une vidéo YouTube, utilise l'onglet YouTube en haut de la page.", url };
   }
 
   const supabase = await createClient();

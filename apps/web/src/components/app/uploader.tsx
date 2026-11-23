@@ -60,7 +60,24 @@ function putPart(url: string, blob: Blob, onProgress: (loaded: number) => void, 
   });
 }
 
-export function Uploader({ maxBytes, planName }: { maxBytes: number; planName: string }) {
+/** Nom envoyé au serveur : le titre du projet en est tiré (ex. titre de la vidéo YouTube d'origine). */
+function uploadName(file: File, titleHint?: string) {
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "mp4";
+  const title = titleHint?.replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim().slice(0, 200);
+  return title ? `${title}.${ext}` : file.name;
+}
+
+export function Uploader({
+  maxBytes,
+  planName,
+  titleHint,
+  submitLabel = "Importer la vidéo",
+}: {
+  maxBytes: number;
+  planName: string;
+  titleHint?: string;
+  submitLabel?: string;
+}) {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [rights, setRights] = useState(false);
@@ -109,7 +126,7 @@ export function Uploader({ maxBytes, planName }: { maxBytes: number; planName: s
     try {
       const init = await postJson<{ sourceVideoId: string; projectId: string; uploadId: string; partSize: number; partCount: number }>(
         "/api/uploads",
-        { filename: file.name, size: file.size, rightsConfirmed: true },
+        { filename: uploadName(file, titleHint), size: file.size, rightsConfirmed: true },
         // Volontairement non interruptible : le serveur crée le projet. Si l'utilisateur annule pendant cette
         // requête, on attend la réponse pour pouvoir annuler proprement (sinon le projet resterait orphelin).
       );
@@ -301,7 +318,7 @@ export function Uploader({ maxBytes, planName }: { maxBytes: number; planName: s
           </label>
           <div>
             <Button size="lg" onClick={start} disabled={!file || !rights}>
-              <Upload /> Importer la vidéo
+              <Upload /> {submitLabel}
             </Button>
           </div>
         </>

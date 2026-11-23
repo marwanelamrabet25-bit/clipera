@@ -1,29 +1,29 @@
-"""Job « import_url » : récupère la vidéo (Google Drive, Dropbox ou YouTube), la dépose dans le stockage,
-puis lance la vérification habituelle (format, durée, son)."""
+"""Job « import_url » : récupère la vidéo (Google Drive ou Dropbox), la dépose dans le stockage,
+puis lance la vérification habituelle (format, durée, son).
+
+YouTube : aucun téléchargement. Les conditions de YouTube interdisent de télécharger ses vidéos sans son accord écrit
+(voir docs/IMPORT_YOUTUBE.md). Le site guide l'utilisateur vers son fichier original (YouTube Studio) ; un ancien job
+YouTube encore en file, ou un appel direct à la base, est refusé ici avec un message clair.
+"""
 
 from __future__ import annotations
 
 import re
 import time
 from pathlib import Path
-from typing import Protocol
 
 from ..errors import JobCancelled, JobError
 from ..media.cloud import CloudDownloader
-from ..media.youtube import VideoMeta, YtDlpDownloader, check_meta
 from ..queue import Job, JobQueue
 from ..storage import Storage
 
 VIDEO_EXT = re.compile(r"\.(mp4|mov|m4v|mkv|webm|avi)$", re.I)
-
-
-class Downloader(Protocol):
-    def info(self, url: str) -> VideoMeta: ...
-    def download(self, url: str, dest_dir: Path, *, max_bytes: int) -> Path: ...
+YOUTUBE_REFUSED = ("Clipera ne télécharge pas les vidéos depuis YouTube (règles de YouTube). Si c'est ta vidéo, "
+                   "récupère son fichier dans YouTube Studio puis importe-le, ou colle un lien Google Drive.")
 
 
 def run_import_job(job: Job, *, queue: JobQueue, storage: Storage, work: Path, cancel=None,
-                   downloader: Downloader | None = None, cloud: CloudDownloader | None = None, **_) -> dict:
+                   cloud: CloudDownloader | None = None, **_) -> dict:
     opts = job.options or {}
     url, provider = opts.get("url", ""), opts.get("provider", "youtube")
     rows = queue.execute(
@@ -40,16 +40,8 @@ def run_import_job(job: Job, *, queue: JobQueue, storage: Storage, work: Path, c
     metrics: dict = {"provider": provider}
     try:
         if provider == "youtube":
-            dl = downloader or YtDlpDownloader()
-            meta = dl.info(url)
-            check_meta(meta, max_seconds=row["max_video_seconds"])
-            if cancel is not None and cancel.is_set():
-                raise JobCancelled()
-            queue.set_status(job.id, "uploading", "Téléchargement depuis YouTube")
-            path = dl.download(url, work, max_bytes=row["max_upload_bytes"])
-            title = meta.title
-            metrics.update(youtube_id=meta.id, duration_s_source=meta.duration_s, channel=meta.channel)
-        elif provider in ("gdrive", "dropbox"):
+            raise JobError("youtube_not_supported", YOUTUBE_REFUSED)
+        if provider in ("gdrive", "dropbox"):
             queue.set_status(job.id, "uploading",
                              "Téléchargement depuis " + ("Google Drive" if provider == "gdrive" else "Dropbox"))
             got = (cloud or CloudDownloader()).fetch(provider, url, work, max_bytes=row["max_upload_bytes"])

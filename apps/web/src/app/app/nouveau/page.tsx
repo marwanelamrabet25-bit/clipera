@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ImportGuides } from "@/components/app/import-guides";
+import { ImportTabs } from "@/components/app/import-tabs";
 import { LinkImport } from "@/components/app/link-import";
 import { PageHeader } from "@/components/app/page-header";
 import { Uploader } from "@/components/app/uploader";
+import { YouTubeImport } from "@/components/app/youtube-import";
 import { Card, CardBody } from "@/components/ui/card";
 import { Alert } from "@/components/ui/feedback";
 import { formatMinutes, getAccount } from "@/lib/account";
@@ -12,7 +14,7 @@ import { isStorageConfigured } from "@/lib/storage";
 export const metadata: Metadata = { title: "Nouveau projet" };
 
 const STEPS = [
-  "Importer une vidéo (lien ou fichier)",
+  "Importer une vidéo (YouTube, fichier ou lien)",
   "Vérification automatique (format, durée, son)",
   "Choisir le nombre de clips, le format et les sous-titres",
   "Suivre la génération en direct",
@@ -23,8 +25,6 @@ export default async function NewProjectPage() {
   const { plan, quota } = await getAccount();
   const storageReady = isStorageConfigured();
   const videosLeft = quota ? quota.videosLimit - quota.videosUsed : 0;
-  // Import YouTube direct : désactivé tant que YouTube bloque nos serveurs (testé en réel le 21/11/2026).
-  const youtube = process.env.YOUTUBE_IMPORT_ENABLED === "1";
   const ready = storageReady && videosLeft > 0 && plan;
 
   return (
@@ -49,24 +49,32 @@ export default async function NewProjectPage() {
         <Card>
           <CardBody>
             {ready ? (
-              <div className="flex flex-col gap-8">
-                <section aria-labelledby="link-title" className="flex flex-col gap-4">
-                  <h2 id="link-title" className="text-h3 font-semibold">
-                    Depuis un lien
-                  </h2>
-                  <LinkImport maxMinutes={Math.floor(plan.max_video_seconds / 60)} youtube={youtube} />
-                  <ImportGuides />
-                </section>
-                <div className="flex items-center gap-3 text-caption text-subtle" aria-hidden>
-                  <span className="h-px flex-1 bg-line" /> ou <span className="h-px flex-1 bg-line" />
-                </div>
-                <section aria-labelledby="file-title">
-                  <h2 id="file-title" className="mb-4 text-h3 font-semibold">
-                    Depuis un fichier
-                  </h2>
-                  <Uploader maxBytes={plan.max_upload_bytes} planName={plan.name} />
-                </section>
-              </div>
+              <ImportTabs
+                youtube={
+                  <YouTubeImport
+                    maxBytes={plan.max_upload_bytes}
+                    planName={plan.name}
+                    maxMinutes={Math.floor(plan.max_video_seconds / 60)}
+                  />
+                }
+                file={
+                  <section aria-labelledby="file-title">
+                    <h2 id="file-title" className="mb-4 text-h3 font-semibold">
+                      Depuis un fichier
+                    </h2>
+                    <Uploader maxBytes={plan.max_upload_bytes} planName={plan.name} />
+                  </section>
+                }
+                link={
+                  <section aria-labelledby="link-title" className="flex flex-col gap-4">
+                    <h2 id="link-title" className="text-h3 font-semibold">
+                      Depuis un lien Google Drive ou Dropbox
+                    </h2>
+                    <LinkImport maxMinutes={Math.floor(plan.max_video_seconds / 60)} />
+                    <ImportGuides />
+                  </section>
+                }
+              />
             ) : (
               <div className="rounded-lg border border-dashed border-line-strong px-6 py-14 text-center text-small text-muted">
                 Import indisponible pour le moment.
