@@ -19,7 +19,8 @@ export function SignInForm({ suite, linkError }: { suite?: string; linkError?: b
         <h2 className="text-h3 font-semibold">Vérifie ta boîte mail</h2>
         <p className="mt-2 text-small text-muted">
           Nous avons envoyé un lien de connexion à <span className="font-medium text-fg">{state.email}</span>.
-          Il est valable 1 heure. Pense à regarder dans les indésirables.
+          Il est valable 1 heure. Pense à regarder dans les indésirables. Une fois connecté, tu peux choisir un
+          nouveau mot de passe dans Paramètres.
         </p>
       </div>
     );

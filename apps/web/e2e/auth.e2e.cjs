@@ -57,7 +57,7 @@ async function sessionCookies(email, password) {
   });
   await step("Visiteur : e-mail invalide → message d'erreur clair, rien n'est envoyé", async () => {
     await anon.goto(`${BASE}/connexion`);
-    await anon.getByText("Pas de mot de passe ? Recevoir un lien").click();
+    await anon.getByText("Mot de passe oublié ? Recevoir un lien").click();
     const linkForm = anon.locator("details form");
     await linkForm.getByLabel("Adresse e-mail").fill("pas-un-email");
     await linkForm.getByRole("button", { name: /Recevoir un lien/ }).click();

@@ -35,7 +35,7 @@ async function Forms({ searchParams }: { searchParams: PageProps<"/connexion">["
       <PasswordForm mode="signin" suite={suite} />
       <details className="group border-t border-line pt-5">
         <summary className="cursor-pointer list-none text-center text-small text-muted hover:text-fg [&::-webkit-details-marker]:hidden">
-          Pas de mot de passe ? Recevoir un lien de connexion par e-mail
+          Mot de passe oublié ? Recevoir un lien de connexion par e-mail
         </summary>
         <div className="mt-5">
           <SignInForm suite={suite} />
