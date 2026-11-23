@@ -3,6 +3,7 @@
 import { CreditCard, Film, FolderOpen, Gift, LayoutDashboard, LogOut, Plus, Settings } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
 import { Logo } from "@/components/brand/logo";
 import { cn } from "@/lib/cn";
 
@@ -50,6 +51,11 @@ export function Sidebar({
   signOut: () => Promise<void>;
 }) {
   const pathname = usePathname();
+  const mobileNav = useRef<HTMLElement>(null);
+  // Mobile : l'onglet de la page courante est toujours visible dans la barre défilante.
+  useEffect(() => {
+    mobileNav.current?.querySelector<HTMLElement>('[aria-current="page"]')?.scrollIntoView({ inline: "center", block: "nearest" });
+  }, [pathname]);
   return (
     <>
       {/* Ordinateur : barre latérale fixe */}
@@ -114,7 +120,11 @@ export function Sidebar({
             </button>
           </form>
         </div>
-        <nav aria-label="Navigation principale" className="flex gap-1 overflow-x-auto px-3 pb-2 [scrollbar-width:none]">
+        <nav
+          ref={mobileNav}
+          aria-label="Navigation principale"
+          className="flex gap-1 overflow-x-auto px-3 pr-10 pb-2 [scrollbar-width:none] [mask-image:linear-gradient(to_right,black_82%,transparent)]"
+        >
           {NAV.map(({ href, label, ...rest }) => {
             const active = isActive(pathname, href, "exact" in rest ? rest.exact : false);
             return (
