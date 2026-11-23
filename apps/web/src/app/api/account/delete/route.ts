@@ -1,27 +1,9 @@
-import { DeleteObjectsCommand, ListObjectsV2Command } from "@aws-sdk/client-s3";
 import { NextResponse } from "next/server";
 import { apiError, apiUser, readJson } from "@/lib/api";
-import { s3, storageConfig } from "@/lib/storage";
+import { storageConfig } from "@/lib/storage";
+import { deletePrefix } from "@/lib/storage-admin";
 
 const CONFIRMATION_WORD = "SUPPRIMER";
-
-/** Supprime tous les objets d'un préfixe (par lots de 1000, limite S3). Renvoie le nombre supprimé. */
-async function deletePrefix(prefix: string) {
-  const { client, bucket } = s3();
-  let deleted = 0;
-  let token: string | undefined;
-  do {
-    const page = await client.send(new ListObjectsV2Command({ Bucket: bucket, Prefix: prefix, ContinuationToken: token }));
-    const keys = (page.Contents ?? []).map((o) => ({ Key: o.Key! }));
-    if (keys.length) {
-      const res = await client.send(new DeleteObjectsCommand({ Bucket: bucket, Delete: { Objects: keys, Quiet: true } }));
-      if (res.Errors?.length) throw new Error(`delete errors: ${res.Errors.length}`);
-      deleted += keys.length;
-    }
-    token = page.IsTruncated ? page.NextContinuationToken : undefined;
-  } while (token);
-  return deleted;
-}
 
 /** Suppression définitive du compte : fichiers d'abord, puis données (cascade en base), puis déconnexion. */
 export async function POST(request: Request) {

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { PageHeader } from "@/components/app/page-header";
 import { buttonStyles } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { EmptyState } from "@/components/ui/feedback";
+import { Alert, EmptyState } from "@/components/ui/feedback";
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/account";
 import { createClient } from "@/lib/supabase/server";
@@ -12,7 +12,8 @@ import { formatDuration, videoStatus } from "@/lib/video-status";
 
 export const metadata: Metadata = { title: "Mes projets" };
 
-export default async function ProjectsPage() {
+export default async function ProjectsPage({ searchParams }: PageProps<"/app/projets">) {
+  const deleted = (await searchParams).supprime === "1";
   const supabase = await createClient();
   const { data: projects, error } = await supabase
     .from("projects")
@@ -30,6 +31,11 @@ export default async function ProjectsPage() {
           </Link>
         }
       />
+      {deleted && (
+        <Alert tone="success" title="Projet supprimé" className="mb-6">
+          La vidéo et ses clips ont été effacés de nos serveurs.
+        </Alert>
+      )}
       {error ? (
         <p className="text-danger">Impossible de charger tes projets. Recharge la page.</p>
       ) : projects && projects.length > 0 ? (

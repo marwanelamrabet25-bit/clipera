@@ -18,6 +18,7 @@ import { isActive, lastStepReached, type JobStatus } from "@/lib/jobs";
 import { createClient } from "@/lib/supabase/server";
 import { formatDuration, formatSize, videoStatus } from "@/lib/video-status";
 import { cancelGeneration } from "./actions";
+import { DeleteProject } from "./delete-project";
 
 export const metadata: Metadata = { title: "Projet" };
 
@@ -247,6 +248,12 @@ export default async function ProjectPage({ params }: PageProps<"/app/projets/[i
               <ClipCard key={c.id} clip={c} links={links[i]} />
             ))}
           </div>
+        </section>
+      )}
+
+      {!running && !status.busy && (
+        <section className="mt-12 border-t border-line pt-6" aria-label="Gestion du projet">
+          <DeleteProject projectId={project.id} clipCount={clips.length} />
         </section>
       )}
     </>

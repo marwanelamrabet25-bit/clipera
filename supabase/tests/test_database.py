@@ -862,3 +862,49 @@ def test_referral_reward_capped_at_12_per_year():
     assert _reward(f13) == []  # 13e : parrainage enregistré, mais plus de crédit
     with admin() as c:
         assert c.execute("select status, credit_cents from referrals where referee_id = %s", (f13,)).fetchone() == ("rewarded", 0)
+
+
+# ───────────── Suppression d'un projet ─────────────
+
+
+def _project_with_clip(uid):
+    with admin() as c:
+        pid = c.execute("insert into projects (user_id, title) values (%s, 'p') returning id", (uid,)).fetchone()[0]
+        vid = c.execute(
+            """insert into source_videos (project_id, user_id, status, storage_key, original_filename, declared_size_bytes,
+               rights_confirmed_at) values (%s, %s, 'validated', %s, 'a.mp4', 10, now()) returning id""",
+            (pid, uid, f"sources/{uid}/x/source.mp4")).fetchone()[0]
+        jid = c.execute(
+            """insert into processing_jobs (kind, status, user_id, project_id, source_video_id, idempotency_key)
+               values ('clip_generation', 'completed', %s, %s, %s, %s) returning id""",
+            (uid, pid, vid, str(uuid.uuid4()))).fetchone()[0]
+        c.execute("""insert into clips (user_id, project_id, job_id, source_video_id, rank, start_seconds, end_seconds,
+                     status) values (%s, %s, %s, %s, 1, 0, 30, 'ready')""", (uid, pid, jid, vid))
+    return pid, jid
+
+
+def test_owner_deletes_project_and_everything_disappears():
+    uid = make_user()
+    pid, _ = _project_with_clip(uid)
+    u = As(uid)
+    u.q("select delete_my_project(%s)", (pid,))
+    assert u.q("select * from projects where id = %s", (pid,)) == []
+    assert u.q("select * from source_videos where project_id = %s", (pid,)) == []
+    assert u.q("select * from clips where project_id = %s", (pid,)) == []
+    u.close()
+
+
+def test_cannot_delete_someone_elses_project_or_running_one():
+    owner, other = make_user(), make_user()
+    pid, jid = _project_with_clip(owner)
+    o = As(other)
+    with pytest.raises(psycopg.errors.RaiseException, match="project_not_found"):
+        o.q("select delete_my_project(%s)", (pid,))
+    o.close()
+    with admin() as c:
+        c.execute("update processing_jobs set status = 'rendering' where id = %s", (jid,))
+    u = As(owner)
+    with pytest.raises(psycopg.errors.RaiseException, match="job_in_progress"):
+        u.q("select delete_my_project(%s)", (pid,))
+    assert len(u.q("select * from projects where id = %s", (pid,))) == 1
+    u.close()

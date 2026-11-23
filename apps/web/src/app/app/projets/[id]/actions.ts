@@ -1,7 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { CAPTION_STYLES, CREATE_JOB_ERRORS, FORMATS, FRAMINGS } from "@/lib/jobs";
+import { storageConfig } from "@/lib/storage";
+import { deletePrefix } from "@/lib/storage-admin";
 import { createClient } from "@/lib/supabase/server";
 
 export type GenerateState = { status: "idle" | "error"; message?: string; upgrade?: boolean };
@@ -74,4 +77,51 @@ export async function cancelGeneration(form: FormData): Promise<void> {
   const supabase = await createClient();
   await supabase.rpc("cancel_job", { p_job_id: jobId });
   revalidatePath(`/app/projets/${projectId}`);
+}
+
+export type DeleteState = { status: "idle" | "error"; message?: string };
+
+/**
+ * Supprime un projet : fichiers d'abord (vidéo source + clips), puis les lignes en base. Si l'effacement des
+ * fichiers échoue, rien n'est supprimé. Refusé pendant un traitement. Le quota consommé n'est pas rendu.
+ */
+export async function deleteProject(_prev: DeleteState, form: FormData): Promise<DeleteState> {
+  const projectId = String(form.get("project_id") ?? "");
+  if (!UUID_RE.test(projectId)) return { status: "error", message: "Requête invalide. Recharge la page." };
+  const supabase = await createClient();
+  const { data: claims } = await supabase.auth.getClaims();
+  const uid = claims?.claims?.sub;
+  if (!uid) return { status: "error", message: "Session expirée. Reconnecte-toi." };
+  // Lecture sous la RLS : seul le propriétaire voit le projet.
+  const { data: project } = await supabase
+    .from("projects")
+    .select("id, source_videos(id), processing_jobs(id, kind, status)")
+    .eq("id", projectId)
+    .maybeSingle();
+  if (!project) return { status: "error", message: "Projet introuvable." };
+  if (project.processing_jobs.some((j) => !["completed", "failed", "cancelled"].includes(j.status))) {
+    return { status: "error", message: "Un traitement est en cours. Annule-le ou attends la fin, puis réessaie." };
+  }
+  if (storageConfig()) {
+    try {
+      const prefixes = [
+        ...project.source_videos.map((v) => `sources/${uid}/${v.id}/`),
+        ...project.processing_jobs.filter((j) => j.kind === "clip_generation").map((j) => `clips/${uid}/${j.id}/`),
+      ];
+      for (const prefix of prefixes) await deletePrefix(prefix);
+    } catch (e) {
+      console.error(JSON.stringify({ event: "project_delete_storage_failed", project: projectId, error: String(e) }));
+      return { status: "error", message: "La suppression des fichiers a échoué. Rien n'a été supprimé : réessaie." };
+    }
+  }
+  const { error } = await supabase.rpc("delete_my_project", { p_project_id: projectId });
+  if (error) {
+    const running = error.message.includes("job_in_progress");
+    return {
+      status: "error",
+      message: running ? "Un traitement est en cours. Annule-le ou attends la fin, puis réessaie." : "La suppression a échoué. Réessaie.",
+    };
+  }
+  revalidatePath("/app/projets");
+  redirect("/app/projets?supprime=1");
 }
