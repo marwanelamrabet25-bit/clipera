@@ -61,17 +61,26 @@ export default async function TarifsPage() {
       <main className="flex-1">
         <div className="mx-auto max-w-6xl px-4 pt-10 pb-20 sm:px-8 sm:pt-14">
           <Breadcrumbs items={crumbs} />
-          <div className="mx-auto mt-8 max-w-2xl text-center">
-            <p className="text-small font-semibold text-primary-soft">Tarifs</p>
-            <h1 className="mt-3 text-h1 font-bold text-balance sm:text-display">Les tarifs de Clipera</h1>
-            <p className="mt-5 text-body text-muted">
-              Commence gratuitement, sans carte bancaire. Passe ensuite à l&apos;offre adaptée à ton rythme de
-              publication : mensuel sans engagement, ou annuel avec 2 mois offerts. Prix TTC.
+          <div className="mt-10 grid gap-6 lg:grid-cols-[1.2fr_1fr] lg:items-end">
+            <div>
+              <p className="flex items-center gap-3 text-caption font-medium tracking-wide text-subtle uppercase">
+                <span className="text-primary-soft">Tarifs</span>
+                <span className="h-px w-8 bg-line-strong" aria-hidden />
+                <span>Prix TTC</span>
+              </p>
+              <h1 className="mt-5 text-[2.4rem] leading-[1.04] font-bold tracking-[-0.035em] text-balance sm:text-[3.4rem]">
+                Les tarifs de Clipera
+              </h1>
+            </div>
+            <p className="text-body text-muted lg:pb-2">
+              Commence gratuitement, sans carte bancaire. Passe ensuite à l&apos;offre qui suit ton rythme de publication :
+              mensuel sans engagement, ou annuel avec 2 mois offerts, débité en une seule fois.
             </p>
           </div>
           {plans.length > 0 ? (
             <>
               <div className="mt-12">
+                <h2 className="sr-only">Les offres</h2>
                 <PricingTable plans={plans} />
               </div>
               <section className="mt-20">

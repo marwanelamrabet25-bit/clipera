@@ -71,6 +71,11 @@
 
   /* Mouvement */
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Papier : surface claire officielle (#F8F9FF), réservée à quelques sections pour le rythme */
+  --color-paper: #f8f9ff;
+  --color-ink: #0b0b10;
 }
 
 @layer base {
@@ -104,6 +109,53 @@
       transition-duration: 0.01ms !important;
     }
   }
+}
+
+/* ───────────────────────────────────────────────────────────
+   Thème « papier » : une section entière passe en clair, sans réécrire ses composants
+   (les utilitaires lisent les variables ; on les redéfinit dans la portée).
+   Contrastes vérifiés : texte secondaire ≥ 4,5:1 sur #F8F9FF.
+   ─────────────────────────────────────────────────────────── */
+.theme-paper {
+  --color-canvas: #f8f9ff;
+  --color-surface: #ffffff;
+  --color-elevated: #eeeff8;
+  --color-overlay: #e4e5f0;
+  --color-fg: #0b0b10;
+  --color-muted: #4b4b5e;
+  --color-subtle: #61617a;
+  --color-line: rgb(11 11 16 / 0.09);
+  --color-line-strong: rgb(11 11 16 / 0.16);
+  --color-primary-soft: #6d3fe4;
+  --color-primary-wash: rgb(139 92 246 / 0.1);
+  --color-primary-line: rgb(109 63 228 / 0.35);
+  color-scheme: light;
+  background: var(--color-canvas);
+  color: var(--color-fg);
+}
+
+/* Mots de sous-titres qui apparaissent en rythme (démonstrations). */
+@keyframes word-in {
+  0% { opacity: 0.25; }
+  12%, 100% { opacity: 1; }
+}
+@keyframes word-hl {
+  0%, 100% { color: inherit; }
+  8%, 30% { color: var(--color-primary-soft); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .caption-word {
+    animation: none !important;
+  }
+}
+/* Tête de lecture qui parcourt la vidéo source. */
+@keyframes scan {
+  from { left: 0%; }
+  to { left: 100%; }
+}
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
 }
 
 /* Apparition douce des prix lors du changement Mensuel / Annuel. */

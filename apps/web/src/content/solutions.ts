@@ -56,7 +56,7 @@ const generateur: ContentPageData = {
         "Trois formats : vertical 9:16 (TikTok, Reels, Shorts), carré 1:1 et horizontal 16:9.",
         "Trois cadrages : Stable (recommandé), Suivi de l'intervenant, ou Large (toute la scène sur fond flouté).",
         "Sous-titres activables, en 4 styles : Classique, Mot surligné, Moderne (majuscules) et Minimal.",
-        "Jusqu'à 5 clips par vidéo, d'environ 25 à 60 secondes chacun.",
+        "Jusqu'à 10 clips par vidéo avec les offres payantes (5 avec l'offre gratuite), sur des sujets différents, d'environ 25 à 60 secondes chacun.",
         "Export jusqu'en 1080p selon l'offre, sans jamais agrandir artificiellement une vidéo de plus basse qualité.",
       ],
     },

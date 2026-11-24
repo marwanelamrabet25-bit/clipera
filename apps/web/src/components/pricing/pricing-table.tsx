@@ -79,7 +79,7 @@ function PlanCard({ plan, billing, current, freeHref }: {
     <div
       data-testid={`plan-${plan.id}`}
       className={cn(
-        "relative flex flex-col rounded-2xl border p-6 transition-[border-color,box-shadow,transform] duration-300",
+        "relative flex h-full flex-col rounded-2xl border p-6 transition-[border-color,box-shadow,transform] duration-300",
         popular
           ? "border-primary/60 bg-[linear-gradient(180deg,rgb(139_92_246/0.16),rgb(139_92_246/0.03)_45%,transparent)] shadow-[0_24px_60px_-28px_rgb(139_92_246/0.65)] lg:-translate-y-2"
           : "border-line bg-canvas hover:border-line-strong",
@@ -181,11 +181,18 @@ export function PricingTable({ plans, currentPlanId, freeHref = "/inscription" }
           ? "Paiement annuel en une seule fois : 12 mois d'accès pour le prix de 10."
           : "Paiement chaque mois, résiliable à tout moment."}
       </p>
-      <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Mobile : carrousel à faire glisser (4 offres sans défilement interminable) ; dès 640 px : grille. */}
+      <div
+        className="-mx-4 mt-8 flex snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto px-4 pt-4 pb-3 [scrollbar-width:none] sm:mx-0 sm:mt-10 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pt-0 sm:pb-0 lg:grid-cols-4"
+        aria-label="Offres"
+      >
         {plans.map((p) => (
-          <PlanCard key={p.id} plan={p} billing={billing} current={p.id === currentPlanId} freeHref={freeHref} />
+          <div key={p.id} className="w-[84%] shrink-0 snap-start sm:w-auto">
+            <PlanCard plan={p} billing={billing} current={p.id === currentPlanId} freeHref={freeHref} />
+          </div>
         ))}
       </div>
+      <p className="mt-2 text-center text-caption text-subtle sm:hidden">Fais glisser pour voir les {plans.length} offres →</p>
     </div>
   );
 }

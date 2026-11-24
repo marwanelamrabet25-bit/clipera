@@ -63,19 +63,21 @@ export function Breadcrumbs({ items }: { items: { name: string; path: string }[]
 
 export function CtaBlock({ title, text }: { title: string; text: string }) {
   return (
-    <section className="relative overflow-hidden rounded-2xl border border-primary-line bg-surface px-6 py-12 text-center sm:px-12">
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 -top-24 mx-auto h-48 w-2/3 rounded-full bg-primary/15 blur-3xl" />
-      <h2 className="relative text-h2 font-bold text-balance sm:text-h1">{title}</h2>
-      <p className="relative mx-auto mt-4 max-w-xl text-muted">{text}</p>
-      <div className="relative mt-8 flex flex-wrap justify-center gap-3">
-        <Link href="/inscription" className={buttonStyles({ size: "lg" })}>
-          Créer un compte gratuit <ArrowRight />
+    <section className="border-t border-line pt-12">
+      <p className="text-caption font-medium tracking-wide text-subtle uppercase">
+        <span className="text-primary-soft">Fin</span> · à toi de jouer
+      </p>
+      <h2 className="mt-4 text-[1.9rem] leading-[1.1] font-bold tracking-[-0.025em] text-balance sm:text-[2.4rem]">{title}</h2>
+      <p className="mt-4 max-w-xl text-body text-muted">{text}</p>
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <Link href="/inscription" className={buttonStyles({ size: "lg", className: "justify-center" })}>
+          Essayer gratuitement <ArrowRight />
         </Link>
-        <Link href="/tarifs" className={buttonStyles({ size: "lg", variant: "secondary" })}>
+        <Link href="/tarifs" className={buttonStyles({ size: "lg", variant: "ghost", className: "justify-center" })}>
           Voir les tarifs
         </Link>
       </div>
-      <p className="relative mt-4 text-small text-subtle">Offre gratuite · sans carte bancaire</p>
+      <p className="mt-4 text-small text-subtle">Offre gratuite · sans carte bancaire</p>
     </section>
   );
 }
@@ -86,7 +88,7 @@ export function Prose({ sections }: { sections: ContentSection[] }) {
     <div className="flex flex-col gap-12">
       {sections.map((s) => (
         <section key={s.title}>
-          <h2 className="text-h2 font-bold text-balance">{s.title}</h2>
+          <h2 className="text-[1.6rem] leading-tight font-bold tracking-[-0.02em] text-balance">{s.title}</h2>
           {s.paragraphs?.map((p) => (
             <p key={p.slice(0, 40)} className="mt-4 text-body text-muted">
               {p}
@@ -103,15 +105,16 @@ export function Prose({ sections }: { sections: ContentSection[] }) {
             </ul>
           )}
           {s.steps && (
-            <ol className="mt-6 flex flex-col gap-4">
+            <ol className="relative mt-8 flex flex-col">
+              <span aria-hidden className="absolute top-2 bottom-2 left-[0.9rem] w-px bg-line-strong" />
               {s.steps.map((st, i) => (
-                <li key={st.title} className="flex gap-4 rounded-xl border border-line bg-surface/40 p-5">
-                  <span className="grid size-8 shrink-0 place-items-center rounded-full border border-primary-line bg-primary-wash text-small font-semibold text-primary-soft">
+                <li key={st.title} className="relative grid grid-cols-[1.85rem_1fr] gap-x-5 pb-8 last:pb-0">
+                  <span className="relative grid size-[1.85rem] place-items-center rounded-full border border-line-strong bg-canvas text-caption font-semibold text-fg tabular-nums">
                     {i + 1}
                   </span>
-                  <div>
+                  <div className="pt-0.5">
                     <h3 className="text-body font-semibold text-fg">{st.title}</h3>
-                    <p className="mt-1 text-small text-muted">{st.text}</p>
+                    <p className="mt-1.5 text-small text-muted">{st.text}</p>
                   </div>
                 </li>
               ))}
@@ -126,7 +129,7 @@ export function Prose({ sections }: { sections: ContentSection[] }) {
 export function Questions({ items }: { items: { q: string; a: string }[] }) {
   return (
     <section>
-      <h2 className="text-h2 font-bold">Questions fréquentes</h2>
+      <h2 className="text-[1.6rem] leading-tight font-bold tracking-[-0.02em]">Questions fréquentes</h2>
       <div className="mt-6 divide-y divide-line border-y border-line">
         {items.map((f) => (
           <div key={f.q} className="py-5">
@@ -168,15 +171,19 @@ export function ContentPage({ page }: { page: ContentPageData }) {
       <JsonLd data={graph(organizationLd(), breadcrumbLd(crumbs))} />
       <SiteHeader />
       <main className="flex-1">
-        <section className="relative overflow-hidden border-b border-line">
+        <section className="relative border-b border-line">
           <div
             aria-hidden
-            className="pointer-events-none absolute -top-40 left-1/2 h-[420px] w-[800px] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl"
+            className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(50%_60%_at_80%_0%,rgb(139_92_246/0.12),transparent_70%)]"
           />
-          <div className="relative mx-auto max-w-3xl px-4 pt-10 pb-14 sm:px-8 sm:pt-14">
+          <div className="relative mx-auto max-w-3xl px-4 pt-10 pb-16 sm:px-8 sm:pt-14">
             <Breadcrumbs items={crumbs} />
-            <p className="mt-8 text-small font-semibold text-primary-soft">{page.eyebrow}</p>
-            <h1 className="mt-3 text-h1 font-bold text-balance sm:text-display">{page.h1}</h1>
+            <p className="mt-10 flex items-center gap-3 text-caption font-medium tracking-wide text-subtle uppercase">
+              <span className="text-primary-soft">{page.eyebrow}</span>
+              <span className="h-px w-8 bg-line-strong" aria-hidden />
+              <span>Clipera</span>
+            </p>
+            <h1 className="mt-5 text-[2.3rem] leading-[1.06] font-bold tracking-[-0.035em] text-balance sm:text-[3.25rem]">{page.h1}</h1>
             {page.intro.map((p) => (
               <p key={p.slice(0, 40)} className="mt-5 text-body text-muted sm:text-h3 sm:font-normal">
                 {p}
@@ -186,8 +193,8 @@ export function ContentPage({ page }: { page: ContentPageData }) {
               <Link href="/inscription" className={buttonStyles({ size: "lg" })}>
                 Essayer gratuitement <ArrowRight />
               </Link>
-              <Link href="/#fonctionnement" className={buttonStyles({ size: "lg", variant: "secondary" })}>
-                Voir comment ça marche
+              <Link href="/#moteur" className={buttonStyles({ size: "lg", variant: "ghost" })}>
+                Voir le moteur en action
               </Link>
             </div>
           </div>

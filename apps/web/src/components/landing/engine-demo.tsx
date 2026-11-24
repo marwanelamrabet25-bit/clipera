@@ -3,6 +3,7 @@
 import { Check, Loader2 } from "lucide-react";
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { cn } from "@/lib/cn";
+import { Waveform } from "./waveform";
 
 /**
  * Démonstration du moteur multi-clips (données d'exemple, clairement signalées).
@@ -116,15 +117,8 @@ export function EngineDemo() {
             })}
           </div>
           <div className="relative h-14 overflow-hidden rounded-b-md bg-canvas sm:h-16">
-            <div className="absolute inset-0 flex items-center gap-[2px] px-1 sm:gap-[3px]" aria-hidden>
-              {Array.from({ length: 140 }, (_, i) => (
-                <span
-                  key={i}
-                  className={cn("w-full rounded-full bg-line-strong", i % 2 === 1 && "hidden sm:block")}
-                  style={{ height: `${18 + ((i * 53 + (i % 7) * 11) % 64)}%` }}
-                />
-              ))}
-            </div>
+            <Waveform bars={70} seed={53} className="absolute inset-0 size-full px-1 text-line-strong sm:hidden" />
+            <Waveform bars={140} seed={53} className="absolute inset-0 hidden size-full px-1 text-line-strong sm:block" />
             {chosen.map((c, i) => (
               <span
                 key={c.at}
