@@ -164,7 +164,29 @@ def test_one_failing_clip_does_not_block_the_others(env, videos, monkeypatch):
     clips = rows(url, "select rank, status, score_details from clips where job_id = %s order by rank", job_id)
     assert [c["status"] for c in clips] == ["ready", "ready", "failed", "ready", "ready"]
     assert clips[2]["score_details"]["render_error"]
-    assert job["metrics"]["render_failures"] == [{"rank": 3, "error": clips[2]["score_details"]["render_error"]}]
+    (f,) = job["metrics"]["render_failures"]
+    assert f["rank"] == 3 and f["error"] == clips[2]["score_details"]["render_error"]
+    assert "ffmpeg" in f["last"]["detail"]  # le message d'erreur exact est conservé pour le diagnostic
+
+
+def test_clip_failing_only_under_load_succeeds_when_retried_alone(env, videos, monkeypatch):
+    storage, queue, work, url = env
+    real = clip_job.render_clip
+    seen = {"clip-2.mp4": 0}
+
+    def busy_once(spec, info):
+        if spec.output.name in seen and seen[spec.output.name] == 0:
+            seen[spec.output.name] += 1
+            raise subprocess.CalledProcessError(-9, "ffmpeg")  # tué une fois (manque de mémoire)
+        return real(spec, info)
+
+    monkeypatch.setattr(clip_job, "render_clip", busy_once)
+    _, job_id = create_job(url, storage, videos["mid"], 3)
+    assert process_one(queue, storage, work, deps={"transcriber": Fake(MID)})
+    (job,) = rows(url, "select * from processing_jobs where id = %s", job_id)
+    assert job["status"] == "completed" and job["metrics"]["render_failures"] == []
+    statuses = [r["status"] for r in rows(url, "select status from clips where job_id = %s order by rank", job_id)]
+    assert statuses and set(statuses) == {"ready"} and job["clips_produced"] == len(statuses)
 
 
 def test_crash_mid_render_is_cleaned_then_retried_successfully(env, videos, monkeypatch):

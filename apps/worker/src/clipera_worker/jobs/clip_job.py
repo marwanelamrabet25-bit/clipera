@@ -42,12 +42,60 @@ CAPTION_STYLES = ("classic", "highlight", "modern", "minimal")
 FRAMINGS = ("stable", "speaker", "wide")
 
 
+def _read(path: str) -> str | None:
+    try:
+        with open(path) as f:
+            return f.read().strip()
+    except OSError:
+        return None
+
+
+def container_limits() -> tuple[float | None, int | None]:
+    """Processeurs et mémoire réellement alloués au conteneur (cgroups v2 puis v1). None si inconnu.
+
+    os.cpu_count() renvoie les cœurs de la machine HÔTE : sur un hébergeur (Railway…), c'est souvent 16 ou 32
+    alors que le conteneur n'a droit qu'à une fraction. S'y fier lance trop de montages en même temps.
+    """
+    cpus = None
+    raw = _read("/sys/fs/cgroup/cpu.max")
+    if raw and not raw.startswith("max"):
+        quota, period = raw.split()[:2]
+        cpus = int(quota) / int(period)
+    else:
+        q, per = _read("/sys/fs/cgroup/cpu/cpu.cfs_quota_us"), _read("/sys/fs/cgroup/cpu/cpu.cfs_period_us")
+        if q and per and int(q) > 0:
+            cpus = int(q) / int(per)
+    mem = None
+    for path in ("/sys/fs/cgroup/memory.max", "/sys/fs/cgroup/memory/memory.limit_in_bytes"):
+        raw = _read(path)
+        if raw and raw.isdigit() and int(raw) < 1 << 50:
+            mem = int(raw)
+            break
+    return cpus, mem
+
+
+RENDER_MEMORY_BYTES = 900 * 1024**2  # un montage 1080p (fond flouté, sous-titres) : marge large
+
+
 def render_concurrency() -> int:
-    """Clips montés en parallèle : borné par les processeurs disponibles (FFmpeg utilise déjà plusieurs cœurs)."""
+    """Clips montés en même temps : borné par les processeurs ET la mémoire du conteneur (FFmpeg est multicœur).
+
+    Inconnu → 1 (prudence). Forçable avec CLIPERA_RENDER_CONCURRENCY.
+    """
     env = os.environ.get("CLIPERA_RENDER_CONCURRENCY")
     if env and env.isdigit() and int(env) >= 1:
         return min(int(env), 6)
-    return max(1, min(3, (os.cpu_count() or 2) // 2))
+    cpus, mem = container_limits()
+    if cpus is None:
+        try:
+            cpus = float(len(os.sched_getaffinity(0)))
+        except (AttributeError, OSError):
+            cpus = None
+    if cpus is None or mem is None:
+        return 1
+    by_cpu = int(cpus // 2)  # chaque FFmpeg exploite au moins 2 cœurs
+    by_mem = int(mem // RENDER_MEMORY_BYTES) - 1  # on garde de la place pour le reste du worker
+    return max(1, min(3, by_cpu, by_mem))
 
 
 class Transcriber(Protocol):
@@ -195,7 +243,8 @@ def run_clip_job(job: Job, *, queue: JobQueue, storage: Storage, work: Path, can
             log.warning("zip failed", exc_info=True)
 
     metrics.update(timings=timings, render_failures=failures, clips_produced=produced, cost_usd=cost,
-                   zip_key=zip_key, render_concurrency=render_concurrency())
+                   zip_key=zip_key, render_concurrency=render_concurrency(),
+                   container={"cpus": container_limits()[0], "memory_bytes": container_limits()[1]})
     return metrics
 
 
@@ -246,29 +295,21 @@ def _framing(source: Path, start: float, end: float, crop_fraction: float, mode:
 def _render_all(job, queue, storage, work, cancel, source, plan, transcript, info, geo, opts, base, failures,
                 uploaded) -> int:
     lock = threading.Lock()
-    done = {"ready": 0, "finished": 0}
+    done = {"ready": 0}
     total = len(plan)
 
-    def one(item) -> None:
+    def attempt(rank, c, *, simple):
+        try:
+            return _render_one(rank, c, source, transcript, info, geo, opts, base, work, storage, uploaded, lock,
+                               simple=simple), None
+        except (JobError, subprocess.SubprocessError, OSError) as e:
+            detail = getattr(e, "detail", None) or repr(e)
+            log.warning("clip %s failed (simple=%s): %s", rank, simple, detail)
+            return None, {"code": getattr(e, "code", type(e).__name__), "detail": str(detail)[-600:]}
+
+    def ok(item, out) -> None:
         rank, c, clip_id = item
-        _check(cancel)
-        error = None
-        for attempt in (1, 2):  # 2e essai : cadrage centré, le plus simple (évite un échec dû au recadrage)
-            try:
-                r, key, tkey, framing = _render_one(rank, c, source, transcript, info, geo, opts, base, work, storage,
-                                                    uploaded, lock, simple=attempt == 2)
-                break
-            except (JobError, subprocess.SubprocessError, OSError) as e:
-                error = getattr(e, "code", repr(e))[:200]
-                log.warning("clip %s attempt %s failed: %r", rank, attempt, e)
-                _check(cancel)
-        else:
-            with lock:
-                failures.append({"rank": rank, "error": error})
-                done["finished"] += 1
-            queue.execute("update clips set status = 'failed', score_details = score_details || %s::jsonb "
-                          "where id = %s", (json.dumps({"render_error": error}), clip_id))
-            return
+        r, key, tkey, framing = out
         queue.execute(
             "update clips set status = 'ready', end_seconds = %s, storage_key = %s, thumbnail_key = %s, width = %s, "
             "height = %s, size_bytes = %s, render_options = render_options || %s::jsonb where id = %s",
@@ -277,18 +318,41 @@ def _render_all(job, queue, storage, work, cancel, source, plan, transcript, inf
         )
         with lock:
             done["ready"] += 1
-            done["finished"] += 1
             msg = f"Montage : {done['ready']}/{total} clip(s) prêt(s)"
         queue.set_status(job.id, "rendering", msg)
+
+    retry: list[tuple] = []
+
+    def first_pass(item) -> None:
+        _check(cancel)
+        out, err = attempt(item[0], item[1], simple=False)
+        if out:
+            ok(item, out)
+        else:
+            with lock:
+                retry.append((item, err))
 
     workers = min(render_concurrency(), total)
     if workers == 1:
         for item in plan:
-            one(item)
+            first_pass(item)
     else:
         with ThreadPoolExecutor(max_workers=workers, thread_name_prefix="render") as pool:
-            for f in [pool.submit(one, item) for item in plan]:
+            for f in [pool.submit(first_pass, item) for item in plan]:
                 f.result()  # remonte une annulation ou une erreur imprévue
+
+    # 2e essai, SEUL (plus aucun autre montage en cours : écarte un manque de mémoire ou de processeur), avec le
+    # cadrage le plus simple.
+    for item, first_err in sorted(retry, key=lambda x: x[0][0]):
+        _check(cancel)
+        rank, _, clip_id = item
+        out, err = attempt(rank, item[1], simple=True)
+        if out:
+            ok(item, out)
+            continue
+        failures.append({"rank": rank, "error": err["code"], "first": first_err, "last": err})
+        queue.execute("update clips set status = 'failed', score_details = score_details || %s::jsonb "
+                      "where id = %s", (json.dumps({"render_error": err["code"]}), clip_id))
     return done["ready"]
 
 
