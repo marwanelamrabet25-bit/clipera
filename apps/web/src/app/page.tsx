@@ -1,272 +1,406 @@
 import type { Metadata } from "next";
-import {
-  ArrowRight,
-  AudioLines,
-  Captions,
-  Check,
-  Crop,
-  Download,
-  Gauge,
-  Scissors,
-  Sparkles,
-  Upload,
-  Wand2,
-} from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check } from "lucide-react";
 import Link from "next/link";
-import { BeforeAfter, HeroVisual } from "@/components/landing/visuals";
+import { Chapter } from "@/components/landing/chapter";
+import { CaptionStyles, FramingModes, SortingTable } from "@/components/landing/craft";
+import { EngineDemo } from "@/components/landing/engine-demo";
+import { Reveal } from "@/components/landing/reveal";
 import { SiteFooter } from "@/components/legal/site-footer";
 import { SiteHeader } from "@/components/marketing/site-header";
+import { PricingTable } from "@/components/pricing/pricing-table";
 import { JsonLd } from "@/components/seo/json-ld";
 import { buttonStyles } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
-import { PricingTable } from "@/components/pricing/pricing-table";
 import { getPublicPlans } from "@/lib/public-plans";
-import { graph, organizationLd, SOLUTION_PAGES, softwareLd, websiteLd } from "@/lib/seo";
+import { graph, organizationLd, softwareLd, websiteLd } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: { absolute: "Clipera — Transforme tes vidéos longues en clips courts grâce à l'IA" },
+  title: { absolute: "Clipera — Générateur de clips IA : jusqu'à 10 clips à partir d'une vidéo longue" },
   description:
-    "Clipera transforme tes vidéos longues en clips courts : meilleurs passages, recadrage vertical et sous-titres synchronisés, prêts pour TikTok, Shorts et Reels.",
+    "Clipera transforme tes vidéos longues en clips courts grâce à l'IA : jusqu'à 10 moments forts sur des sujets différents, recadrés en vertical et sous-titrés au mot près, pour TikTok, Reels et Shorts.",
   alternates: { canonical: "/" },
   openGraph: {
     url: "/",
-    title: "Clipera — Transforme tes vidéos. Multiplie tes opportunités.",
-    description: "Des clips courts, naturels et prêts à publier, à partir de tes vidéos longues.",
+    title: "Clipera — Une vidéo longue. Jusqu'à 10 clips prêts à publier.",
+    description: "Clipera repère les meilleurs moments de ta vidéo, les recadre en vertical et les sous-titre au mot près.",
     type: "website",
     locale: "fr_FR",
     siteName: "Clipera",
   },
 };
 
+const MANUAL = [
+  "Réécouter l'épisode en entier",
+  "Noter les timecodes des bons moments",
+  "Couper sans trancher une phrase",
+  "Recadrer chaque plan en vertical",
+  "Taper ou corriger les sous-titres",
+  "Exporter… et recommencer pour chaque clip",
+];
+
 const STEPS = [
   {
-    icon: Upload,
+    n: "1",
     title: "Importe ta vidéo",
-    text: "Podcast, interview, live, vlog : un fichier MP4 ou MOV depuis ton ordinateur, ou un lien Google Drive ou Dropbox.",
+    text: "Un fichier depuis ton ordinateur ou ton téléphone (MP4, MOV, MKV, WEBM), ou un lien Google Drive ou Dropbox. Tu as un lien YouTube ? Clipera reconnaît la vidéo et te mène à ton fichier original.",
+    ui: (
+      <div className="flex items-center gap-2 rounded-md border border-line bg-canvas px-3 py-2 text-caption text-muted">
+        <span className="size-1.5 rounded-full bg-primary-soft" aria-hidden /> podcast-episode-12.mp4 · 1,8 Go
+      </div>
+    ),
   },
   {
-    icon: Wand2,
-    title: "Choisis tes réglages",
-    text: "Format (9:16, 1:1 ou 16:9), cadrage (Stable, Suivi de l'intervenant ou Large), sous-titres et leur style.",
+    n: "2",
+    title: "Choisis combien de clips",
+    text: "Auto, 3, 5, 7 ou 10. Puis le format (9:16, 1:1, 16:9), le cadrage et le style des sous-titres.",
+    ui: (
+      <div className="grid grid-cols-5 gap-1 rounded-md border border-line bg-canvas p-1 text-caption" aria-hidden>
+        {["Auto", "3", "5", "7", "10"].map((m, i) => (
+          <span key={m} className={cn("rounded py-1 text-center", i === 0 ? "bg-elevated text-fg ring-1 ring-primary-line" : "text-subtle")}>
+            {m}
+          </span>
+        ))}
+      </div>
+    ),
   },
   {
-    icon: Download,
+    n: "3",
     title: "Récupère tes clips",
-    text: "Prévisualise chaque clip, compare leurs notes et télécharge des MP4 prêts à publier où tu veux.",
+    text: "Tu suis le montage clip par clip, et chaque clip prêt est visible tout de suite. Télécharge-les un par un en MP4, ou tous d'un coup dans une archive.",
+    ui: (
+      <div className="flex items-center justify-between rounded-md border border-line bg-canvas px-3 py-2 text-caption" aria-hidden>
+        <span className="text-muted">Montage · 7/10 prêts</span>
+        <span className="h-1 w-20 overflow-hidden rounded-full bg-overlay">
+          <span className="block h-full w-[70%] rounded-full bg-primary" />
+        </span>
+      </div>
+    ),
   },
 ];
 
-const FEATURES = [
+const RULES = [
   {
-    icon: Sparkles,
-    title: "Sélection des meilleurs passages",
-    text: "La parole est transcrite par IA au mot près, puis chaque passage est noté (accroche, cohérence, conclusion, énergie de la voix) pour garder ceux qui tiennent debout seuls — pas un découpage toutes les 60 secondes.",
+    title: "Il lit toute la vidéo avant de choisir.",
+    text: "Clipera repère où la conversation change de sujet, puis cherche le meilleur passage dans chacun. Pas seulement les dix premières minutes.",
   },
   {
-    icon: Captions,
-    title: "Sous-titres synchronisés au mot",
-    text: "Quatre styles (Classique, Mot surligné, Moderne, Minimal), typographie française respectée, placés au-dessus des boutons des applications.",
+    title: "Un clip commence au début d'une phrase et finit sur une conclusion.",
+    text: "Jamais au milieu d'une idée. Les « euh, bon, alors » d'ouverture sont retirés, et un clip ne se termine pas sur la réplique de quelqu'un d'autre.",
   },
   {
-    icon: Crop,
-    title: "Recadrage 9:16, 1:1 et 16:9",
-    text: "Les visages sont détectés par IA et le cadre se place sur la personne qui parle, sans à-coups et sans jamais couper une tête. Trois modes au choix.",
+    title: "Pas deux clips qui racontent la même chose.",
+    text: "Les passages trop proches d'un clip déjà retenu sont écartés, comme le bavardage et les formules répétées. Chaque clip apporte une idée différente.",
   },
   {
-    icon: Scissors,
-    title: "Coupes propres",
-    text: "Début et fin calés sur les phrases, changements de caméra respectés, aucun passage coupé en plein milieu d'une idée.",
-  },
-  {
-    icon: Gauge,
-    title: "Clip Score indicatif",
-    text: "Une note expliquée (accroche, clarté, rythme, conclusion) pour t'aider à choisir. Ce n'est pas une prédiction de vues.",
-  },
-  {
-    icon: AudioLines,
-    title: "Son équilibré",
-    text: "Volume harmonisé pour les réseaux, fondus d'entrée et de sortie : pas de « clic » au début du clip.",
+    title: "Le nombre suit la richesse de ta vidéo.",
+    text: "Une heure de podcast peut donner 10 clips. Une vidéo de 4 minutes n'en donnera jamais 10. Et si ta vidéo ne contient que 3 bons moments, tu reçois 3 clips, avec une explication claire.",
   },
 ];
 
-const QUALITY = [
-  "Pas de zoom permanent ni d'effets aléatoires",
-  "Coupes en fin de phrase, jamais au milieu d'une idée",
-  "Sous-titres sobres et lisibles sur mobile",
-  "Résolution d'origine respectée, jamais agrandie artificiellement",
-  "Si ta vidéo ne contient que 3 bons passages, tu obtiens 3 clips — pas 5 clips médiocres",
+const AUDIENCES = [
+  {
+    who: "Podcasteurs",
+    text: "Un épisode d'une heure devient une semaine de contenus courts, chacun sur un sujet différent de l'épisode.",
+    href: "/transformer-podcast-en-clips",
+    link: "Transformer un podcast en clips",
+  },
+  {
+    who: "Créateurs YouTube",
+    text: "Tes vidéos longues alimentent tes Shorts, TikTok et Reels, recadrés en 9:16 et sous-titrés pour une lecture sans le son.",
+    href: "/youtube-shorts-tiktok-reels",
+    link: "Shorts, TikTok et Reels",
+  },
+  {
+    who: "Interviews, coachs, formateurs",
+    text: "Les meilleures réponses de tes interviews, lives et formations, en clips qui se comprennent sans avoir vu le reste.",
+    href: "/recadrage-vertical-automatique",
+    link: "Recadrage vertical automatique",
+  },
+  {
+    who: "Campagnes de clipping",
+    text: "Le créateur te partage un lien Google Drive ou Dropbox : colle-le, choisis le nombre de clips, publie.",
+    href: "/generateur-clips-ia",
+    link: "Le générateur de clips IA",
+  },
 ];
 
 const FAQ = [
   {
     q: "Qu'est-ce que Clipera ?",
-    a: "Clipera (clipera.fr) est un logiciel en ligne qui transforme tes vidéos longues en clips courts grâce à l'intelligence artificielle : il transcrit la vidéo, choisit les meilleurs passages, les recadre en vertical et ajoute des sous-titres synchronisés. Rien à installer : tout se passe dans ton navigateur.",
+    a: "Clipera (clipera.fr) est un générateur de clips IA en français. Il transcrit ta vidéo longue, repère ses meilleurs moments sur des sujets différents, les recadre en vertical (9:16, 1:1 ou 16:9) et ajoute des sous-titres synchronisés au mot près. Tu obtiens jusqu'à 10 clips courts prêts pour TikTok, YouTube Shorts et Instagram Reels, sans rien installer.",
   },
   {
-    q: "Clipera est-il déjà disponible ?",
-    a: "Oui. Tu peux créer un compte gratuit, importer tes vidéos et générer tes clips dès maintenant. Les offres payantes se règlent par carte bancaire, sur la page sécurisée de Stripe.",
+    q: "Est-ce compliqué à utiliser ?",
+    a: "Non : tu importes une vidéo, tu choisis le nombre de clips (ou « Auto ») et tu télécharges le résultat. Aucun logiciel à installer, aucune compétence de montage. Tout se passe dans le navigateur, sur ordinateur comme sur téléphone.",
   },
   {
-    q: "Quelles vidéos puis-je utiliser ?",
-    a: "Des vidéos en français, avec de la parole, dont tu détiens les droits (tu en es l'auteur ou tu as l'autorisation de les exploiter) : fichiers MP4, MOV, M4V, MKV ou WEBM depuis ton ordinateur, ou lien de partage Google Drive ou Dropbox. Clipera ne télécharge pas de vidéos depuis YouTube, TikTok ou d'autres plateformes.",
+    q: "Combien de temps ça prend ?",
+    a: "Quelques minutes. Mesuré sur un vrai traitement : une vidéo de 28 minutes analysée et montée en 5 clips en environ 2 minutes. La durée dépend de la longueur de la vidéo et du nombre de clips ; tu peux fermer la page pendant le traitement.",
   },
   {
-    q: "Mes vidéos restent-elles privées ?",
-    a: "Oui. Elles sont stockées dans un espace privé en Europe, accessibles uniquement par toi, et les vidéos sources sont supprimées automatiquement 30 jours après leur import. Elles ne servent jamais à entraîner des modèles d'IA.",
+    q: "Combien de clips par vidéo ?",
+    a: "Jusqu'à 10 avec les offres payantes, et jusqu'à 5 avec l'offre gratuite. En mode « Auto », Clipera vise environ un clip pour 6 minutes de parole. Ce sont des maximums : Clipera ne fabrique jamais de clip médiocre pour atteindre un nombre.",
+  },
+  {
+    q: "Quels types de vidéos sont pris en charge ?",
+    a: "Des vidéos en français, avec de la parole, dont tu détiens les droits : podcasts, interviews, vlogs, lives, formations. Fichiers MP4, MOV, M4V, MKV ou WEBM, ou liens Google Drive et Dropbox. Pour YouTube, Clipera reconnaît ton lien et t'emmène à ta vidéo dans YouTube Studio : les règles de YouTube interdisent aux services tiers de télécharger les vidéos à ta place.",
+  },
+  {
+    q: "Est-ce que je peux modifier les clips ?",
+    a: "Tu choisis le format, le cadrage et le style des sous-titres avant la génération, et tu peux relancer avec d'autres réglages. Tu peux aussi supprimer les clips que tu ne gardes pas. Il n'y a pas encore d'éditeur intégré pour retoucher un clip à la main : les MP4 s'ouvrent dans ton éditeur habituel si besoin.",
+  },
+  {
+    q: "Le résultat est-il de bonne qualité ?",
+    a: "Export jusqu'en 1080p sans filigrane avec les offres payantes (720p avec filigrane en gratuit), sans jamais agrandir une vidéo au-delà de sa qualité d'origine. Son harmonisé, sous-titres synchronisés au mot, contrôle automatique de chaque fichier. Clipera ne juge pas encore finement l'humour ou l'émotion : regarde chaque clip avant de le publier.",
   },
   {
     q: "Clipera garantit-il des vues ?",
-    a: "Non. Personne ne peut garantir des vues, la viralité ou des revenus. Clipera t'aide à produire plus vite des clips de qualité ; le Clip Score est une aide au choix, pas une prédiction.",
+    a: "Non. Personne ne peut garantir des vues ni la viralité. La note de chaque clip sert à comparer les passages entre eux, pas à prédire leurs performances.",
   },
   {
-    q: "Et si un traitement échoue ?",
-    a: "Si aucun clip n'est produit, ton quota n'est pas consommé : il t'est restitué automatiquement.",
+    q: "Que se passe-t-il si un traitement échoue ?",
+    a: "Si aucun clip n'est produit, la vidéo ne compte pas dans ton quota : elle t'est restituée automatiquement. Si un seul clip échoue, les autres sont livrés normalement.",
   },
   {
-    q: "Puis-je publier mes clips où je veux ?",
-    a: "Oui : TikTok, YouTube Shorts, Instagram Reels ou ailleurs. Tu télécharges des fichiers MP4 et tu restes libre de leur utilisation.",
+    q: "Mes vidéos restent-elles privées ?",
+    a: "Oui. Elles sont stockées dans un espace privé en Europe, accessibles uniquement par toi. Les vidéos sources sont supprimées automatiquement 30 jours après l'import et ne servent jamais à entraîner des modèles d'IA.",
   },
   {
-    q: "Puis-je supprimer mon compte ?",
-    a: "À tout moment, depuis Paramètres. Tout est effacé immédiatement, fichiers compris.",
+    q: "Comment fonctionnent les abonnements ?",
+    a: "Sans engagement : mensuel, ou annuel avec 2 mois offerts. Paiement par carte sur la page sécurisée de Stripe, résiliation en quelques clics depuis ton espace. L'offre gratuite ne demande aucune carte bancaire.",
   },
 ];
 
-function SectionTitle({ eyebrow, title, text, id }: { eyebrow: string; title: string; text?: string; id?: string }) {
-  return (
-    <div className="max-w-2xl" id={id}>
-      <p className="text-small font-semibold text-primary-soft">{eyebrow}</p>
-      <h2 className="mt-3 text-h1 font-bold text-balance">{title}</h2>
-      {text && <p className="mt-4 text-body text-muted">{text}</p>}
-    </div>
-  );
-}
-
 export default async function Home() {
   const plans = await getPublicPlans();
+  const faqLd = {
+    "@type": "FAQPage",
+    mainEntity: FAQ.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+  };
   return (
     <div className="flex min-h-dvh flex-col">
-      <JsonLd data={graph(organizationLd(), websiteLd(), softwareLd(plans))} />
+      <JsonLd data={graph(organizationLd(), websiteLd(), softwareLd(plans), faqLd)} />
       <SiteHeader />
 
-      <main className="flex-1">
-        {/* Hero */}
-        <section className="relative overflow-hidden">
+      <main className="flex-1 overflow-x-clip">
+        {/* ── Hero ───────────────────────────────────────────── */}
+        <section className="relative">
           <div
             aria-hidden
-            className="pointer-events-none absolute -top-40 left-1/2 h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl"
+            className="pointer-events-none absolute inset-x-0 top-0 h-[640px] bg-[radial-gradient(60%_50%_at_70%_0%,rgb(139_92_246/0.14),transparent_70%)]"
           />
-          <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 pt-16 pb-20 sm:px-8 lg:grid-cols-[1.05fr_1fr] lg:pt-24">
-            <div>
-              <span className="inline-flex items-center gap-2 rounded-full border border-primary-line bg-primary-wash px-3 py-1 text-caption font-medium text-primary-soft">
-                <span className="size-1.5 rounded-full bg-primary-soft" /> Clipera · générateur de clips IA en français
-              </span>
-              <h1 className="mt-6 text-h1 font-bold text-balance sm:text-display">
-                Clipera transforme tes vidéos longues en <span className="text-primary-soft">clips courts</span> grâce à
-                l&apos;IA.
-              </h1>
-              <p className="mt-6 max-w-xl text-body text-muted sm:text-h3 sm:font-normal">
-                Clipera repère les meilleurs passages de tes podcasts et interviews, les recadre en vertical et ajoute des
-                sous-titres synchronisés. Des clips naturels, prêts pour TikTok, Shorts et Reels.
+          <div className="relative mx-auto max-w-6xl px-4 pt-14 sm:px-8 sm:pt-20 lg:pt-24">
+            <p className="flex items-center gap-3 text-caption font-medium tracking-wide text-subtle uppercase">
+              <span className="text-primary-soft">Générateur de clips IA</span>
+              <span className="h-px w-8 bg-line-strong" aria-hidden />
+              <span>en français</span>
+            </p>
+            <h1 className="mt-6 max-w-4xl text-[2.6rem] leading-[1.02] font-bold tracking-[-0.04em] text-balance sm:text-[4rem] lg:text-[4.75rem]">
+              <span className="text-muted">Une vidéo longue.</span>
+              <br />
+              Jusqu&apos;à 10 clips <br className="hidden sm:block" />
+              prêts à publier.
+            </h1>
+            <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
+              <p className="max-w-xl text-body text-muted sm:text-[1.125rem] sm:leading-relaxed">
+                Clipera écoute toute ta vidéo, repère les meilleurs moments <span className="text-fg">sur des sujets
+                différents</span>, puis les recadre en vertical et les sous-titre au mot près. Pour TikTok, Reels et Shorts.
               </p>
-              <div className="mt-8 flex flex-wrap items-center gap-3">
-                <Link href="/inscription" className={buttonStyles({ size: "lg" })}>
-                  Créer un compte gratuit <ArrowRight />
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <Link href="/inscription" className={buttonStyles({ size: "lg", className: "justify-center" })}>
+                  Essayer gratuitement <ArrowRight />
                 </Link>
-                <a href="#tarifs" className={buttonStyles({ size: "lg", variant: "secondary" })}>
-                  Voir les tarifs
+                <a href="#moteur" className={buttonStyles({ size: "lg", variant: "ghost", className: "justify-center" })}>
+                  Comment il choisit
                 </a>
               </div>
-              <p className="mt-4 text-small text-subtle">Offre gratuite · sans carte bancaire · rien à installer</p>
             </div>
-            <HeroVisual />
-          </div>
-        </section>
+            <p className="mt-5 text-small text-subtle">
+              Sans carte bancaire · 5 clips par vidéo en gratuit, 10 avec les offres payantes · rien à installer
+            </p>
 
-        {/* Avant / après */}
-        <section className="border-t border-line bg-surface/40">
-          <div className="mx-auto grid max-w-6xl gap-14 px-4 py-20 sm:px-8 lg:grid-cols-[1fr_1.2fr] lg:items-center">
-            <SectionTitle
-              eyebrow="Avant / après"
-              title="Une vidéo de 58 minutes. Plusieurs clips qui tiennent debout seuls."
-              text="Clipera ne coupe pas au hasard : chaque clip commence par une accroche, garde le contexte nécessaire et se termine sur une phrase complète. Le cadre suit la personne qui parle."
-            />
-            <div className="pt-8">
-              <BeforeAfter />
+            <div className="mt-12 sm:mt-16">
+              <EngineDemo />
             </div>
           </div>
         </section>
 
-        {/* Fonctionnement */}
-        <section className="border-t border-line">
-          <div className="mx-auto max-w-6xl px-4 py-20 sm:px-8">
-            <SectionTitle id="fonctionnement" eyebrow="Fonctionnement" title="Trois étapes, aucune compétence de montage requise." />
-            <ol className="mt-12 grid gap-px overflow-hidden rounded-xl border border-line bg-line md:grid-cols-3">
+        {/* ── 01 · Le problème ───────────────────────────────── */}
+        <section className="mx-auto max-w-6xl px-4 py-24 sm:px-8 sm:py-32">
+          <div className="grid gap-14 lg:grid-cols-[1.1fr_1fr] lg:gap-20">
+            <Reveal>
+              <Chapter n="01" time="00:00" label="Le problème" title="Une heure à réécouter pour en garder trois minutes.">
+                <p>
+                  Le bon moment est là, quelque part dans ta vidéo. Pour le sortir à la main, il faut tout réécouter,
+                  noter les timecodes, couper proprement, recadrer, sous-titrer. Et recommencer pour chaque clip.
+                </p>
+                <p className="mt-4">
+                  Avec Clipera, ces gestes sont faits pour toi. Tu gardes le seul choix qui compte : publier, ou pas.
+                </p>
+              </Chapter>
+            </Reveal>
+            <Reveal delay={120}>
+              <div className="grid gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-2">
+                <div className="bg-canvas p-6">
+                  <p className="text-caption font-medium tracking-wide text-subtle uppercase">À la main</p>
+                  <ul className="mt-4 flex flex-col gap-2.5">
+                    {MANUAL.map((m) => (
+                      <li key={m} className="text-small text-subtle line-through decoration-line-strong">
+                        {m}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="bg-surface p-6">
+                  <p className="text-caption font-medium tracking-wide text-primary-soft uppercase">Avec Clipera</p>
+                  <ul className="mt-4 flex flex-col gap-2.5">
+                    {["Importer la vidéo", "Choisir le nombre de clips", "Télécharger"].map((m) => (
+                      <li key={m} className="flex items-center gap-2 text-small text-fg">
+                        <Check className="size-4 text-primary-soft" aria-hidden /> {m}
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mt-6 border-t border-line pt-4 text-caption text-muted">
+                    Mesuré sur un vrai traitement : une vidéo de <span className="text-fg">28 minutes</span>, analysée et
+                    montée en 5 clips en <span className="text-fg">environ 2 minutes</span>.
+                  </p>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* ── 02 · Fonctionnement ────────────────────────────── */}
+        <section className="border-y border-line bg-surface/40">
+          <div className="mx-auto max-w-6xl px-4 py-24 sm:px-8 sm:py-28">
+            <Reveal>
+              <Chapter n="02" time="02:30" label="Fonctionnement" title="Trois étapes. Aucune compétence de montage." id="fonctionnement" />
+            </Reveal>
+            <ol className="mt-14 grid gap-10 md:grid-cols-3 md:gap-8">
               {STEPS.map((s, i) => (
-                <li key={s.title} className="bg-canvas p-7">
-                  <div className="flex items-center gap-3">
-                    <span className="grid size-9 place-items-center rounded-full border border-primary-line bg-primary-wash text-small font-semibold text-primary-soft">
-                      {i + 1}
-                    </span>
-                    <s.icon className="size-5 text-subtle" aria-hidden />
-                  </div>
-                  <h3 className="mt-5 text-h3 font-semibold">{s.title}</h3>
-                  <p className="mt-2 text-small text-muted">{s.text}</p>
-                </li>
+                <Reveal key={s.n} delay={i * 100} as="li" className="flex h-full flex-col">
+                    <div className="flex items-center gap-3">
+                      <span className="text-[2.5rem] leading-none font-bold tracking-tight text-line-strong tabular-nums">{s.n}</span>
+                      <span className="h-px flex-1 bg-line-strong" aria-hidden />
+                    </div>
+                    <h3 className="mt-5 text-h3 font-semibold">{s.title}</h3>
+                    <p className="mt-2 text-small text-muted">{s.text}</p>
+                    <div className="mt-5 md:mt-auto md:pt-5">{s.ui}</div>
+                </Reveal>
               ))}
             </ol>
           </div>
         </section>
 
-        {/* Fonctionnalités */}
-        <section className="border-t border-line bg-surface/40">
-          <div className="mx-auto max-w-6xl px-4 py-20 sm:px-8">
-            <SectionTitle
-              id="fonctionnalites"
-              eyebrow="Fonctionnalités"
-              title="Tout ce qu'il faut pour des clips propres, rien de superflu."
-              text="Toutes ces fonctionnalités sont incluses dès l'offre gratuite."
-            />
-            <div className="mt-12 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
-              {FEATURES.map((f) => (
-                <div key={f.title}>
-                  <f.icon className="size-5 text-primary-soft" aria-hidden />
-                  <h3 className="mt-4 text-body font-semibold text-fg">{f.title}</h3>
-                  <p className="mt-2 text-small text-muted">{f.text}</p>
-                </div>
+        {/* ── 03 · Le moteur ─────────────────────────────────── */}
+        <section className="mx-auto max-w-6xl px-4 py-24 sm:px-8 sm:py-32">
+          <Reveal>
+            <Chapter n="03" time="05:10" label="Le moteur" title={<>Dix clips. Dix sujets.<br className="hidden sm:block" /> Aucun remplissage.</>} id="moteur">
+              <p>
+                Augmenter le nombre de clips n&apos;a d&apos;intérêt que si chacun vaut la peine d&apos;être publié. Le
+                moteur de Clipera suit quatre règles, appliquées à chaque vidéo.
+              </p>
+            </Chapter>
+          </Reveal>
+          <div className="mt-14 grid gap-12 lg:grid-cols-[1fr_1.15fr] lg:gap-16">
+            <ol className="flex flex-col">
+              {RULES.map((r, i) => (
+                <Reveal
+                  key={r.title}
+                  delay={i * 80}
+                  as="li"
+                  className="grid grid-cols-[2.25rem_1fr] gap-x-3 border-t border-line py-6 first:border-t-0 first:pt-0"
+                >
+                    <span className="text-small font-semibold text-primary-soft tabular-nums">0{i + 1}</span>
+                    <div>
+                      <h3 className="text-body font-semibold text-fg">{r.title}</h3>
+                      <p className="mt-1.5 text-small text-muted">{r.text}</p>
+                    </div>
+                </Reveal>
               ))}
+            </ol>
+            <Reveal delay={120}>
+              <SortingTable />
+              <p className="mt-4 text-caption text-subtle">
+                Dans l&apos;application, chaque clip affiche sa note sur 100 et le détail de ses critères (accroche,
+                contexte, cohérence, conclusion, durée). La note compare les passages entre eux : ce n&apos;est pas une
+                prédiction de vues.
+              </p>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* ── 04 · Le rendu ──────────────────────────────────── */}
+        <section className="border-y border-line bg-surface/40">
+          <div className="mx-auto max-w-6xl px-4 py-24 sm:px-8 sm:py-28">
+            <Reveal>
+              <Chapter n="04" time="08:45" label="Le rendu" title="Fait pour être regardé sur un téléphone." id="fonctionnalites">
+                <p>
+                  Des sous-titres synchronisés au mot, lisibles au-dessus des boutons des applications. Un cadre qui suit
+                  la bonne personne, sans zoom permanent ni effets gratuits. Un son harmonisé, sans « clic » au début.
+                </p>
+              </Chapter>
+            </Reveal>
+            <div className="mt-14 grid gap-14 lg:grid-cols-2 lg:gap-16">
+              <Reveal>
+                <h3 className="text-small font-semibold">Quatre styles de sous-titres</h3>
+                <p className="mt-1 mb-5 text-small text-muted">Synchronisés au mot près, typographie française respectée.</p>
+                <CaptionStyles />
+              </Reveal>
+              <Reveal delay={120}>
+                <h3 className="text-small font-semibold">Trois modes de cadrage</h3>
+                <p className="mt-1 mb-5 text-small text-muted">
+                  Les visages sont détectés ; le cadre ne coupe jamais une tête. Formats 9:16, 1:1 et 16:9.
+                </p>
+                <FramingModes />
+              </Reveal>
             </div>
+            <p className="mt-10 flex flex-wrap gap-x-6 gap-y-2 text-caption text-subtle">
+              <span>Schémas indicatifs : ils illustrent les options, ce ne sont pas des captures de clips.</span>
+              <Link href="/sous-titres-automatiques" className="text-primary-soft hover:underline">
+                Les sous-titres automatiques en détail →
+              </Link>
+            </p>
           </div>
         </section>
 
-        {/* Qualité du montage */}
-        <section className="border-t border-line">
-          <div className="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-8 lg:grid-cols-2 lg:items-start">
-            <SectionTitle
-              eyebrow="Qualité du montage"
-              title="Un montage naturel, pas un montage « fait par une IA »."
-              text="Les clips doivent donner envie d'être regardés jusqu'au bout. Nos règles sont simples et appliquées à chaque rendu, avec un contrôle automatique du fichier final."
-            />
-            <ul className="flex flex-col divide-y divide-line rounded-xl border border-line">
-              {QUALITY.map((q) => (
-                <li key={q} className="flex gap-3 p-5 text-small text-fg">
-                  <Check className="mt-0.5 size-4 shrink-0 text-primary-soft" aria-hidden />
-                  {q}
-                </li>
-              ))}
-            </ul>
-          </div>
+        {/* ── 05 · Pour qui ──────────────────────────────────── */}
+        <section className="mx-auto max-w-6xl px-4 py-24 sm:px-8 sm:py-32">
+          <Reveal>
+            <Chapter n="05" time="12:20" label="Pour qui" title="Pour tous ceux qui parlent face caméra." />
+          </Reveal>
+          <ul className="mt-12 border-t border-line">
+            {AUDIENCES.map((a, i) => (
+              <Reveal
+                key={a.who}
+                delay={i * 60}
+                as="li"
+                className="grid gap-3 border-b border-line py-7 md:grid-cols-[14rem_1fr_auto] md:items-baseline md:gap-10"
+              >
+                  <h3 className="text-h3 font-semibold">{a.who}</h3>
+                  <p className="text-small text-muted md:text-body">{a.text}</p>
+                  <Link
+                    href={a.href}
+                    className="inline-flex items-center gap-1 text-small font-medium text-primary-soft hover:underline"
+                  >
+                    {a.link} <ArrowUpRight className="size-4" aria-hidden />
+                  </Link>
+              </Reveal>
+            ))}
+          </ul>
         </section>
 
-        {/* Tarifs */}
-        <section className="border-t border-line bg-surface/40">
-          <div className="mx-auto max-w-6xl px-4 py-20 sm:px-8">
-            <SectionTitle
-              id="tarifs"
-              eyebrow="Tarifs"
-              title="Des offres simples, sans engagement."
-              text="Prix TTC. Mensuel sans engagement, ou annuel avec 2 mois offerts. Commence avec l'offre gratuite, sans carte bancaire."
-            />
+        {/* ── 06 · Tarifs ────────────────────────────────────── */}
+        <section className="border-y border-line bg-surface/40">
+          <div className="mx-auto max-w-6xl px-4 py-24 sm:px-8 sm:py-28">
+            <Reveal>
+              <Chapter n="06" time="15:00" label="Tarifs" title="Commence gratuitement. Passe à 10 clips quand tu veux." id="tarifs">
+                <p>
+                  Prix TTC. Mensuel sans engagement, ou annuel avec 2 mois offerts. Le quota se compte en vidéos et en
+                  minutes importées, jamais en clips.
+                </p>
+              </Chapter>
+            </Reveal>
             {plans.length > 0 ? (
               <div className="mt-12">
                 <PricingTable plans={plans} />
@@ -274,77 +408,72 @@ export default async function Home() {
             ) : (
               <p className="mt-10 text-muted">Les tarifs sont momentanément indisponibles.</p>
             )}
-          </div>
-        </section>
-
-        {/* Pour qui : maillage vers les pages de contenu */}
-        <section className="border-t border-line">
-          <div className="mx-auto max-w-6xl px-4 py-20 sm:px-8">
-            <SectionTitle
-              eyebrow="Pour qui ?"
-              title="Pour tous ceux qui parlent face caméra."
-              text="Podcasteurs, coachs, formateurs, créateurs YouTube, entrepreneurs et agences : si ta vidéo contient de la parole, Clipera peut en tirer des clips courts. Découvre comment selon ton besoin."
-            />
-            <ul className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {SOLUTION_PAGES.map((p) => (
-                <li key={p.href}>
-                  <Link
-                    href={p.href}
-                    className="flex h-full items-center justify-between gap-3 rounded-xl border border-line bg-surface/40 px-5 py-4 text-small font-medium text-fg transition-colors hover:border-primary-line"
-                  >
-                    {p.label}
-                    <ArrowRight className="size-4 shrink-0 text-primary-soft" aria-hidden />
-                  </Link>
+            <ul className="mt-10 grid gap-3 text-small text-muted sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                "Offre gratuite sans carte bancaire",
+                "Résiliable en quelques clics",
+                "Quota restitué si aucun clip n'est produit",
+                "Paiement sécurisé par Stripe",
+              ].map((t) => (
+                <li key={t} className="flex items-center gap-2">
+                  <Check className="size-4 shrink-0 text-primary-soft" aria-hidden /> {t}
                 </li>
               ))}
-              <li>
-                <Link
-                  href="/blog"
-                  className="flex h-full items-center justify-between gap-3 rounded-xl border border-line bg-surface/40 px-5 py-4 text-small font-medium text-fg transition-colors hover:border-primary-line"
-                >
-                  Guides et conseils (blog)
-                  <ArrowRight className="size-4 shrink-0 text-primary-soft" aria-hidden />
-                </Link>
-              </li>
             </ul>
           </div>
         </section>
 
-        {/* FAQ */}
-        <section className="border-t border-line">
-          <div className="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-8 lg:grid-cols-[1fr_1.5fr]">
-            <SectionTitle id="faq" eyebrow="FAQ" title="Questions fréquentes" />
+        {/* ── 07 · Questions ─────────────────────────────────── */}
+        <section className="mx-auto max-w-6xl px-4 py-24 sm:px-8 sm:py-32">
+          <div className="grid gap-12 lg:grid-cols-[1fr_1.6fr] lg:gap-16">
+            <Reveal className="lg:sticky lg:top-24 lg:self-start">
+              <Chapter n="07" time="18:40" label="Questions" title="Ce que tu te demandes sûrement." id="faq">
+                <p>
+                  Une autre question ? Consulte nos{" "}
+                  <Link href="/blog" className="text-fg underline decoration-line-strong underline-offset-4 hover:decoration-primary-soft">
+                    guides
+                  </Link>
+                  .
+                </p>
+              </Chapter>
+            </Reveal>
             <div className="divide-y divide-line border-y border-line">
               {FAQ.map((f) => (
                 <details key={f.q} className="group py-5">
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-body font-medium text-fg [&::-webkit-details-marker]:hidden">
                     {f.q}
-                    <span className="text-h3 text-subtle transition-transform group-open:rotate-45" aria-hidden>
+                    <span className="text-h3 font-light text-subtle transition-transform duration-300 group-open:rotate-45" aria-hidden>
                       +
                     </span>
                   </summary>
-                  <p className="mt-3 text-small text-muted">{f.a}</p>
+                  <p className="mt-3 max-w-2xl text-small text-muted">{f.a}</p>
                 </details>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Appel à l'action */}
+        {/* ── Fin ────────────────────────────────────────────── */}
         <section className="border-t border-line">
-          <div className="mx-auto max-w-6xl px-4 py-20 sm:px-8">
-            <div className="relative overflow-hidden rounded-2xl border border-primary-line bg-surface px-6 py-14 text-center sm:px-12">
-              <div aria-hidden className="pointer-events-none absolute inset-x-0 -top-24 mx-auto h-48 w-2/3 rounded-full bg-primary/15 blur-3xl" />
-              <h2 className="relative text-h1 font-bold text-balance">
-                Transforme tes vidéos. <span className="text-primary-soft">Multiplie tes opportunités.</span>
-              </h2>
-              <p className="relative mx-auto mt-4 max-w-xl text-muted">
-                Crée ton compte gratuit et génère tes premiers clips dès aujourd&apos;hui.
+          <div className="relative mx-auto max-w-6xl px-4 py-24 sm:px-8 sm:py-32">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-72 bg-[radial-gradient(50%_60%_at_50%_100%,rgb(139_92_246/0.14),transparent_70%)]"
+            />
+            <Reveal className="relative">
+              <p className="text-caption font-medium tracking-wide text-subtle uppercase tabular-nums">
+                <span className="text-primary-soft">FIN</span> · 20:00
               </p>
-              <Link href="/inscription" className={cn(buttonStyles({ size: "lg" }), "relative mt-8")}>
-                Créer un compte gratuit <ArrowRight />
-              </Link>
-            </div>
+              <h2 className="mt-5 max-w-3xl text-[2.25rem] leading-[1.05] font-bold tracking-[-0.035em] text-balance sm:text-[3.5rem]">
+                Ta prochaine vidéo contient déjà tes prochains clips.
+              </h2>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <Link href="/inscription" className={buttonStyles({ size: "lg", className: "justify-center" })}>
+                  Essayer gratuitement <ArrowRight />
+                </Link>
+                <span className="text-small text-subtle">Sans carte bancaire · premiers clips en quelques minutes</span>
+              </div>
+            </Reveal>
           </div>
         </section>
       </main>

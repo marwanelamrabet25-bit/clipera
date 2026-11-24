@@ -80,7 +80,7 @@ export default async function DashboardPage() {
                   <span
                     className={cn(
                       "grid size-7 shrink-0 place-items-center rounded-full text-caption font-semibold",
-                      s.done ? "bg-primary text-on-primary" : "border border-primary-line text-primary-soft",
+                      s.done ? "bg-primary-strong text-on-primary" : "border border-primary-line text-primary-soft",
                     )}
                     aria-hidden
                   >

@@ -26,7 +26,7 @@ function BillingToggle({ value, onChange }: { value: Billing; onChange: (b: Bill
       <span
         aria-hidden
         className={cn(
-          "absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] rounded-full bg-primary shadow-[0_6px_20px_-8px_rgb(139_92_246/0.8)]",
+          "absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] rounded-full bg-primary-strong shadow-[0_6px_20px_-8px_rgb(139_92_246/0.8)]",
           "transition-transform duration-300 ease-out-soft",
           value === "annual" && "translate-x-full",
         )}
@@ -87,7 +87,7 @@ function PlanCard({ plan, billing, current, freeHref }: {
       )}
     >
       {popular && (
-        <span className="absolute -top-3 left-1/2 inline-flex -translate-x-1/2 items-center gap-1 rounded-full bg-primary px-3 py-1 text-[11px] font-semibold tracking-wide text-on-primary whitespace-nowrap shadow-[0_8px_20px_-8px_rgb(139_92_246/0.9)]">
+        <span className="absolute -top-3 left-1/2 inline-flex -translate-x-1/2 items-center gap-1 rounded-full bg-primary-strong px-3 py-1 text-[11px] font-semibold tracking-wide text-on-primary whitespace-nowrap shadow-[0_8px_20px_-8px_rgb(139_92_246/0.9)]">
           <Sparkles className="size-3" aria-hidden /> Le plus populaire
         </span>
       )}

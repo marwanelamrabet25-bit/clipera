@@ -10,7 +10,7 @@ export const buttonStyles = cva(
   {
     variants: {
       variant: {
-        primary: "bg-primary text-on-primary hover:bg-primary-hover active:bg-primary",
+        primary: "bg-primary-strong text-on-primary hover:bg-primary-hover active:bg-primary-strong",
         secondary: "border border-line-strong bg-elevated text-fg hover:border-primary-line hover:bg-overlay",
         ghost: "text-muted hover:bg-elevated hover:text-fg",
         danger: "border border-danger/30 bg-danger-wash text-danger hover:bg-danger/20",

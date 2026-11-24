@@ -7,7 +7,8 @@
 @theme {
   /* Marque */
   --color-primary: #8b5cf6;
-  --color-primary-hover: #7c4ef0;
+  --color-primary-strong: #7c4ef0; /* fond des boutons à texte blanc : contraste 5:1 (accessibilité) */
+  --color-primary-hover: #6d3fe4;
   --color-primary-soft: #a78bfa;
   --color-primary-wash: rgb(139 92 246 / 0.12);
   --color-primary-line: rgb(167 139 250 / 0.32);
@@ -21,7 +22,7 @@
   /* Texte */
   --color-fg: #f8f9ff;
   --color-muted: #a3a3b8;
-  --color-subtle: #6e6e84;
+  --color-subtle: #80809a; /* contraste ≥ 4,5:1 sur les fonds sombres */
   --color-on-primary: #ffffff;
 
   /* Traits */

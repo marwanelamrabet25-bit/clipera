@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand/logo";
 import { buttonStyles } from "@/components/ui/button";
-import { cn } from "@/lib/cn";
 
 const NAV = [
-  ["/#fonctionnalites", "Fonctionnalités"],
+  ["/#fonctionnement", "Fonctionnement"],
+  ["/#moteur", "Le moteur"],
   ["/transformer-podcast-en-clips", "Podcasts"],
   ["/tarifs", "Tarifs"],
   ["/blog", "Blog"],
@@ -29,8 +29,9 @@ export function SiteHeader() {
           <Link href="/connexion" className={buttonStyles({ variant: "ghost", size: "sm" })}>
             Se connecter
           </Link>
-          <Link href="/inscription" className={cn(buttonStyles({ size: "sm" }), "hidden sm:inline-flex")}>
-            Créer un compte
+          <Link href="/inscription" className={buttonStyles({ size: "sm" })}>
+            <span className="sm:hidden">Essayer</span>
+            <span className="hidden sm:inline">Essayer gratuitement</span>
           </Link>
         </div>
       </div>

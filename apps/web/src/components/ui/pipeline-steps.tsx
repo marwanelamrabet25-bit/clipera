@@ -24,7 +24,7 @@ export function PipelineSteps({ status, failedAt }: { status: JobStatus | "uploa
             <span
               className={cn(
                 "relative grid size-8 shrink-0 place-items-center rounded-full border text-caption font-semibold",
-                s === "done" && "border-primary bg-primary text-on-primary",
+                s === "done" && "border-primary bg-primary-strong text-on-primary",
                 s === "current" && "border-primary-soft bg-primary-wash text-primary-soft",
                 s === "pending" && "border-line-strong bg-surface text-subtle",
                 s === "error" && "border-danger/50 bg-danger-wash text-danger",

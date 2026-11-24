@@ -47,7 +47,7 @@ export function ClipProgress({ clips }: { clips: ProgressClip[] }) {
             <span
               className={cn(
                 "grid size-6 shrink-0 place-items-center rounded-full text-caption font-semibold tabular-nums",
-                c.status === "ready" && "bg-primary text-on-primary",
+                c.status === "ready" && "bg-primary-strong text-on-primary",
                 c.status === "rendering" && "border border-primary-line text-primary-soft",
                 c.status === "failed" && "bg-danger-wash text-danger",
               )}
