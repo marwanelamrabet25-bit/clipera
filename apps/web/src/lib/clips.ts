@@ -66,11 +66,41 @@ export async function signClip(clip: ClipRow): Promise<ClipLinks> {
   return { video, download, thumbnail };
 }
 
+/** Lien de téléchargement de l'archive de tous les clips d'une génération (même règle de propriété). */
+export async function signZip(userId: string, key: string | null | undefined, title: string | null) {
+  if (!key || !isStorageConfigured() || !key.startsWith(`clips/${userId}/`) || !key.endsWith("/clips.zip")) return null;
+  const { client, bucket } = s3();
+  return getSignedUrl(
+    client,
+    new GetObjectCommand({
+      Bucket: bucket,
+      Key: key,
+      ResponseContentDisposition: `attachment; filename="clipera-${slug(title)}-clips.zip"`,
+    }),
+    { expiresIn: LINK_SECONDS },
+  );
+}
+
 export type ScoreDetails = {
   criteria?: Record<string, number>;
   reasons?: Record<string, string>;
   flags?: string[];
   method?: string;
+  topic?: string | null;
+  content_type?: string | null;
+  render_error?: string;
+};
+
+export const CONTENT_TYPE_LABELS: Record<string, string> = {
+  histoire: "Histoire",
+  conseil: "Conseil",
+  humour: "Humour",
+  réaction: "Réaction",
+  opinion: "Opinion",
+  débat: "Question-réponse",
+  explication: "Explication",
+  anecdote: "Anecdote",
+  surprise: "Surprise",
 };
 
 export const CRITERIA_LABELS: Record<string, string> = {

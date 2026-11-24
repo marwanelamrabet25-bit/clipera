@@ -363,6 +363,7 @@ export type Database = {
       stripe_set_customer: { Args: { p_user: string; p_customer_id: string }; Returns: undefined };
       my_referral_code: { Args: Record<PropertyKey, never>; Returns: string };
       delete_my_project: { Args: { p_project_id: string }; Returns: undefined };
+      delete_my_clip: { Args: { p_clip_id: string }; Returns: { job_id: string; zip_key: string | null }[] };
       claim_referral: { Args: { p_code: string }; Returns: string };
       referral_reward: {
         Args: { p_referee: string };

@@ -2,7 +2,8 @@ import { Download } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { buttonStyles } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { CRITERIA_LABELS, clipDuration, type ClipLinks, type ClipRow, type ScoreDetails } from "@/lib/clips";
+import type { ReactNode } from "react";
+import { CONTENT_TYPE_LABELS, CRITERIA_LABELS, clipDuration, type ClipLinks, type ClipRow, type ScoreDetails } from "@/lib/clips";
 import { formatSize } from "@/lib/video-status";
 
 const ASPECT: Record<string, string> = { "9:16": "aspect-[9/16]", "1:1": "aspect-square", "16:9": "aspect-video" };
@@ -19,7 +20,7 @@ function timecode(s: number) {
 }
 
 /** Un clip livré : aperçu, note expliquée, téléchargement. */
-export function ClipCard({ clip, links }: { clip: ClipRow; links: ClipLinks }) {
+export function ClipCard({ clip, links, actions }: { clip: ClipRow; links: ClipLinks; actions?: ReactNode }) {
   const details = (clip.score_details ?? {}) as ScoreDetails;
   // Ordre de lecture fixe (le stockage JSON ne conserve pas l'ordre des clés).
   const order = Object.keys(CRITERIA_LABELS);
@@ -59,6 +60,18 @@ export function ClipCard({ clip, links }: { clip: ClipRow; links: ClipLinks }) {
           {clip.width && clip.height ? ` · ${clip.width}×${clip.height}` : ""}
           {clip.size_bytes ? ` · ${formatSize(clip.size_bytes)}` : ""}
         </p>
+        {(details.topic || details.content_type) && (
+          <p className="flex flex-wrap gap-1.5 text-caption" data-testid="clip-topic">
+            {details.content_type && CONTENT_TYPE_LABELS[details.content_type] && (
+              <span className="rounded-full border border-line px-2 py-0.5 text-muted">
+                {CONTENT_TYPE_LABELS[details.content_type]}
+              </span>
+            )}
+            {details.topic && (
+              <span className="rounded-full border border-line px-2 py-0.5 text-muted">Sujet : {details.topic}</span>
+            )}
+          </p>
+        )}
         {clip.transcript_excerpt && (
           <p className="line-clamp-3 text-caption text-muted">« {clip.transcript_excerpt} »</p>
         )}
@@ -81,14 +94,14 @@ export function ClipCard({ clip, links }: { clip: ClipRow; links: ClipLinks }) {
             </ul>
           </details>
         )}
-        {links.download && (
-          <a
-            href={links.download}
-            className={buttonStyles({ variant: "secondary", size: "sm", className: "mt-auto self-start" })}
-          >
-            <Download /> Télécharger le MP4
-          </a>
-        )}
+        <div className="mt-auto flex items-center justify-between gap-2">
+          {links.download && (
+            <a href={links.download} className={buttonStyles({ variant: "secondary", size: "sm" })}>
+              <Download /> Télécharger le MP4
+            </a>
+          )}
+          {actions}
+        </div>
       </div>
     </Card>
   );

@@ -1,6 +1,7 @@
 "use client";
 
-import { Sparkles } from "lucide-react";
+import { Lock, Sparkles } from "lucide-react";
+import Link from "next/link";
 import { useActionState, useState } from "react";
 import { generateClips, type GenerateState } from "@/app/app/projets/[id]/actions";
 import { Button } from "@/components/ui/button";
@@ -32,7 +33,9 @@ export function GenerateForm({
   const [state, action, pending] = useActionState<GenerateState, FormData>(generateClips, { status: "idle" });
   // Une clé par affichage du formulaire : un double clic ne lance jamais deux générations.
   const [key] = useState(() => crypto.randomUUID());
-  const [count, setCount] = useState(Math.min(3, maxClips));
+  // « Auto » : le moteur choisit selon la durée et la richesse de la vidéo, jusqu'au maximum de l'offre.
+  const [mode, setMode] = useState<"auto" | number>("auto");
+  const count = mode === "auto" ? maxClips : mode;
   const [format, setFormat] = useState<string>("9:16");
   const [captions, setCaptions] = useState(true);
   const [framing, setFraming] = useState<string>(defaultFraming);
@@ -46,28 +49,48 @@ export function GenerateForm({
       <input type="hidden" name="captions" value={captions ? "on" : "off"} />
       <input type="hidden" name="framing" value={framing} />
 
-      <div>
-        <label htmlFor="requested_clips" className="text-small font-medium">
-          Nombre de clips souhaité
-        </label>
-        <div className="mt-2 flex items-center gap-3">
-          <input
-            id="requested_clips"
-            name="requested_clips"
-            type="range"
-            min={1}
-            max={maxClips}
-            value={count}
-            onChange={(e) => setCount(Number(e.target.value))}
-            className="w-full accent-primary"
-          />
-          <span className="w-8 text-right text-small font-semibold tabular-nums">{count}</span>
+      <input type="hidden" name="requested_clips" value={count} />
+      <input type="hidden" name="clip_mode" value={mode === "auto" ? "auto" : "fixed"} />
+      <fieldset>
+        <legend className="text-small font-medium">Nombre de clips</legend>
+        <div className="mt-2 grid grid-cols-5 gap-1 rounded-lg border border-line bg-canvas p-1" data-testid="clip-count">
+          {(["auto", 3, 5, 7, 10] as const).map((m) => {
+            const locked = m !== "auto" && m > maxClips;
+            const active = mode === m;
+            return (
+              <button
+                key={m}
+                type="button"
+                aria-pressed={active}
+                disabled={locked}
+                onClick={() => setMode(m)}
+                title={locked ? `Jusqu'à ${maxClips} clips avec ton offre` : undefined}
+                className={cn(
+                  "flex h-10 items-center justify-center gap-1 rounded-md text-small font-medium tabular-nums transition-colors",
+                  active ? "bg-elevated text-fg shadow-sm ring-1 ring-primary-line" : "text-muted hover:text-fg",
+                  locked && "cursor-not-allowed opacity-45 hover:text-muted",
+                )}
+              >
+                {m === "auto" ? "Auto" : m}
+                {locked && <Lock className="size-3" aria-hidden />}
+              </button>
+            );
+          })}
         </div>
-        <p className="mt-1.5 text-caption text-subtle">
-          C&apos;est un maximum : si la vidéo contient moins de bons passages, tu recevras moins de clips plutôt que des
-          clips médiocres.
+        <p className="mt-2 text-caption text-subtle">
+          {mode === "auto"
+            ? `Clipera choisit selon la durée et la richesse de ta vidéo (environ 1 clip pour 6 min de parole), jusqu'à ${maxClips}.`
+            : `Jusqu'à ${mode} clips, sur des sujets différents. S'il y a moins de bons passages, tu en recevras moins : jamais de clip médiocre pour faire le nombre.`}
+          {maxClips < 10 && (
+            <>
+              {" "}
+              <Link href="/app/abonnement" className="text-primary-soft hover:underline">
+                Jusqu&apos;à 10 clips avec les offres payantes.
+              </Link>
+            </>
+          )}
         </p>
-      </div>
+      </fieldset>
 
       <fieldset>
         <legend className="text-small font-medium">Format</legend>

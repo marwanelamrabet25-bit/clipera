@@ -19,3 +19,13 @@ export async function deletePrefix(prefix: string) {
   } while (token);
   return deleted;
 }
+
+/** Supprime des objets précis (clip, miniature, archive). */
+export async function deleteKeys(keys: string[]) {
+  if (!keys.length) return;
+  const { client, bucket } = s3();
+  const res = await client.send(
+    new DeleteObjectsCommand({ Bucket: bucket, Delete: { Objects: keys.map((Key) => ({ Key })), Quiet: true } }),
+  );
+  if (res.Errors?.length) throw new Error(`delete errors: ${res.Errors.length}`);
+}

@@ -908,3 +908,75 @@ def test_cannot_delete_someone_elses_project_or_running_one():
         u.q("select delete_my_project(%s)", (pid,))
     assert len(u.q("select * from projects where id = %s", (pid,))) == 1
     u.close()
+
+
+# ───────────────────────── Multi-clips (jusqu'à 10) et suppression d'un clip ─────────────────────────
+
+
+def test_paid_plans_allow_ten_clips_free_stays_at_five():
+    with admin() as c:
+        q = "select id, {} from plans where id in ('free', 'starter', 'pro', 'ultimate')"
+        limits = dict(c.execute(q.format("max_clips_per_video")).fetchall())
+        prices = dict(c.execute(q.format("price_cents")).fetchall())
+    assert limits == {"free": 5, "starter": 10, "pro": 10, "ultimate": 10}
+    assert prices == {"free": 0, "starter": 999, "pro": 1999, "ultimate": 3999}  # prix inchangés
+    uid = make_user("starter")
+    u = As(uid)
+    vid = make_video(uid)
+    assert create_job(u, vid, clips=10)[1] == "queued"
+    with pytest.raises(errors.InvalidParameterValue):
+        create_job(u, make_video(uid), clips=11)
+    u.close()
+
+
+def _job_with_clips(uid, n=3):
+    vid = make_video(uid)
+    u = As(uid)
+    job_id = create_job(u, vid, clips=n)[0]
+    u.close()
+    with admin() as c:
+        pid = c.execute("select project_id from processing_jobs where id = %s", (job_id,)).fetchone()[0]
+        c.execute("update processing_jobs set metrics = '{\"zip_key\": \"z\"}' where id = %s", (job_id,))
+        ids = [c.execute(
+            """insert into clips (user_id, project_id, job_id, source_video_id, status, rank, start_seconds,
+               end_seconds, storage_key) values (%s,%s,%s,%s,%s,%s,%s,%s,%s) returning id""",
+            (uid, pid, job_id, vid, "failed" if r == n else "ready", r, r * 100, r * 100 + 30,
+             f"clips/{uid}/{job_id}/{r}.mp4"),
+        ).fetchone()[0] for r in range(1, n + 1)]
+    return job_id, ids
+
+
+def test_owner_deletes_a_clip_and_zip_is_forgotten():
+    uid = make_user()
+    job_id, ids = _job_with_clips(uid)
+    u = As(uid)
+    assert u.q("select job_id, zip_key from delete_my_clip(%s)", (ids[0],)) == [(job_id, "z")]
+    assert u.q("select count(*) from clips where id = %s", (ids[0],)) == [(0,)]  # n'apparaît plus nulle part
+    with admin() as c:
+        assert c.execute("select status from clips where id = %s", (ids[0],)).fetchone()[0] == "deleted"
+    assert u.q("select metrics ? 'zip_key' from processing_jobs where id = %s", (job_id,)) == [(False,)]
+    u.q("select delete_my_clip(%s)", (ids[2],))  # un clip en échec peut aussi être retiré
+    with pytest.raises(errors.NoDataFound):
+        u.q("select delete_my_clip(%s)", (ids[0],))  # déjà supprimé
+    u.close()
+
+
+def test_cannot_delete_someone_elses_clip():
+    a, b = make_user(), make_user()
+    _, ids = _job_with_clips(a)
+    ub = As(b)
+    with pytest.raises(errors.NoDataFound):
+        ub.q("select delete_my_clip(%s)", (ids[0],))
+    ub.close()
+    with admin() as c:
+        assert c.execute("select status from clips where id = %s", (ids[0],)).fetchone()[0] == "ready"
+
+
+def test_anonymous_cannot_delete_clips():
+    uid = make_user()
+    _, ids = _job_with_clips(uid)
+    with admin() as c:
+        with pytest.raises(psycopg.Error, match="permission denied|not_authenticated"), c.transaction():
+            c.execute("set local role anon")
+            c.execute("select delete_my_clip(%s)", (ids[0],))
+        assert c.execute("select status from clips where id = %s", (ids[0],)).fetchone()[0] == "ready"

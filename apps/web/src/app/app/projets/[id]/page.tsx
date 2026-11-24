@@ -1,18 +1,20 @@
 import type { Metadata } from "next";
-import { ArrowLeft, Sparkles, X } from "lucide-react";
+import { ArrowLeft, Download, Sparkles, X } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AutoRefresh } from "@/components/app/auto-refresh";
 import { ClipCard } from "@/components/app/clip-card";
+import { ClipProgress } from "@/components/app/clip-progress";
+import { DeleteClip } from "@/components/app/delete-clip";
 import { GenerateForm } from "@/components/app/generate-form";
 import { PageHeader } from "@/components/app/page-header";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonStyles } from "@/components/ui/button";
 import { Card, CardBody, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert } from "@/components/ui/feedback";
 import { PipelineSteps } from "@/components/ui/pipeline-steps";
 import { formatDate, formatMinutes, getAccount } from "@/lib/account";
-import { signClip, type ClipRow } from "@/lib/clips";
+import { signClip, signZip, type ClipRow } from "@/lib/clips";
 import { isActive, lastStepReached, type JobStatus } from "@/lib/jobs";
 import { createClient } from "@/lib/supabase/server";
 import { formatDuration, formatSize, videoStatus } from "@/lib/video-status";
@@ -41,7 +43,7 @@ export default async function ProjectPage({ params }: PageProps<"/app/projets/[i
          size_bytes, score_total, score_details, transcript_excerpt, status`,
       )
       .eq("project_id", id)
-      .eq("status", "ready")
+      .in("status", ["ready", "rendering", "failed"])
       .order("rank"),
     getAccount(),
     supabase.from("user_settings").select("default_framing").maybeSingle(),
@@ -60,10 +62,18 @@ export default async function ProjectPage({ params }: PageProps<"/app/projets/[i
   const job = clipJobs[0];
   const running = job ? isActive(job.status as JobStatus) : false;
   const completedJobs = clipJobs.filter((j) => j.status === "completed");
-  const clips: (ClipRow & { job_id: string })[] = (clipRows ?? []).filter((c) =>
-    completedJobs.some((j) => j.id === c.job_id),
-  );
-  const links = await Promise.all(clips.map((c) => signClip(c)));
+  // Clips prêts des générations terminées, et ceux déjà montés de la génération en cours (visibles sans attendre).
+  const visibleJobs = new Set([...completedJobs.map((j) => j.id), ...(running && job ? [job.id] : [])]);
+  const allRows = clipRows ?? [];
+  const clips: (ClipRow & { job_id: string })[] = allRows.filter((c) => c.status === "ready" && visibleJobs.has(c.job_id));
+  const progressClips = running && job ? allRows.filter((c) => c.job_id === job.id) : [];
+  const failedClips = !running && job?.status === "completed" ? allRows.filter((c) => c.job_id === job.id && c.status === "failed") : [];
+  const [links, zipUrl] = await Promise.all([
+    Promise.all(clips.map((c) => signClip(c))),
+    job?.status === "completed"
+      ? signZip(account.user.id, (job.metrics as { zip_key?: string } | null)?.zip_key, project.title)
+      : Promise.resolve(null),
+  ]);
   const rulesBased = clips.some((c) => (c.score_details as { method?: string } | null)?.method?.startsWith("rules"));
   const latestExplanation = (completedJobs[0]?.metrics as { selection?: { explanation?: string } } | null)?.selection
     ?.explanation;
@@ -170,6 +180,7 @@ export default async function ProjectPage({ params }: PageProps<"/app/projets/[i
             ) : job && running ? (
               <div className="flex flex-col gap-5" data-testid="job-progress">
                 <PipelineSteps status={job.status as JobStatus} />
+                {progressClips.length > 0 && <ClipProgress clips={progressClips} />}
                 {job.status === "queued" && (
                   <Alert title="En attente d'un serveur de traitement">
                     Ta demande est bien enregistrée et démarre dès qu&apos;un serveur se libère. Tu peux fermer cette
@@ -210,6 +221,18 @@ export default async function ProjectPage({ params }: PageProps<"/app/projets/[i
                     <Alert tone="success" title={`${job.clips_produced} clip${job.clips_produced > 1 ? "s" : ""} prêt${job.clips_produced > 1 ? "s" : ""}`}>
                       {latestExplanation ?? "Tes clips sont prêts ci-dessous."}
                     </Alert>
+                    {failedClips.length > 0 && (
+                      <Alert tone="warning" title={`${failedClips.length} clip${failedClips.length > 1 ? "s n'ont" : " n'a"} pas pu être monté${failedClips.length > 1 ? "s" : ""}`}>
+                        {failedClips.map((c) => `n° ${c.rank}`).join(", ")} : le montage a échoué deux fois (dont une avec un
+                        cadrage centré). Les autres clips ne sont pas concernés. Relance une génération si tu veux
+                        retenter ces passages.
+                      </Alert>
+                    )}
+                    {zipUrl && (
+                      <a href={zipUrl} className={buttonStyles({ variant: "secondary", className: "self-start" })} data-testid="zip-download">
+                        <Download /> Tout télécharger ({job.clips_produced} clips, ZIP)
+                      </a>
+                    )}
                     <details>
                       <summary className="cursor-pointer text-small text-muted hover:text-fg">
                         Générer à nouveau avec d&apos;autres options
@@ -235,15 +258,20 @@ export default async function ProjectPage({ params }: PageProps<"/app/projets/[i
             <p className="text-caption text-subtle">Aperçu et téléchargement en qualité d&apos;origine (MP4).</p>
           </div>
           {rulesBased && (
-            <Alert className="mb-5" title="Sélection automatique de base">
-              Les passages sont choisis d&apos;après leur forme : phrases complètes, accroche, durée, début et fin
-              nets. Clipera ne juge pas encore finement l&apos;intérêt du contenu : regarde chaque clip avant de le
-              publier.
+            <Alert className="mb-5" title="Comment ces passages ont été choisis">
+              Clipera repère les sujets de ta vidéo, puis retient des passages complets (accroche, phrases entières,
+              conclusion nette, durée adaptée) sur des sujets différents, sans bavardage ni redite. Il ne juge pas
+              encore finement si une histoire est drôle ou passionnante : regarde chaque clip avant de le publier.
             </Alert>
           )}
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {clips.map((c, i) => (
-              <ClipCard key={c.id} clip={c} links={links[i]} />
+              <ClipCard
+                key={c.id}
+                clip={c}
+                links={links[i]}
+                actions={running ? undefined : <DeleteClip clipId={c.id} projectId={project.id} />}
+              />
             ))}
           </div>
         </section>

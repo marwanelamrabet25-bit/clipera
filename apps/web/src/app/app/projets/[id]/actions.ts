@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { CAPTION_STYLES, CREATE_JOB_ERRORS, FORMATS, FRAMINGS } from "@/lib/jobs";
 import { storageConfig } from "@/lib/storage";
-import { deletePrefix } from "@/lib/storage-admin";
+import { deleteKeys, deletePrefix } from "@/lib/storage-admin";
 import { createClient } from "@/lib/supabase/server";
 
 export type GenerateState = { status: "idle" | "error"; message?: string; upgrade?: boolean };
@@ -23,6 +23,8 @@ export async function generateClips(_prev: GenerateState, form: FormData): Promi
   const projectId = String(form.get("project_id") ?? "");
   const key = String(form.get("idempotency_key") ?? "");
   const requested = Number(form.get("requested_clips"));
+  // Mode automatique : le moteur choisit combien de clips (jusqu'au maximum de l'offre, revérifié en base).
+  const auto = form.get("clip_mode") === "auto";
   const format = String(form.get("format") ?? "9:16");
   const captions = form.get("captions") === "on";
   const style = String(form.get("caption_style") ?? "classic");
@@ -46,7 +48,7 @@ export async function generateClips(_prev: GenerateState, form: FormData): Promi
   const { error } = await supabase.rpc("create_clip_job", {
     p_source_video_id: videoId,
     p_requested_clips: requested,
-    p_options: { format, framing, captions: { enabled: captions, style }, language: "fr" },
+    p_options: { format, framing, captions: { enabled: captions, style }, language: "fr", auto },
     p_idempotency_key: key,
   });
   if (error) {
@@ -124,4 +126,39 @@ export async function deleteProject(_prev: DeleteState, form: FormData): Promise
   }
   revalidatePath("/app/projets");
   redirect("/app/projets?supprime=1");
+}
+
+export type DeleteClipState = { status: "idle" | "error"; message?: string };
+
+/**
+ * Supprime un clip : fichiers d'abord (clip, miniature, archive de la génération), puis la ligne en base.
+ * Si l'effacement des fichiers échoue, rien n'est supprimé.
+ */
+export async function deleteClip(_prev: DeleteClipState, form: FormData): Promise<DeleteClipState> {
+  const clipId = String(form.get("clip_id") ?? "");
+  const projectId = String(form.get("project_id") ?? "");
+  if (!UUID_RE.test(clipId) || !UUID_RE.test(projectId)) return { status: "error", message: "Requête invalide." };
+  const supabase = await createClient();
+  const { data: clip } = await supabase
+    .from("clips")
+    .select("id, user_id, job_id, storage_key, thumbnail_key, status, processing_jobs(metrics)")
+    .eq("id", clipId)
+    .in("status", ["ready", "failed"])
+    .maybeSingle();
+  if (!clip) return { status: "error", message: "Clip introuvable." };
+  const zipKey = (clip.processing_jobs as { metrics?: { zip_key?: string } } | null)?.metrics?.zip_key;
+  const own = (k: string | null | undefined): k is string => !!k && k.startsWith(`clips/${clip.user_id}/${clip.job_id}/`);
+  if (storageConfig()) {
+    try {
+      await deleteKeys([clip.storage_key, clip.thumbnail_key, zipKey].filter(own));
+    } catch (e) {
+      console.error(JSON.stringify({ event: "clip_delete_storage_failed", clip: clipId, error: String(e) }));
+      return { status: "error", message: "La suppression du fichier a échoué. Rien n'a été supprimé : réessaie." };
+    }
+  }
+  const { error } = await supabase.rpc("delete_my_clip", { p_clip_id: clipId });
+  if (error) return { status: "error", message: "La suppression a échoué. Réessaie." };
+  revalidatePath(`/app/projets/${projectId}`);
+  revalidatePath("/app/bibliotheque");
+  return { status: "idle" };
 }
