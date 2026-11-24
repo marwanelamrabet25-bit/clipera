@@ -25,10 +25,16 @@ async function step(n, f) { try { await f(); res.push("✓ " + n); } catch (e) {
   });
   await step("Tous les liens internes répondent (200)", async () => {
     const hrefs = [...new Set(await p.locator("a[href^='/']").evaluateAll((a) => a.map((x) => x.getAttribute("href").split("#")[0])))].filter(Boolean);
-    for (const h of hrefs) {
-      const r = await p.request.get(B + h, { maxRedirects: 0 });
-      assert.ok([200, 307, 308].includes(r.status()), `${h} → ${r.status()}`);
-    }
+    // Vérifié depuis le navigateur (même chemin réseau qu'un visiteur), redirections suivies.
+    const bad = await p.evaluate(async (list) => {
+      const out = [];
+      for (const h of list) {
+        const r = await fetch(h, { credentials: "omit" });
+        if (!r.ok) out.push(`${h} → ${r.status}`);
+      }
+      return out;
+    }, hrefs);
+    assert.deepEqual(bad, []);
     assert.ok(hrefs.length >= 15, `${hrefs.length} liens`);
   });
   await step("Ancres de navigation : Fonctionnement, Le moteur, FAQ existent", async () => {
