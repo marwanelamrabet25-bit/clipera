@@ -47,7 +47,7 @@ export function PageHero({
                 {eyebrow}
               </p>
             )}
-            <Words as="h1" auto delay={120} parts={title} className={cn("t-h1 text-paper", titleClassName)} />
+            <Words as="h1" auto delay={60} parts={title} className={cn("t-h1 text-paper", titleClassName)} />
             {lead && (
               <div className="enter t-lead mt-8 max-w-[56ch] text-mist" style={{ "--d": 420 } as CSSProperties}>
                 {lead}

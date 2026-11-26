@@ -116,7 +116,7 @@ export default function Page() {
       {/* Visuel pleine largeur : le site, de l'écran au téléphone */}
       <section aria-label="Aperçu d'un site de démonstration" className="shell relative -mt-6 pb-28 md:pb-40">
         <div className="group relative">
-          <div data-reveal="scale">
+          <div className="enter-soft">
             <BrowserFrame
               src={sylve.images.full}
               alt="Page d'accueil du site de démonstration Atelier Sylve, menuiserie fictive (la page défile au survol)"
@@ -126,7 +126,7 @@ export default function Page() {
               preload
             />
           </div>
-          <div data-reveal style={{ "--d": 250 } as CSSProperties} className="absolute -bottom-10 right-[4%] w-[24%] max-w-[15rem] md:-bottom-16">
+          <div style={{ "--d": 480 } as CSSProperties} className="enter absolute -bottom-10 right-[4%] w-[24%] max-w-[15rem] md:-bottom-16">
             <PhoneFrame src={sylve.images.mobile} alt="Version mobile du site de démonstration Atelier Sylve" sizes="(min-width: 1024px) 15rem, 24vw" />
           </div>
         </div>

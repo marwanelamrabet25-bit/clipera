@@ -25,6 +25,9 @@ Worker et tests : voir [docs/TESTING.md](docs/TESTING.md).
 - [docs/SETUP_ACCOUNTS.md](docs/SETUP_ACCOUNTS.md) — guide de création des comptes
 - `brand/reference/fiche-branding.webp` — fiche d'identité visuelle validée
 
+## Autre projet du dépôt
+- [`apps/webpro/`](apps/webpro/README.md) — site officiel de **WEBPRO AGENCY** (agence digitale, Doubs). Projet Next.js indépendant : dépendances, configuration et déploiement propres.
+
 ## Structure prévue
 ```
 clipera/

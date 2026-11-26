@@ -76,14 +76,13 @@ export default async function Page({ params }: PageProps<"/realisations/[slug]">
         <div className="relative overflow-hidden rounded-[8px] px-[5%] pt-[5%]" style={{ background: p.tone }}>
           <div aria-hidden className="absolute inset-0 opacity-60" style={{ background: "radial-gradient(80% 60% at 70% 0%, rgba(255,255,255,0.14), transparent 60%)" }} />
           <ViewTransition name={`card-${p.slug}`}>
-            <div data-reveal="scale" className="relative">
+            <div className="enter-soft relative">
               <BrowserFrame
                 src={p.images.desktop}
                 alt={`Page d'accueil du site ${p.name} (projet de démonstration)`}
                 label={`${p.name} — ${p.demo ? "démonstration" : "réalisation"}`}
                 sizes="(min-width: 1440px) 1200px, 90vw"
                 preload
-                quality={90}
                 className="rounded-b-none"
               />
             </div>
