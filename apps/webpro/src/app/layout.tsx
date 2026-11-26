@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
-import { SITE_URL, brand } from "@/config/site";
+import { INDEXABLE, SITE_URL, brand } from "@/config/site";
 import "./globals.css";
 
 const manrope = localFont({
@@ -34,10 +34,7 @@ export const metadata: Metadata = {
   formatDetection: { telephone: false, address: false, email: false },
   openGraph: { siteName: brand.name, locale: "fr_FR", type: "website" },
   twitter: { card: "summary_large_image" },
-  robots:
-    process.env.VERCEL_ENV === "preview" || process.env.VERCEL_ENV === "development"
-      ? { index: false, follow: false }
-      : { index: true, follow: true, "max-image-preview": "large" },
+  robots: INDEXABLE ? { index: true, follow: true, "max-image-preview": "large" } : { index: false, follow: false },
 };
 
 export const viewport: Viewport = {

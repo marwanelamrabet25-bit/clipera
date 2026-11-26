@@ -104,7 +104,7 @@ Recommandé : **Vercel** (créateurs de Next.js, offre gratuite adaptée à un s
 1. Importer le dépôt dans Vercel, **Root Directory : `apps/webpro`** (framework détecté automatiquement).
 2. Variables d'environnement (Production) : `NEXT_PUBLIC_SITE_URL`, `RESEND_API_KEY`, `CONTACT_FROM_EMAIL`, `CONTACT_TO_EMAIL`.
 3. Ajouter le nom de domaine, rediriger la variante sans/avec `www` vers l'adresse principale (réglage Vercel « Redirect »). HTTPS est automatique.
-4. Les déploiements de prévisualisation sont automatiquement exclus de l'indexation (`robots.txt` + balise `noindex` selon `VERCEL_ENV`).
+4. Le site n'est indexable qu'en production **et** si `NEXT_PUBLIC_SITE_URL` est définie ; sinon (prévisualisations, adresse provisoire) `robots.txt` et la balise `noindex` bloquent l'indexation.
 5. Compléter `src/config/legal.ts` (dont l'hébergeur), redéployer.
 6. Suivre `docs/CHECKLISTS.md`.
 

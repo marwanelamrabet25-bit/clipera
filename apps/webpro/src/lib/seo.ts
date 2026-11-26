@@ -29,7 +29,8 @@ export function pageMetadata({ title, absoluteTitle, description, path, noindex 
       type: "website",
     },
     twitter: { card: "summary_large_image", title: fullTitle, description },
-    robots: noindex ? { index: false, follow: true } : undefined,
+    // Clé absente (et non `undefined`) quand la page est indexable : la règle du layout racine s'applique.
+    ...(noindex ? { robots: { index: false, follow: true } } : {}),
   };
 }
 

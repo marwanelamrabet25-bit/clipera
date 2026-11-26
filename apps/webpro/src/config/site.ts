@@ -11,6 +11,16 @@
 /** URL publique du site. À définir avec NEXT_PUBLIC_SITE_URL (ex. https://www.exemple.fr) avant la mise en ligne. */
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
 
+/**
+ * Indexation autorisée uniquement en production ET avec une URL publique définie.
+ * Prévisualisations Vercel, ou déploiement sans NEXT_PUBLIC_SITE_URL : non indexé (évite d'indexer
+ * une adresse provisoire ou un site aux mentions légales incomplètes).
+ */
+export const INDEXABLE =
+  Boolean(process.env.NEXT_PUBLIC_SITE_URL) &&
+  process.env.VERCEL_ENV !== "preview" &&
+  process.env.VERCEL_ENV !== "development";
+
 export const brand = {
   name: "WEBPRO AGENCY",
   /** Forme utilisée dans les phrases courantes. */
