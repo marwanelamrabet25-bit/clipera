@@ -29,14 +29,14 @@ export function WebVisual() {
       <div data-reveal style={{ "--d": 150 } as CSSProperties} className="relative">
         <BrowserFrame
           src="/projects/atelier-sylve/full.png"
-          alt="Site de démonstration Atelier Sylve (menuiserie fictive) : la page complète défile au survol"
-          label="Atelier Sylve — menuiserie (démonstration)"
+          alt="Exemple de maquette de site vitrine pour une menuiserie fictive : la page complète défile au survol"
+          label="Exemple de maquette — menuiserie (fictive)"
           sizes="(min-width: 1024px) 52vw, 92vw"
           scrollOnHover
         />
       </div>
       <div data-reveal style={{ "--d": 300 } as CSSProperties} className="absolute -right-2 -bottom-10 w-[26%] sm:right-6 sm:w-[22%]">
-        <PhoneFrame src="/projects/atelier-sylve/mobile.png" alt="Version mobile du site de démonstration Atelier Sylve" sizes="(min-width: 1024px) 12vw, 26vw" />
+        <PhoneFrame src="/projects/atelier-sylve/mobile.png" alt="Version mobile de l'exemple de maquette pour une menuiserie fictive" sizes="(min-width: 1024px) 12vw, 26vw" />
       </div>
       <p className="t-label mt-14 hidden max-w-[60%] text-slate lg:block">Survolez l&apos;écran pour parcourir la page</p>
     </div>
@@ -77,7 +77,7 @@ export function SocialVisual() {
             </span>
             <span>
               <span className="block text-[0.8rem] font-semibold text-paper">Fil d&apos;actualité</span>
-              <span className="block font-mono text-[0.625rem] text-slate">publications de démonstration</span>
+              <span className="block font-mono text-[0.625rem] text-slate">exemples fictifs</span>
             </span>
           </div>
           <div className="grid grid-cols-3 gap-[3px] overflow-hidden rounded-[0.9rem]">
@@ -118,10 +118,10 @@ export function SocialVisual() {
 }
 
 const reels = [
-  { src: "/projects/formats/reel-oree.png", alt: "Format vertical de démonstration : annonce de la nouvelle carte d'un restaurant", t: "0:12" },
-  { src: "/projects/formats/reel-sylve.png", alt: "Format vertical de démonstration : coulisses d'un atelier de menuiserie, sous-titré", t: "0:28" },
-  { src: "/projects/formats/reel-nacre.png", alt: "Format vertical de démonstration : rituel de soin en trois gestes", t: "0:20" },
-  { src: "/projects/formats/reel-meule.png", alt: "Format vertical de démonstration : conseil de dégustation d'une fromagerie", t: "0:15" },
+  { src: "/projects/formats/reel-oree.png", alt: "Exemple de format vertical (entreprise fictive) : annonce de la nouvelle carte d'un restaurant", t: "0:12" },
+  { src: "/projects/formats/reel-sylve.png", alt: "Exemple de format vertical (entreprise fictive) : coulisses d'un atelier de menuiserie, sous-titré", t: "0:28" },
+  { src: "/projects/formats/reel-nacre.png", alt: "Exemple de format vertical (entreprise fictive) : rituel de soin en trois gestes", t: "0:20" },
+  { src: "/projects/formats/reel-meule.png", alt: "Exemple de format vertical (entreprise fictive) : conseil de dégustation d'une fromagerie", t: "0:15" },
 ];
 
 /** 03 — Contenus : formats verticaux + timeline de montage. */

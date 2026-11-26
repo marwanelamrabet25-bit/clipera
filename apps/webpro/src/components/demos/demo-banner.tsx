@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { brand } from "@/config/site";
 
-/** Bandeau signalant qu'il s'agit d'un projet de démonstration (entreprise fictive). */
-export function DemoBanner({ slug, name }: { slug: string; name: string }) {
+/** Bandeau signalant un exemple de maquette (entreprise fictive). */
+export function DemoBanner({ name }: { name: string }) {
   return (
     <div
       data-demo-banner
@@ -10,14 +10,14 @@ export function DemoBanner({ slug, name }: { slug: string; name: string }) {
       style={{ fontFamily: "var(--font-manrope)" }}
     >
       <p>
-        <strong className="font-semibold">Projet de démonstration</strong> — {name} est une entreprise fictive, imaginée par{" "}
-        {brand.name}.
+        <strong className="font-semibold">Exemple de maquette</strong> — {name} est une entreprise fictive, imaginée par {brand.name}. Ce
+        n&apos;est pas une réalisation client.
       </p>
       <Link
-        href={`/realisations/${slug}`}
+        href="/maquette-gratuite"
         className="shrink-0 rounded-[3px] bg-[#087BFF] px-3 py-2 font-semibold text-[#050608] hover:bg-[#00A8FF]"
       >
-        La fiche projet
+        Ma maquette gratuite
       </Link>
     </div>
   );

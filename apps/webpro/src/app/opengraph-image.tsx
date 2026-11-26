@@ -5,5 +5,5 @@ export const size = ogSize;
 export const contentType = ogContentType;
 
 export default function Image() {
-  return ogImage({ eyebrow: "Agence digitale · Doubs (25)", title: "Votre présence en ligne, notre métier.", subtitle: "Sites internet · Réseaux sociaux · Contenus vidéo" });
+  return ogImage({ eyebrow: "Agence digitale · Doubs (25)", title: "Votre présence en ligne, notre métier.", subtitle: "Sites internet · Réseaux sociaux · Maquette gratuite" });
 }

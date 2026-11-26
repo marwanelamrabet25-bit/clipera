@@ -59,11 +59,11 @@ export default function Page() {
       <section aria-labelledby="about-who" className="border-t border-line bg-ink-2/40 py-28 md:py-36">
         <div className="shell grid-12 gap-y-14">
           <div className="col-span-4 md:col-span-12 lg:col-span-6">
-            <SectionHead stacked index="01" label="Identité" id="about-who" title={["Trois métiers,", { text: "un même objectif.", className: "text-slate" }]} />
+            <SectionHead stacked index="01" label="Identité" id="about-who" title={["Deux métiers,", { text: "un même objectif.", className: "text-slate" }]} />
             <div data-reveal className="mt-8 max-w-[52ch] space-y-5 text-mist">
               <p>
                 WEBPRO AGENCY accompagne les professionnels dans la création, l&apos;amélioration et le développement de leur
-                présence numérique, autour de trois expertises complémentaires.
+                présence numérique, autour de deux expertises complémentaires : la création de sites internet et la gestion des réseaux sociaux, vidéos comprises.
               </p>
               <p>
                 Notre signature résume notre engagement :{" "}

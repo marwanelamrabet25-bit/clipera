@@ -8,7 +8,7 @@ export function generateStaticParams() {
   return Object.keys(demoSocial).map((slug) => ({ slug }));
 }
 
-export const metadata: Metadata = { robots: { index: false, follow: false }, title: "Kit réseaux sociaux (démonstration)" };
+export const metadata: Metadata = { robots: { index: false, follow: false }, title: "Planche de publications (exemple fictif)" };
 
 /** Planche de visuels pour les réseaux sociaux, utilisée pour générer les images des fiches projets. */
 export default async function SocialKit({ params }: PageProps<"/apercu/[slug]/reseaux">) {

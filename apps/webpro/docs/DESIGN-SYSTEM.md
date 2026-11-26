@@ -12,7 +12,7 @@
 | **M-Access, Okato** (références locales) | Domaines introuvables depuis l'environnement de travail (erreurs DNS) : aucune analyse directe n'a pu être faite. À la place, les sites d'agences du Doubs visibles dans les annuaires ont servi de repère : promesses génériques, peu de preuves visuelles, ancrage local souvent limité à une ville. Le site se distingue sur ces trois points : démonstrations navigables, honnêteté sur les projets, ancrage départemental. |
 
 ### Constat et parti pris
-Les sites d'agences locales se ressemblent : héros centré, trois cartes de services identiques, chiffres invérifiables, logos clients. WEBPRO AGENCY ne peut ni ne veut afficher de faux chiffres ni de faux clients : le site **montre** au lieu d'affirmer. Les quatre projets de démonstration sont de vrais mini-sites navigables, chacun avec sa propre direction artistique, et deviennent la matière visuelle de tout le site.
+Les sites d'agences locales se ressemblent : héros centré, cartes de services identiques, chiffres invérifiables, logos clients. WEBPRO AGENCY ne peut ni ne veut afficher de faux chiffres ni de faux clients : le site **montre** au lieu d'affirmer, avec des prix clairs et une maquette gratuite. Trois exemples de maquettes, conçus pour des entreprises fictives et présentés comme tels, sont de vrais mini-sites navigables : ils illustrent l'offre de maquette gratuite et servent de matière visuelle, sans jamais être présentés comme des réalisations clients.
 
 ## 2. Système graphique
 
@@ -40,7 +40,7 @@ Règles : le bleu n'apparaît que sur ce qui est interactif ou signifiant. Pas d
 ### Typographie
 - **Manrope** (variable 200–800) pour tout le texte. Choisie pour ses formes géométriques tendues qui répondent au mot-symbole du logo, sa très bonne tenue en grande taille avec un interlettrage serré (-0,05 em), ses chiffres lisibles et sa lisibilité en petit corps sur mobile. Inter était plus neutre, Sora trop « tech », Plus Jakarta Sans plus douce ; Manrope offre le meilleur équilibre entre caractère et sérieux.
 - **Geist Mono** pour les détails éditoriaux : libellés, numéros, légendes techniques (formats, minutages). Elle apporte la précision d'un plan d'atelier.
-- Projets de démonstration : **Fraunces** (restaurant, fromagerie, institut) et **Archivo étroit** (menuiserie), chargées uniquement sur les aperçus.
+- Exemples de maquettes : **Fraunces** (restaurant, fromagerie, institut) et **Archivo étroit** (menuiserie), chargées uniquement sur ces exemples.
 
 Échelle (utilitaires dans `globals.css`) :
 | Utilitaire | Taille (fluide) | Interligne | Usage |
@@ -62,7 +62,7 @@ Les titres associent une partie blanche et une partie grise : une hiérarchie in
 - Compositions asymétriques : libellé sur 3 colonnes, contenu sur 9 ; services en alternance texte/visuel ; réalisations en deux colonnes décalées.
 
 ### Style visuel des images
-- Les visuels sont des **sites réels** (captures des aperçus de démonstration) présentés dans des cadres neutres de navigateur et de téléphone, sans marque d'appareil.
+- Les visuels sont des **captures d'exemples de maquettes** (entreprises fictives, étiquetées comme telles) présentées dans des cadres neutres de navigateur et de téléphone, sans marque d'appareil.
 - Photographie à venir (équipe, coulisses, projets clients) : lumière naturelle, cadrages serrés sur les mains et les matières, tons neutres un peu froids pour s'accorder au noir et au bleu ; pas de photos de banque d'images génériques (poignées de main, open spaces).
 
 ## 3. Composants
@@ -78,6 +78,9 @@ Les titres associent une partie blanche et une partie grise : une hiérarchie in
 | Carte du Doubs | `components/visuals/doubs-map.tsx` | Une commune = un point ; liaisons vers des repères, sans rayon |
 | FAQ | `components/ui/faq.tsx` | `<details>` natif : fonctionne sans JavaScript |
 | Encadré « ce que nous ne promettons pas » | `components/ui/honest-note.tsx` | Signature de ton : honnêteté |
+| Cartes tarifaires | `components/offers/offer-cards.tsx` | Montants lus dans `config/offers.ts` ; paiements uniques et mensuels toujours séparés ; offre combinée mise en avant |
+| Maquette gratuite | `components/offers/mockup-offer.tsx` | Section d'accueil, pile d'exemples fictifs, bandeau de rappel |
+| Formulaires | `components/forms/` | Briques communes : champs, consentement, pièges à robots, alertes, confirmation |
 
 ### États interactifs
 - Survol : couleur (`#00A8FF`), soulignement qui se dessine, flèche qui avance, écran qui défile dans les cadres.
@@ -94,9 +97,9 @@ Principes : le mouvement accompagne la lecture, il ne la retarde jamais. Pas de 
 | Soulignement orbite | Tracé qui se dessine | 1,5 s, `cubic-bezier(.76,0,.24,1)` |
 | Composition du hero | Entrées échelonnées + parallaxe légère au pointeur (souris uniquement) | 1,1 s |
 | Sections | Apparition (fondu + 28 px) à l'entrée dans l'écran | 1 s |
-| Projets | Révélation par masque vertical ; survol : l'écran se soulève et la page défile | 1,2 s / 6–9 s |
+| Exemples de maquettes | Apparition échelonnée de la pile ; survol : la page défile dans le cadre | 1 s / 6–9 s |
 | Méthode | Fil de progression lié au défilement, étape active mise en valeur | continu |
 | Carte | Liaisons tracées, point de la base qui pulse | 1,6 s / 2,8 s |
-| Navigation | Transition de page native (fondu + léger glissement), morphing carte → fiche projet | 200 / 560 ms |
+| Navigation | Transition de page native (fondu + léger glissement) | 200 / 560 ms |
 
 Technique : CSS + un unique `IntersectionObserver` (`components/ui/reveal-observer.tsx`) + View Transitions natives (`app/(site)/template.tsx`). Le contenu est visible sans JavaScript (les états initiaux ne s'appliquent qu'avec la classe `.js`), et `prefers-reduced-motion` désactive toutes les animations.

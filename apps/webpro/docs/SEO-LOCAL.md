@@ -1,6 +1,6 @@
 # Stratégie SEO locale — WEBPRO AGENCY
 
-Objectif : être trouvé par les professionnels qui cherchent un prestataire pour leur site, leurs réseaux sociaux ou leurs vidéos, d'abord autour de **Pierrefontaine-les-Varans**, puis dans **tout le Doubs**, sans jamais limiter la zone à un rayon et sans contenu artificiel.
+Objectif : être trouvé par les professionnels qui cherchent un prestataire pour leur site internet ou leurs réseaux sociaux (vidéos comprises), d'abord autour de **Pierrefontaine-les-Varans**, puis dans **tout le Doubs**, sans jamais limiter la zone à un rayon et sans contenu artificiel.
 
 ---
 
@@ -20,7 +20,7 @@ Objectif : être trouvé par les professionnels qui cherchent un prestataire pou
 ## 2. Hiérarchie géographique
 
 1. **Ancrage : Pierrefontaine-les-Varans** — présent dans les titles de l'accueil et de la page À propos, le H1 de la page À propos, le pied de page de toutes les pages, la page contact, les données structurées (`addressLocality`) et l'image de partage.
-2. **Zone : le Doubs (25)** — cible commerciale centrale : H1 des trois pages services (« … du Doubs »), titles, descriptions, section « Une agence locale, ouverte à tous les projets du Doubs », carte des communes, `areaServed` dans les données structurées.
+2. **Zone : le Doubs (25)** — cible commerciale centrale : H1 des deux pages services (« … du Doubs »), titles, descriptions, section « Une agence locale, ouverte à tous les projets du Doubs », carte des communes, `areaServed` dans les données structurées.
 3. **Bassins** — Haut-Doubs, Valdahon, Pontarlier, Morteau, Besançon, Ornans, Maîche (et Baume-les-Dames, Montbéliard sur la carte) : cités naturellement comme repères (FAQ, page À propos, carte), **jamais** comme limite, jamais répétés artificiellement.
 
 Aucune fausse implantation : pas de « bureau à Besançon », pas d'adresse inventée.
@@ -47,10 +47,10 @@ Pertinence commerciale : forte = intention d'achat d'un prestataire ; moyenne = 
 | création site internet Doubs | Achat | Tous | Création de sites | Forte | P1 | création site web Doubs, création de site internet 25 |
 | création site internet Pierrefontaine-les-Varans | Achat local | Tous | Création de sites / À propos | Forte | P2 | — |
 | création site vitrine Doubs | Achat | Artisans, commerces | Création de sites (section « Types de sites ») | Forte | P1 | site vitrine artisan, site vitrine pas cher (à éviter en promesse) |
-| refonte site internet Doubs | Achat | Entreprises ayant un site | Création de sites (« Refonte » + FAQ accueil) | Forte | P2 | refaire son site internet, moderniser site |
+| refonte site internet Doubs | Achat | Entreprises ayant un site | FAQ accueil (« remplacer un site existant ») | Moyenne | P3 | refaire son site internet, moderniser site |
 | création site internet artisan | Achat | Artisans, bâtiment | Création de sites + article à venir | Forte | P2 | site internet menuisier, plombier, électricien |
-| site internet commerçant | Achat | Commerces | Création de sites | Forte | P3 | site pour commerce local, click and collect |
-| site professionnel entreprise Doubs | Achat | PME | Création de sites (« Site professionnel ») | Forte | P3 | site internet PME |
+| site internet commerçant | Achat | Commerces | Création de sites | Forte | P3 | site pour commerce local |
+| site professionnel entreprise Doubs | Achat | PME | Création de sites | Forte | P3 | site internet PME |
 
 ### C. Réseaux sociaux
 | Expression | Intention | Prospect | Page | Pertinence | Priorité | Variantes |
@@ -60,20 +60,27 @@ Pertinence commerciale : forte = intention d'achat d'un prestataire ; moyenne = 
 | communication digitale entreprise Doubs | Information + achat | PME | Réseaux sociaux / Accueil | Moyenne | P2 | stratégie digitale TPE |
 | création publications réseaux sociaux | Achat ponctuel | Commerces | Réseaux sociaux (prestations) | Moyenne | P3 | création visuels Instagram |
 
-### D. Contenus
+### D. Vidéos et contenus (intégrés à la gestion des réseaux sociaux)
 | Expression | Intention | Prospect | Page | Pertinence | Priorité | Variantes |
 | --- | --- | --- | --- | --- | --- | --- |
-| création vidéo entreprise Doubs | Achat | PME, commerces | Contenus | Forte | P1 | vidéo promotionnelle Doubs, vidéaste entreprise Doubs |
-| création reels entreprise | Achat | Commerces, restaurants | Contenus | Forte | P2 | reels Instagram restaurant, vidéo TikTok entreprise |
-| montage vidéo entreprise | Achat | Tous | Contenus (prestations + FAQ) | Moyenne | P3 | monteur vidéo Doubs |
-| création contenu digital Doubs | Achat | PME | Contenus | Moyenne | P3 | création visuels publicitaires |
+| création vidéo entreprise Doubs | Achat | PME, commerces | Réseaux sociaux (section vidéos) | Forte | P2 | vidéo promotionnelle Doubs, vidéaste entreprise Doubs |
+| création reels entreprise | Achat | Commerces, restaurants | Réseaux sociaux (section vidéos) | Forte | P2 | reels Instagram restaurant, vidéo TikTok entreprise |
+| montage vidéo entreprise | Achat | Tous | Réseaux sociaux (prestations + FAQ) | Moyenne | P3 | monteur vidéo Doubs |
+| création contenu digital Doubs | Achat | PME | Réseaux sociaux | Moyenne | P3 | création visuels publicitaires |
+
+### F. Prix et maquette (nouvelles pages)
+| Expression | Intention | Prospect | Page | Pertinence | Priorité | Variantes |
+| --- | --- | --- | --- | --- | --- | --- |
+| prix création site internet | Comparaison de prix | TPE, artisans | Tarifs | Forte | P1 | tarif site vitrine, site internet pas cher, combien coûte un site internet |
+| tarif gestion réseaux sociaux | Comparaison de prix | Commerces | Tarifs | Forte | P2 | prix community manager, tarif community manager mensuel |
+| maquette site internet gratuite | Essai sans risque | Tous | Maquette gratuite | Forte | P1 | maquette gratuite site web, devis gratuit site internet |
 
 ### E. Longue traîne (contenu éditorial)
 | Question | Intention | Réponse sur le site |
 | --- | --- | --- |
 | Qui peut créer un site internet pour mon entreprise dans le Doubs ? | Recherche de prestataire | FAQ accueil « Travaillez-vous avec les entreprises du Doubs ? » + page services |
-| Combien coûte un site internet pour un artisan ? | Information pré-achat | FAQ accueil (facteurs de prix, devis) — article dédié possible quand les tarifs seront validés |
-| Agence pour créer un site internet pour un commerce | Recherche de prestataire | Page création de sites + projet La Meule |
+| Combien coûte un site internet pour un artisan ? | Information pré-achat | Page Tarifs + FAQ accueil (99 € en paiement unique, frais externes distincts) |
+| Agence pour créer un site internet pour un commerce | Recherche de prestataire | Page création de sites + maquette gratuite |
 | Comment améliorer la visibilité Google de mon entreprise ? | Information | Article « Visibilité locale sur Google : les bases » (publié) |
 | Prestataire réseaux sociaux pour entreprise locale | Recherche de prestataire | Page réseaux sociaux |
 | Site internet ou réseaux sociaux : que choisir ? | Information | Article publié |
@@ -87,12 +94,12 @@ Pertinence commerciale : forte = intention d'achat d'un prestataire ; moyenne = 
 | Page | Cible principale | Cibles secondaires | Title en place |
 | --- | --- | --- | --- |
 | `/` | agence web Doubs | agence digitale Doubs, agence web 25 | Agence web Doubs · WEBPRO AGENCY, Pierrefontaine-les-Varans |
-| `/creation-site-web` | création site internet Doubs | site vitrine, refonte, site professionnel, création site web | Création de site internet dans le Doubs · WebPro Agency |
-| `/gestion-reseaux-sociaux` | gestion réseaux sociaux Doubs | community manager Doubs, publications, Instagram/Facebook | Gestion des réseaux sociaux dans le Doubs · WebPro Agency |
-| `/creation-contenu` | création contenu vidéo entreprise Doubs | vidéo promotionnelle, reels, montage | Création de contenu vidéo dans le Doubs · WebPro Agency |
+| `/creation-site-web` | création site internet Doubs | site vitrine, création site web, créateur site web | Création de site internet dans le Doubs · WebPro Agency |
+| `/gestion-reseaux-sociaux` | gestion réseaux sociaux Doubs | community manager Doubs, création vidéo / Reels entreprise, montage vidéo | Gestion des réseaux sociaux dans le Doubs · WebPro Agency |
+| `/tarifs` | prix création site internet | tarif site vitrine, tarif gestion réseaux sociaux | Tarifs : site internet et réseaux sociaux · WebPro Agency |
+| `/maquette-gratuite` | maquette site internet gratuite | maquette gratuite site web | Maquette gratuite de votre site internet · WebPro Agency |
 | `/a-propos` | agence digitale Pierrefontaine-les-Varans | agence web Haut-Doubs | Agence digitale à Pierrefontaine-les-Varans · WebPro Agency |
 | `/contact` | contact agence web Doubs | devis site internet | Contact et devis — agence web dans le Doubs · WebPro Agency |
-| `/realisations` | réalisations agence web Doubs | exemples de sites | Réalisations et projets de démonstration · WebPro Agency |
 | `/blog/*` | questions informationnelles | — | Un title par article |
 
 Aucune page ne vise exactement la même expression principale qu'une autre.
@@ -125,7 +132,7 @@ Candidats les plus probables, dans l'ordre : **Besançon** (bassin le plus peupl
 - Page 404 personnalisée (statut 404 réel).
 - Données structurées JSON-LD :
   - `ProfessionalService` (nom, logo, email, téléphone, commune, code postal, région, `areaServed` = Doubs) — **sans** adresse précise, horaires, note ni avis ;
-  - `WebSite`, `BreadcrumbList` sur les pages intérieures, `Service` sur les trois pages services, `FAQPage` sur les FAQ, `Article` sur les articles.
+  - `WebSite`, `BreadcrumbList` sur les pages intérieures, `Service` (avec ses offres et tarifs) sur les deux pages services, `OfferCatalog` sur l'accueil et `/tarifs`, `FAQPage` sur les FAQ, `Article` sur les articles.
 - Maillage interne : bandeau des expertises dans le hero, liens « Découvrir… » depuis chaque expertise, fiches projets → prestations mobilisées, articles → pages services, ancres variées et descriptives, pied de page complet.
 - Contenus rédigés pour les humains : ancrage local naturel, aucune répétition artificielle des noms de communes.
 
@@ -138,6 +145,6 @@ Candidats les plus probables, dans l'ordre : **Besançon** (bassin le plus peupl
 5. Inscription dans quelques annuaires **pertinents** : Pages Jaunes, annuaire de la CCI Saône-Doubs, annuaires des communes / communautés de communes, réseaux d'entreprises locaux. Éviter les annuaires de liens sans valeur.
 6. Liens locaux légitimes : partenaires, associations soutenues, presse locale, clients satisfaits (mention « site réalisé par » avec accord).
 7. Avis authentiques : les demander après chaque projet réussi, y répondre. Jamais de faux avis.
-8. Remplacer progressivement les projets de démonstration par de vraies réalisations (avec accord écrit des clients), en précisant la commune du client.
-9. Publier un article utile par mois au maximum, seulement s'il est documenté. Pistes : « Combien coûte un site vitrine ? » (quand les tarifs seront validés), « Préparer la refonte de son site », « Les erreurs à éviter sur le site d'une entreprise », « Comment présenter son entreprise sur internet ».
+8. Publier de vraies réalisations dès qu'il y en a (avec accord écrit des clients), en précisant la commune du client, et recréer alors une page réalisations.
+9. Publier un article utile par mois au maximum, seulement s'il est documenté. Pistes : « Combien coûte un site vitrine ? » (en lien avec la page Tarifs), « Préparer la refonte de son site », « Les erreurs à éviter sur le site d'une entreprise », « Comment présenter son entreprise sur internet ».
 10. Suivi mensuel : requêtes et pages dans Search Console, appels et itinéraires dans la fiche Google, demandes reçues via le formulaire.

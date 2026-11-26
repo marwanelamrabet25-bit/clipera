@@ -6,9 +6,10 @@ import { legalNav } from "@/config/navigation";
 
 const navCols = [
   { label: "Accueil", href: "/" },
-  { label: "Réalisations", href: "/realisations" },
+  { label: "Tarifs", href: "/tarifs" },
+  { label: "Maquette gratuite", href: "/maquette-gratuite" },
   { label: "À propos", href: "/a-propos" },
-  { label: "Contact & devis", href: "/contact" },
+  { label: "Contact", href: "/contact" },
   { label: "Conseils", href: "/blog" },
 ];
 

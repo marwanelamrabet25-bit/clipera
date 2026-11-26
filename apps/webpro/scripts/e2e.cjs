@@ -22,7 +22,7 @@ const check = (name, ok, detail = "") => results.push({ name, ok: Boolean(ok), d
     await page.fill("#firstName", "Camille");
     await page.fill("#lastName", "Test");
     await page.fill("#email", "pas-un-email");
-    await page.getByRole("radio", { name: "Création de site internet" }).check();
+    await page.getByRole("radio", { name: "Site Internet" }).check();
     await page.fill("#message", "Bonjour, je souhaite un site vitrine pour mon activité de menuiserie dans le Haut-Doubs.");
     await page.check('input[name="consent"]');
     await page.getByRole("button", { name: "Envoyer ma demande" }).click();
@@ -48,13 +48,13 @@ const check = (name, ok, detail = "") => results.push({ name, ok: Boolean(ok), d
     const page = await browser.newPage();
     await page.goto(`${BASE}/contact`, { waitUntil: "networkidle" });
     await page.evaluate(() => {
-      const w = document.querySelector("#website");
+      const w = document.querySelector('input[name="website"]');
       w.value = "http://spam.example";
     });
     await page.fill("#firstName", "Bot");
     await page.fill("#lastName", "Bot");
     await page.fill("#email", "bot@example.com");
-    await page.getByRole("radio", { name: "Autre" }).check();
+    await page.getByRole("radio", { name: "Autre demande" }).check();
     await page.fill("#message", "Message automatique de test pour le piège à robots du formulaire.");
     await page.check('input[name="consent"]');
     await page.waitForTimeout(3200);
@@ -84,8 +84,8 @@ const check = (name, ok, detail = "") => results.push({ name, ok: Boolean(ok), d
     check("Menu mobile : focus rendu au bouton", /Menu/.test(back ?? ""), back);
     await toggle.click();
     await page.waitForTimeout(800);
-    await dialog.getByRole("link", { name: "Réalisations" }).click();
-    await page.waitForURL("**/realisations");
+    await dialog.getByRole("link", { name: "Tarifs" }).click();
+    await page.waitForURL("**/tarifs");
     await page.waitForTimeout(900);
     check("Menu mobile : navigation puis fermeture", !(await dialog.isVisible()));
     await page.close();
@@ -98,7 +98,7 @@ const check = (name, ok, detail = "") => results.push({ name, ok: Boolean(ok), d
     const btn = page.locator('header button[aria-expanded]').first();
     await btn.click();
     check("Menu Services : ouverture au clic", (await btn.getAttribute("aria-expanded")) === "true");
-    check("Menu Services : 3 prestations", (await page.locator("header nav ul ul a").count()) === 3);
+    check("Menu Services : 2 prestations", (await page.locator("header nav ul ul a").count()) === 2);
     await page.keyboard.press("Escape");
     check("Menu Services : fermeture par Échap", (await btn.getAttribute("aria-expanded")) === "false");
     // Lien d'évitement (page fraîchement chargée)
@@ -109,16 +109,37 @@ const check = (name, ok, detail = "") => results.push({ name, ok: Boolean(ok), d
     await page.close();
   }
 
-  // 5. Filtre des réalisations + FAQ
+  // 5. Maquette gratuite, présélection d'offre, tarifs, FAQ
   {
-    const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-    await page.goto(`${BASE}/realisations`, { waitUntil: "networkidle" });
-    await page.getByRole("button", { name: /^E-commerce/ }).click();
-    await page.waitForTimeout(700);
-    check("Filtre E-commerce : 1 projet", (await page.locator("main article").count()) === 1);
-    await page.getByRole("button", { name: /^Tous/ }).click();
-    await page.waitForTimeout(700);
-    check("Filtre Tous : 4 projets", (await page.locator("main article").count()) === 4);
+    const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+    await page.goto(`${BASE}/maquette-gratuite`, { waitUntil: "networkidle" });
+    await page.getByRole("button", { name: "Demander ma maquette gratuite" }).click();
+    const errs = await page.locator('form [id$="-error"]').count();
+    check("Maquette : champs obligatoires signalés", errs >= 6, `${errs} erreurs`);
+    await page.fill("#name", "Camille Test");
+    await page.fill("#mk-company", "Menuiserie Test");
+    await page.fill("#mk-email", "camille@example.com");
+    await page.fill("#sector", "Menuiserie");
+    await page.fill("#description", "Menuiserie familiale : escaliers, cuisines et agencements sur mesure dans le Haut-Doubs.");
+    await page.fill("#siteUrl", "pas une url");
+    await page.check('form input[name="consent"]');
+    await page.getByRole("button", { name: "Demander ma maquette gratuite" }).click();
+    check("Maquette : site existant invalide détecté", await page.locator("#siteUrl-error").isVisible());
+    await page.fill("#siteUrl", "www.exemple.fr");
+    await page.waitForTimeout(3200);
+    await page.getByRole("button", { name: "Demander ma maquette gratuite" }).click();
+    await page.waitForSelector('form [role="alert"], main [role="status"]', { timeout: 15000 });
+    if (process.env.RESEND_API_KEY) check("Maquette : confirmation affichée", await page.getByText("votre demande de maquette est bien arrivée").isVisible());
+    else {
+      const href = await page.locator('form [role="alert"] a[href^="mailto:"]').getAttribute("href");
+      check("Maquette sans configuration : repli mailto prérempli", /Menuiserie familiale/.test(decodeURIComponent(href ?? "")));
+    }
+    // Lien d'une carte tarifaire → offre présélectionnée dans le contact
+    await page.goto(`${BASE}/tarifs`, { waitUntil: "networkidle" });
+    await page.locator('a[href="/contact?offre=pack"]').first().click();
+    await page.waitForURL("**/contact?offre=pack");
+    await page.waitForTimeout(500);
+    check("Tarifs → contact : WEBPRO PACK présélectionné", await page.getByRole("radio", { name: "WEBPRO PACK" }).isChecked());
     await page.goto(`${BASE}/`, { waitUntil: "networkidle" });
     const first = page.locator("details.faq").first();
     await first.locator("summary").click();
@@ -133,7 +154,7 @@ const check = (name, ok, detail = "") => results.push({ name, ok: Boolean(ok), d
     await page.goto(`${BASE}/`, { waitUntil: "load" });
     const op = await page.evaluate(() => getComputedStyle(document.querySelector("[data-reveal]")).opacity);
     check("Sans JavaScript : contenus visibles", op === "1", op);
-    check("Sans JavaScript : FAQ lisible", (await page.locator("details.faq").count()) === 8);
+    check("Sans JavaScript : FAQ lisible", (await page.locator("details.faq").count()) >= 8);
     await ctx.close();
   }
 

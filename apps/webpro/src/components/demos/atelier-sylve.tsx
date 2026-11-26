@@ -1,4 +1,4 @@
-/* Projet de démonstration — Atelier Sylve, menuiserie fictive. */
+/* Exemple de maquette — Atelier Sylve, menuiserie fictive (pas une réalisation client). */
 
 const C = { plaster: "#ECE7DF", coal: "#1C1B19", oak: "#B8875A", graphite: "#5C5A55" };
 const cond = {

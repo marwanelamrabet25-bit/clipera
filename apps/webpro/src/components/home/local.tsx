@@ -11,12 +11,12 @@ const points = [
   { t: "À distance si besoin", d: "Selon les projets, nous pouvons aussi avancer ensemble à distance." },
 ];
 
-export function Local() {
+export function Local({ index = "06" }: { index?: string }) {
   return (
     <section aria-labelledby="local-title" className="relative overflow-clip border-t border-line bg-ink-2/40 py-28 md:py-40">
       <div className="shell grid-12 items-center gap-y-16">
         <div className="col-span-4 md:col-span-12 lg:col-span-6">
-          <SectionLabel index="05">Ancrage local</SectionLabel>
+          <SectionLabel index={index}>Ancrage local</SectionLabel>
           <Words
             id="local-title"
             className="t-h2 mt-8 max-w-[17ch] text-paper"

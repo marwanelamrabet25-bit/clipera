@@ -12,7 +12,8 @@ import { Logo } from "./logo";
 
 const links = [
   { label: "Accueil", href: "/" },
-  { label: "Réalisations", href: "/realisations" },
+  { label: "Tarifs", href: "/tarifs" },
+  { label: "Maquette gratuite", href: "/maquette-gratuite" },
   { label: "À propos", href: "/a-propos" },
   { label: "Contact", href: "/contact" },
 ];
@@ -127,7 +128,7 @@ export function MobileNav() {
             onClick={close}
             className="flex h-14 items-center justify-between rounded-[3px] bg-electric px-5 font-semibold text-ink"
           >
-            {primaryCta.label}
+            {primaryCta.longLabel}
             <span aria-hidden>→</span>
           </Link>
           <div className="grid gap-1 text-mist">

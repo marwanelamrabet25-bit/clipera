@@ -1,6 +1,6 @@
 import localFont from "next/font/local";
 
-/** Polices des projets de démonstration. Chargées seulement là où elles sont utilisées (pas de préchargement). */
+/** Polices des exemples de maquettes (entreprises fictives). Chargées seulement là où elles sont utilisées (pas de préchargement). */
 export const fraunces = localFont({
   src: [
     { path: "../fonts/Fraunces-Variable-latin.woff2", style: "normal" },

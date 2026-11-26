@@ -82,7 +82,7 @@ export default function Page() {
             interdite.
           </p>
           <p>
-            Les projets présentés comme « projets de démonstration » concernent des entreprises fictives créées par {brand.name}.
+            Les exemples de maquettes, de publications et de vidéos présentés sur ce site concernent des entreprises fictives imaginées par {brand.name} ; ce ne sont pas des réalisations clients.
             Toute ressemblance avec une entreprise existante serait fortuite.
           </p>
         </LegalSection>

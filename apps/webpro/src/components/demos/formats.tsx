@@ -1,4 +1,4 @@
-/* Formats verticaux (reels / stories) des projets de démonstration. */
+/* Formats verticaux (Reels / stories) d’exemple, pour des entreprises fictives. */
 import { OreePlate } from "./oree";
 import { Wood } from "./atelier-sylve";
 import { Pearl } from "./nacre";

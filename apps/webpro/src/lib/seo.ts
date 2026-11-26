@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SITE_URL, brand, contact, location } from "@/config/site";
+import { offerById, visibleOffers, type Offer } from "@/config/offers";
 
 export const abs = (path = "/") => `${SITE_URL}${path.startsWith("/") ? path : `/${path}`}`;
 
@@ -71,14 +72,7 @@ export function organizationJsonLd() {
       name: "Doubs",
       containedInPlace: { "@type": "AdministrativeArea", name: location.region },
     },
-    knowsAbout: [
-      "Création de sites internet",
-      "Refonte de sites internet",
-      "Référencement naturel local",
-      "Gestion des réseaux sociaux",
-      "Création de contenus vidéo",
-      "Création de visuels",
-    ],
+    knowsAbout: ["Création de sites internet", "Sites vitrines", "Référencement naturel de base", "Gestion des réseaux sociaux", "Montage vidéo et Reels", "Création de visuels"],
   };
 }
 
@@ -107,7 +101,43 @@ export function breadcrumbJsonLd(items: { name: string; path: string }[]) {
   };
 }
 
-export function serviceJsonLd(s: { name: string; description: string; path: string; serviceType: string }) {
+/** Offre au format schema.org : chaque ligne de facturation garde sa périodicité (unique / mensuelle). */
+function offerSchema(o: Offer) {
+  return {
+    "@type": "Offer",
+    name: o.name,
+    description: o.description,
+    url: abs("/tarifs"),
+    priceCurrency: "EUR",
+    seller: { "@id": ORG_ID },
+    areaServed: { "@type": "AdministrativeArea", name: "Doubs" },
+    priceSpecification: o.billing.map((l) =>
+      l.period === "once"
+        ? { "@type": "PriceSpecification", name: l.label, price: l.amount.toFixed(2), priceCurrency: "EUR" }
+        : {
+            "@type": "UnitPriceSpecification",
+            name: l.label,
+            price: l.amount.toFixed(2),
+            priceCurrency: "EUR",
+            unitCode: "MON",
+            referenceQuantity: { "@type": "QuantitativeValue", value: 1, unitCode: "MON" },
+          },
+    ),
+  };
+}
+
+export function offerCatalogJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "OfferCatalog",
+    name: `Offres ${brand.name}`,
+    url: abs("/tarifs"),
+    itemListElement: visibleOffers().map(offerSchema),
+  };
+}
+
+export function serviceJsonLd(s: { name: string; description: string; path: string; serviceType: string; offerIds?: Offer["id"][] }) {
+  const offers = (s.offerIds ?? []).map(offerById).filter((o) => o.visible);
   return {
     "@context": "https://schema.org",
     "@type": "Service",
@@ -118,6 +148,7 @@ export function serviceJsonLd(s: { name: string; description: string; path: stri
     provider: { "@id": ORG_ID },
     areaServed: { "@type": "AdministrativeArea", name: "Doubs" },
     inLanguage: "fr-FR",
+    ...(offers.length ? { offers: offers.map(offerSchema) } : {}),
   };
 }
 

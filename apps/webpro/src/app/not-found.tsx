@@ -39,8 +39,13 @@ export default function NotFound() {
               </li>
             ))}
             <li>
-              <Link href="/realisations" className="link-underline text-mist hover:text-paper">
-                Réalisations
+              <Link href="/maquette-gratuite" className="link-underline text-mist hover:text-paper">
+                Maquette gratuite
+              </Link>
+            </li>
+            <li>
+              <Link href="/tarifs" className="link-underline text-mist hover:text-paper">
+                Tarifs
               </Link>
             </li>
           </ul>

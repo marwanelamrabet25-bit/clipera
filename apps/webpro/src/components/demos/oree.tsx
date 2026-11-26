@@ -1,4 +1,4 @@
-/* Projet de démonstration — Orée, restaurant fictif. Direction artistique propre au projet. */
+/* Exemple de maquette — Orée, restaurant fictif (pas une réalisation client). */
 
 const C = { pine: "#1E2B23", pine2: "#26362C", cream: "#F2EADC", clay: "#C2603A", sage: "#8FA588" };
 const serif = { fontFamily: "var(--font-fraunces), Georgia, serif" } as const;
@@ -239,7 +239,7 @@ export function OreeDemo() {
   );
 }
 
-/** Kit réseaux sociaux de démonstration (annonce de carte + storyboard de reel). */
+/** Planche de publications d’exemple (entreprise fictive) : annonce de carte, reel. */
 export function OreeSocial() {
   const post = "relative aspect-square overflow-hidden rounded-[14px]";
   return (

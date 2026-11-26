@@ -31,19 +31,23 @@ export default function Page() {
           </p>
         </LegalSection>
         <LegalSection id="pc-donnees" title="Données collectées">
-          <p>Via le formulaire de contact uniquement :</p>
+          <p>Uniquement les informations que vous saisissez dans nos formulaires :</p>
           <ul className="list-disc space-y-1 pl-5">
-            <li>prénom, nom, entreprise (facultatif) ;</li>
-            <li>adresse email, numéro de téléphone (facultatif) ;</li>
-            <li>type de prestation souhaitée, budget envisagé (facultatif) ;</li>
-            <li>le contenu de votre message.</li>
+            <li>
+              formulaire de contact : prénom, nom, entreprise (facultatif), adresse email, téléphone (facultatif), objet de la
+              demande et message ;
+            </li>
+            <li>
+              demande de maquette gratuite : nom, entreprise, adresse email, téléphone (facultatif), secteur d&apos;activité,
+              description de l&apos;entreprise, adresse du site existant (facultatif) et informations complémentaires
+              (facultatif).
+            </li>
           </ul>
           <p>Aucune donnée n&apos;est collectée à votre insu. Le site ne dépose pas de cookie de mesure d&apos;audience ni de cookie publicitaire.</p>
         </LegalSection>
         <LegalSection id="pc-finalite" title="Finalité et base légale">
           <p>
-            Les données servent exclusivement à <strong>répondre à votre demande</strong> et, le cas échéant, à{" "}
-            <strong>établir un devis</strong>. Le traitement repose sur votre consentement, recueilli dans le formulaire, et sur
+            Les données servent exclusivement à <strong>répondre à votre demande</strong>, à <strong>préparer la maquette demandée</strong> et, le cas échéant, à <strong>établir une proposition commerciale</strong>. Le traitement repose sur votre consentement, recueilli dans le formulaire, et sur
             les mesures précontractuelles prises à votre demande (article 6.1 a et b du RGPD).
           </p>
           <p>Elles ne sont ni vendues, ni cédées, ni utilisées à des fins de prospection sans votre accord.</p>
@@ -51,10 +55,10 @@ export default function Page() {
         <LegalSection id="pc-destinataires" title="Destinataires">
           <p>
             Les données sont destinées à {brand.name} uniquement. Les prestataires techniques nécessaires au fonctionnement du
-            site (hébergement, service d&apos;envoi des emails du formulaire) y ont accès dans la stricte limite de leur mission.
+            site (hébergement, service d&apos;envoi des emails des formulaires et, le cas échéant, outil de suivi des demandes) y ont accès dans la stricte limite de leur mission.
           </p>
           <p>
-            Prestataires utilisés : <LegalValue value={null} label="hébergeur et service d'envoi d'emails retenus (ex. Vercel, Resend) et, le cas échéant, garanties en cas de transfert hors de l'Union européenne" />
+            Prestataires utilisés : <LegalValue value={null} label="hébergeur, service d'envoi d'emails (ex. Vercel, Resend) et éventuel outil de suivi des demandes et, le cas échéant, garanties en cas de transfert hors de l'Union européenne" />
           </p>
         </LegalSection>
         <LegalSection id="pc-duree" title="Durée de conservation">

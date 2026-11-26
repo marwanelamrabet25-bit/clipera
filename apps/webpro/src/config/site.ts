@@ -27,7 +27,7 @@ export const brand = {
   shortName: "WebPro Agency",
   tagline: "Votre présence en ligne, notre métier.",
   description:
-    "Agence digitale basée à Pierrefontaine-les-Varans (Doubs) : création de sites internet, gestion des réseaux sociaux et création de contenus visuels et vidéo pour les professionnels de tout le Doubs.",
+    "Agence digitale basée à Pierrefontaine-les-Varans (Doubs) : création de sites internet et gestion des réseaux sociaux, visuels et vidéos compris, pour les professionnels de tout le Doubs.",
   /** Phrase de référence du brief, réutilisée dans les contenus. */
   referenceSentence:
     "WEBPRO AGENCY, agence digitale basée à Pierrefontaine-les-Varans, dans le Doubs, accompagne les professionnels dans leurs projets numériques dans tout le département et les communes environnantes.",

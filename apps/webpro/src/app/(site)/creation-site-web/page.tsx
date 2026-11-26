@@ -8,18 +8,20 @@ import { FeatureList } from "@/components/ui/feature-list";
 import { HonestNote } from "@/components/ui/honest-note";
 import { BrowserFrame, PhoneFrame } from "@/components/visuals/frames";
 import { Method } from "@/components/home/method";
-import { RelatedProjects } from "@/components/projects/related-projects";
 import { FaqSection } from "@/components/home/faq-section";
 import { ClosingCta } from "@/components/ui/closing-cta";
-import { PricingBlock } from "@/components/ui/pricing-block";
+import { PricingSection } from "@/components/offers/pricing-section";
+import { MockupBand } from "@/components/offers/mockup-offer";
 import { JsonLd } from "@/components/seo/json-ld";
 import { pageMetadata, serviceJsonLd } from "@/lib/seo";
-import { projects } from "@/content/projects";
-import type { QA } from "@/content/faq";
+import { formatPrice, offerById } from "@/config/offers";
+import { primaryCta } from "@/config/navigation";
+import { mockupExamples, mockupBySlug } from "@/content/mockups";
+import { priceSentences, type QA } from "@/content/faq";
 
 const PATH = "/creation-site-web";
-const DESCRIPTION =
-  "Création et refonte de sites internet pour les professionnels du Doubs : design personnalisé, adapté au mobile, pensé pour Google et pour la prise de contact.";
+const sitePrice = offerById("site").billing[0].amount;
+const DESCRIPTION = `Création de sites vitrines pour les professionnels du Doubs : design personnalisé, adapté au mobile, SEO de base. À partir de ${formatPrice(sitePrice)} en paiement unique.`;
 
 export const metadata: Metadata = pageMetadata({
   title: "Création de site internet dans le Doubs",
@@ -27,32 +29,16 @@ export const metadata: Metadata = pageMetadata({
   path: PATH,
 });
 
-const types = [
-  {
-    t: "Site vitrine",
-    d: "Quelques pages essentielles pour présenter votre activité, vos services et vos coordonnées. Idéal pour démarrer, ou pour une activité locale qui veut être trouvée facilement.",
-  },
-  {
-    t: "Site professionnel",
-    d: "Une structure plus complète : une page par service, vos réalisations, votre zone d'intervention, vos actualités. Pour les entreprises qui ont beaucoup à montrer.",
-  },
-  {
-    t: "Refonte",
-    d: "Votre site existe mais il date, s'affiche mal sur téléphone ou n'apporte pas de demandes ? Nous le repensons en conservant ce qui a de la valeur, notamment pour le référencement.",
-  },
-  {
-    t: "Projets spécifiques",
-    d: "Vente en ligne, prise de rendez-vous, catalogue : décrivez votre besoin, nous étudions avec vous la solution la plus adaptée.",
-  },
-];
-
-const features = [
-  { t: "Formulaire de contact", d: "Les demandes arrivent dans votre boîte mail, avec les informations utiles pour y répondre." },
-  { t: "Appel en un geste", d: "Sur téléphone, votre numéro se compose d'un simple toucher. Pratique pour un client pressé." },
-  { t: "Une page par service", d: "Chaque prestation expliquée clairement : le visiteur trouve vite ce qui le concerne." },
-  { t: "Vos réalisations", d: "Une galerie pour montrer votre travail. C'est souvent ce qui convainc le plus." },
-  { t: "Zone d'intervention", d: "Où vous travaillez, clairement indiqué, pour rassurer vos clients et pour Google." },
-  { t: "Pages légales", d: "Mentions légales et politique de confidentialité prévues dans la structure du site." },
+/** Les huit éléments de la catégorie 01, détaillés. */
+const included = [
+  { t: "Création de sites vitrines", d: "Un site clair qui présente votre entreprise, vos services et vos coordonnées." },
+  { t: "Conception graphique", d: "Une mise en page soignée, pensée pour être lue facilement et inspirer confiance." },
+  { t: "Design personnalisé", d: "Des couleurs, des typographies et un ton propres à votre activité, pas un modèle de plus." },
+  { t: "Adaptation mobile", d: "Un affichage confortable sur téléphone, tablette et ordinateur." },
+  { t: "Présentation des activités", d: "Vos prestations expliquées simplement, pour que chaque visiteur trouve ce qui le concerne." },
+  { t: "Formulaires de contact", d: "Les demandes de vos clients arrivent directement dans votre boîte mail." },
+  { t: "Optimisation SEO de base", d: "Structure des pages, titres, descriptions et contenus pensés pour Google." },
+  { t: "Mise en ligne", d: "Publication du site selon les conditions convenues ensemble." },
 ];
 
 const seo = [
@@ -61,35 +47,31 @@ const seo = [
   "Des adresses de pages lisibles",
   "Un affichage rapide, y compris sur mobile",
   "Des contenus rédigés autour de votre métier et de votre secteur",
-  "Des données structurées pour aider les moteurs de recherche",
   "Un plan du site transmis à Google (sitemap)",
 ];
 
 const faq: QA[] = [
+  { q: "Combien coûte la création d'un site internet ?", a: `${priceSentences.site} ${priceSentences.external}` },
   {
     q: "Combien de temps faut-il pour créer un site ?",
-    a: "Cela dépend surtout du nombre de pages, des fonctionnalités et de la disponibilité des contenus (textes, photos). Un calendrier vous est proposé avec le devis, une fois le projet défini ensemble.",
+    a: "Cela dépend surtout du nombre de pages et de la disponibilité des contenus (textes, photos). Un calendrier vous est proposé une fois le projet défini ensemble.",
   },
   {
     q: "Dois-je fournir les textes et les photos ?",
-    a: "Vous connaissez votre métier mieux que personne : vos informations sont la base. Nous vous aidons à les structurer, et la création de visuels fait partie de nos prestations. Nous définissons ensemble ce que chacun prépare.",
-  },
-  {
-    q: "Pourrai-je modifier mon site moi-même ?",
-    a: "Cela dépend de la solution retenue. Nous en parlons dès le premier échange, selon que vous souhaitez être autonome sur certaines mises à jour (actualités, horaires, photos) ou non. La solution est choisie en conséquence.",
+    a: "Vous connaissez votre métier mieux que personne : vos informations sont la base. Nous vous aidons à les présenter clairement, et la création de visuels fait partie de nos prestations réseaux sociaux. Nous définissons ensemble ce que chacun prépare.",
   },
   {
     q: "Le nom de domaine et l'hébergement sont-ils compris ?",
-    a: "Ils sont indispensables à la mise en ligne. Nous vous expliquons les options possibles et le devis précise clairement ce qui est inclus.",
+    a: "Non : ils sont distincts du prix de création. Nous vous expliquons les options possibles et les précisons avant la mise en ligne, tout comme les licences éventuelles et les frais externes.",
   },
   {
-    q: "Mon site sera-t-il visible sur Google ?",
-    a: "Nous mettons en place les bases techniques et éditoriales du référencement. La visibilité se construit ensuite dans la durée : contenus, avis clients, fiche d'établissement, liens. Personne ne peut honnêtement garantir une position précise.",
+    q: "Puis-je voir une maquette avant de me décider ?",
+    a: "Oui : demandez votre maquette gratuite. Il s'agit d'une première proposition visuelle adaptée à votre entreprise, pas de la création gratuite d'un site complet.",
   },
 ];
 
 export default function Page() {
-  const sylve = projects.find((p) => p.slug === "atelier-sylve")!;
+  const sylve = mockupBySlug("atelier-sylve")!;
   return (
     <>
       <PageHero
@@ -98,40 +80,38 @@ export default function Page() {
         title={["Création de sites internet", { text: "pour les professionnels du Doubs.", className: "text-slate" }]}
         lead={
           <p>
-            Site vitrine, site professionnel ou refonte : nous concevons des sites clairs, rapides et soignés, qui présentent
-            votre activité et facilitent la prise de contact. Pour les artisans, commerçants, indépendants et entreprises de
-            tout le Doubs.
+            Des sites vitrines clairs, rapides et soignés, qui présentent votre activité et facilitent la prise de contact. Pour
+            les artisans, commerçants, indépendants et entreprises de tout le Doubs, à {formatPrice(sitePrice)} en paiement unique.
           </p>
         }
         actions={
           <>
-            <ButtonLink href="/contact">Demander un devis</ButtonLink>
-            <ButtonLink href="/realisations" variant="outline">
-              Voir des exemples
+            <ButtonLink href={primaryCta.href}>{primaryCta.longLabel}</ButtonLink>
+            <ButtonLink href="#tarifs" variant="outline">
+              Voir le tarif
             </ButtonLink>
           </>
         }
       />
 
-      {/* Visuel pleine largeur : le site, de l'écran au téléphone */}
-      <section aria-label="Aperçu d'un site de démonstration" className="shell relative -mt-6 pb-28 md:pb-40">
+      <section aria-label="Exemple de maquette de site vitrine" className="shell relative -mt-6 pb-28 md:pb-40">
         <div className="group relative">
           <div className="enter-soft">
             <BrowserFrame
               src={sylve.images.full}
-              alt="Page d'accueil du site de démonstration Atelier Sylve, menuiserie fictive (la page défile au survol)"
-              label="Atelier Sylve — menuiserie (démonstration)"
+              alt="Exemple de maquette de site vitrine pour une menuiserie fictive (la page défile au survol)"
+              label="Exemple de maquette — menuiserie (fictive)"
               sizes="(min-width: 1440px) 1330px, 94vw"
               scrollOnHover
               preload
             />
           </div>
-          <div style={{ "--d": 480 } as CSSProperties} className="enter absolute -bottom-10 right-[4%] w-[24%] max-w-[15rem] md:-bottom-16">
-            <PhoneFrame src={sylve.images.mobile} alt="Version mobile du site de démonstration Atelier Sylve" sizes="(min-width: 1024px) 15rem, 24vw" />
+          <div style={{ "--d": 480 } as CSSProperties} className="enter absolute right-[4%] -bottom-10 w-[24%] max-w-[15rem] md:-bottom-16">
+            <PhoneFrame src={sylve.images.mobile} alt="Version mobile de l'exemple de maquette pour une menuiserie fictive" sizes="(min-width: 1024px) 15rem, 24vw" />
           </div>
         </div>
         <p className="t-label mt-20 text-slate md:mt-10">
-          Projet de démonstration<span className="hidden lg:inline"> · survolez pour parcourir la page</span>
+          Exemple de maquette · entreprise fictive<span className="hidden lg:inline"> · survolez pour parcourir la page</span>
         </p>
       </section>
 
@@ -150,43 +130,42 @@ export default function Page() {
         </div>
       </section>
 
-      <section aria-labelledby="sw-types" className="border-t border-line bg-ink-2/40 py-28 md:py-36">
+      <section aria-labelledby="sw-included" className="border-t border-line bg-ink-2/40 py-28 md:py-36">
         <div className="shell">
-          <SectionHead index="02" label="Types de sites" id="sw-types" title={["Le bon format", { text: "pour votre activité.", className: "text-slate" }]} />
-          <FeatureList items={types} columns={4} className="mt-16" />
+          <SectionHead index="02" label="Ce qui est compris" id="sw-included" title={["Tout ce qu'il faut", { text: "pour être présent en ligne.", className: "text-slate" }]} />
+          <FeatureList items={included} columns={4} className="mt-16" />
         </div>
       </section>
 
       <section aria-labelledby="sw-design" className="border-t border-line py-28 md:py-36">
         <div className="shell grid-12 items-center gap-y-14">
           <div className="col-span-4 md:col-span-12 lg:col-span-5">
-            <SectionHead index="03" label="Approche design" id="sw-design" title={["Un design personnalisé,", { text: "pas un modèle de plus.", className: "text-slate" }]} stacked />
+            <SectionHead stacked index="03" label="Design personnalisé" id="sw-design" title={["Un design pour votre activité,", { text: "pas un modèle de plus.", className: "text-slate" }]} />
             <div data-reveal className="mt-8 space-y-5 text-mist">
               <p>
-                Votre site doit refléter votre métier et votre façon de travailler. Nous construisons une direction visuelle
-                propre à votre activité : couleurs, typographies, images, ton des textes.
+                Votre site doit refléter votre métier et votre façon de travailler. Nous construisons une direction visuelle propre
+                à votre activité : couleurs, typographies, images, ton des textes.
               </p>
-              <p>
-                Un restaurant, une menuiserie, une fromagerie et un institut de beauté n&apos;ont pas besoin du même site : nos
-                quatre projets de démonstration le montrent.
-              </p>
+              <p>Un restaurant, une menuiserie et un institut de beauté n&apos;ont pas besoin du même site : ces trois exemples de maquettes, conçus pour des entreprises fictives, le montrent.</p>
             </div>
             <div data-reveal className="mt-10">
-              <ArrowLink href="/realisations">Comparer les quatre directions</ArrowLink>
+              <ArrowLink href="/maquette-gratuite">Recevoir une maquette pour mon entreprise</ArrowLink>
             </div>
           </div>
           <div className="col-span-4 md:col-span-12 lg:col-span-6 lg:col-start-7">
             <ul className="grid grid-cols-2 gap-3 sm:gap-4">
-              {projects.map((p, i) => (
-                <li key={p.slug} data-reveal style={{ "--d": i * 90 } as CSSProperties}>
+              {mockupExamples.map((m, i) => (
+                <li key={m.slug} data-reveal style={{ "--d": i * 90 } as CSSProperties} className={i === 0 ? "col-span-2" : undefined}>
                   <div className="relative aspect-[16/10] overflow-hidden rounded-[6px] ring-1 ring-paper/10">
-                    <Image src={p.images.desktop} alt={`Page d'accueil du projet de démonstration ${p.name}`} fill sizes="(min-width: 1024px) 24vw, 46vw" className="object-cover object-top" />
+                    <Image src={m.images.desktop} alt={`Exemple de maquette pour un ${m.sector.toLowerCase()} (entreprise fictive)`} fill sizes="(min-width: 1024px) 40vw, 92vw" className="object-cover object-top" />
                   </div>
                   <div className="mt-3 flex items-center justify-between gap-3">
-                    <span className="text-sm font-semibold text-paper">{p.name}</span>
-                    <span role="img" className="flex gap-1" aria-label={`Palette : ${p.palette.map((c) => c.name).join(", ")}`}>
-                      {p.palette.map((c) => (
-                        <span key={c.hex} className="size-3 rounded-full ring-1 ring-paper/15" style={{ background: c.hex }} />
+                    <span className="text-sm font-semibold text-paper">
+                      {m.sector} <span className="font-normal text-slate">· exemple fictif</span>
+                    </span>
+                    <span className="flex gap-1" role="img" aria-label="Palette de couleurs de l'exemple">
+                      {m.palette.map((c) => (
+                        <span key={c} className="size-3 rounded-full ring-1 ring-paper/15" style={{ background: c }} />
                       ))}
                     </span>
                   </div>
@@ -200,61 +179,46 @@ export default function Page() {
       <section aria-labelledby="sw-mobile" className="relative overflow-clip border-t border-line bg-ink-2/40 py-28 md:py-36">
         <div className="shell grid-12 items-center gap-y-16">
           <div className="col-span-4 md:col-span-12 lg:order-2 lg:col-span-5 lg:col-start-8">
-            <SectionHead index="04" label="Responsive" id="sw-mobile" title={["Lisible partout,", { text: "d'abord sur téléphone.", className: "text-slate" }]} stacked />
+            <SectionHead stacked index="04" label="Adaptation mobile" id="sw-mobile" title={["Lisible partout,", { text: "d'abord sur téléphone.", className: "text-slate" }]} />
             <div data-reveal className="mt-8 space-y-5 text-mist">
               <p>
-                Une grande partie de vos visiteurs vous découvriront sur leur téléphone, parfois entre deux rendez-vous. Nous
-                concevons chaque page pour le petit écran autant que pour l&apos;ordinateur : textes lisibles sans zoomer, boutons
-                faciles à toucher, informations essentielles en premier.
+                Une grande partie de vos visiteurs vous découvriront sur leur téléphone, parfois entre deux rendez-vous. Chaque page
+                est conçue pour le petit écran autant que pour l&apos;ordinateur : textes lisibles sans zoomer, boutons faciles à
+                toucher, informations essentielles en premier.
               </p>
-              <p>L&apos;affichage est vérifié sur plusieurs tailles d&apos;écran avant la mise en ligne.</p>
             </div>
           </div>
           <div className="col-span-4 md:col-span-12 lg:order-1 lg:col-span-6">
             <div className="flex items-end justify-center gap-3 sm:gap-6">
-              {(["oree", "nacre", "la-meule"] as const).map((slug, i) => {
-                const p = projects.find((x) => x.slug === slug)!;
-                return (
-                  <div key={slug} data-reveal className="w-[31%] max-w-[13.5rem]" style={{ "--d": i * 120, marginBottom: i === 1 ? "3rem" : 0 } as CSSProperties}>
-                    <PhoneFrame src={p.images.mobile} alt={`Version mobile du projet de démonstration ${p.name}`} sizes="(min-width: 1024px) 13.5rem, 31vw" />
-                  </div>
-                );
-              })}
+              {mockupExamples.map((m, i) => (
+                <div key={m.slug} data-reveal className="w-[31%] max-w-[13.5rem]" style={{ "--d": i * 120, marginBottom: i === 1 ? "3rem" : 0 } as CSSProperties}>
+                  <PhoneFrame src={m.images.mobile} alt={`Exemple de maquette mobile pour un ${m.sector.toLowerCase()} (entreprise fictive)`} sizes="(min-width: 1024px) 13.5rem, 31vw" />
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      <section aria-labelledby="sw-features" className="border-t border-line py-28 md:py-36">
-        <div className="shell">
-          <SectionHead index="05" label="Fonctionnalités" id="sw-features" title={["Les fonctionnalités utiles,", { text: "sans superflu.", className: "text-slate" }]}>
-            <p>Chaque élément du site a une raison d&apos;être : aider votre visiteur à comprendre, à se décider, puis à vous contacter.</p>
-          </SectionHead>
-          <FeatureList items={features} className="mt-16" />
-        </div>
-      </section>
-
-      <section aria-labelledby="sw-seo" className="border-t border-line bg-ink-2/40 py-28 md:py-36">
+      <section aria-labelledby="sw-seo" className="border-t border-line py-28 md:py-36">
         <div className="shell grid-12 gap-y-14">
           <div className="col-span-4 md:col-span-12 lg:col-span-6">
-            <SectionHead index="06" label="Référencement" id="sw-seo" title={["Pensé pour être trouvé", { text: "sur Google.", className: "text-slate" }]} stacked />
-            <div data-reveal className="t-lead mt-8 max-w-[48ch] space-y-5 text-mist">
+            <SectionHead stacked index="05" label="SEO de base" id="sw-seo" title={["Pensé pour être trouvé", { text: "sur Google.", className: "text-slate" }]} />
+            <div data-reveal className="t-lead mt-8 max-w-[48ch] text-mist">
               <p>
-                Le référencement naturel commence dès la conception. Un site bien structuré, rapide et rédigé pour vos clients a
-                toutes les chances d&apos;être mieux compris par les moteurs de recherche, notamment pour les recherches locales
-                dans le Doubs.
+                Une optimisation SEO de base est comprise dans la création : un site bien structuré, rapide et rédigé pour vos
+                clients est mieux compris par les moteurs de recherche, notamment pour les recherches locales dans le Doubs.
               </p>
             </div>
             <HonestNote title="Ce que nous ne promettons pas" className="mt-10">
               <p>
-                Une première place garantie. Le positionnement dépend aussi de la concurrence, de l&apos;ancienneté du site, des
-                avis clients et de la qualité des contenus dans le temps. Nous posons des bases solides et vous expliquons comment
-                les faire fructifier.
+                Une première place garantie. Le positionnement dépend aussi de la concurrence, de l&apos;ancienneté du site, des avis
+                clients et de la qualité des contenus dans le temps.
               </p>
             </HonestNote>
           </div>
           <div className="col-span-4 md:col-span-12 lg:col-span-5 lg:col-start-8">
-            <p className="t-label text-slate">Intégré à la conception</p>
+            <p className="t-label text-slate">Compris dans l&apos;optimisation de base</p>
             <ul className="mt-6 border-t border-line">
               {seo.map((s, i) => (
                 <li key={s} data-reveal style={{ "--d": i * 60 } as CSSProperties} className="flex items-baseline gap-4 border-b border-line py-4 text-paper">
@@ -270,12 +234,12 @@ export default function Page() {
         </div>
       </section>
 
+      <PricingSection index="06" ids={["site", "pack"]} title={["Le tarif,", { text: "en toute transparence.", className: "text-slate" }]} />
+      <MockupBand />
       <Method index="07" headingId="sw-method" />
-      <PricingBlock service="creation-site-web" index="08" />
-      <RelatedProjects slugs={["atelier-sylve", "nacre"]} index="09" title={["Des sites qui", { text: "ressemblent à leur métier.", className: "text-slate" }]} />
-      <FaqSection items={faq} index="10" title="Création de site :" titleMuted="vos questions." />
-      <ClosingCta title="Parlons de" highlight="votre futur site." text="Décrivez votre activité et vos besoins : nous revenons vers vous pour en discuter et vous proposer une solution adaptée." cta="Demander un devis" />
-      <JsonLd data={serviceJsonLd({ name: "Création de sites internet", serviceType: "Création de site internet", description: DESCRIPTION, path: PATH })} />
+      <FaqSection items={faq} index="08" title="Création de site :" titleMuted="vos questions." />
+      <ClosingCta title="Parlons de" highlight="votre futur site." text="Décrivez votre activité et vos besoins : nous revenons vers vous pour en discuter." />
+      <JsonLd data={serviceJsonLd({ name: "Création de sites internet", serviceType: "Création de site internet vitrine", description: DESCRIPTION, path: PATH, offerIds: ["site", "pack"] })} />
     </>
   );
 }

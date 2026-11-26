@@ -1,4 +1,4 @@
-/* Projet de démonstration — Nacre, institut de beauté fictif. */
+/* Exemple de maquette — Nacre, institut de beauté fictif (pas une réalisation client). */
 
 const C = { pearl: "#F4ECE7", powder: "#E3C9C0", ink: "#2B2326", bronze: "#8A5D49" };
 const serif = { fontFamily: "var(--font-fraunces), Georgia, serif" } as const;

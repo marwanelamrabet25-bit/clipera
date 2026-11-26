@@ -1,10 +1,10 @@
 /**
- * Prestations de WEBPRO AGENCY.
- * Les textes « pitch » proviennent du brief officiel. Les listes de prestations
- * reprennent uniquement les prestations validées dans le brief.
+ * Prestations de WEBPRO AGENCY : exactement DEUX catégories.
+ * La création de vidéos et de contenus fait partie de la gestion des réseaux sociaux
+ * (ce n'est pas une catégorie à part).
  */
 
-export type ServiceSlug = "creation-site-web" | "gestion-reseaux-sociaux" | "creation-contenu";
+export type ServiceSlug = "creation-site-web" | "gestion-reseaux-sociaux";
 
 export type Service = {
   slug: ServiceSlug;
@@ -18,6 +18,8 @@ export type Service = {
   /** Description courte pour menus et liens internes. */
   menuHint: string;
   href: `/${ServiceSlug}`;
+  /** Offre tarifaire principale associée (voir src/config/offers.ts). */
+  offerId: "site" | "social";
   /** Expression principale visée par la page (voir docs/SEO-LOCAL.md). */
   primaryKeyword: string;
 };
@@ -31,17 +33,18 @@ export const services: Service[] = [
     pitch:
       "Des sites professionnels conçus pour présenter votre activité, valoriser votre image et faciliter la prise de contact.",
     items: [
-      "Site vitrine",
-      "Site professionnel",
-      "Refonte",
+      "Création de sites vitrines",
+      "Conception graphique",
       "Design personnalisé",
-      "Responsive design",
-      "Optimisation technique",
-      "SEO",
+      "Adaptation mobile",
+      "Présentation des activités",
       "Formulaires de contact",
+      "Optimisation SEO de base",
+      "Mise en ligne selon les conditions convenues",
     ],
-    menuHint: "Vitrine, refonte, design sur mesure",
+    menuHint: "Site vitrine, design personnalisé, mobile",
     href: "/creation-site-web",
+    offerId: "site",
     primaryKeyword: "création site internet Doubs",
   },
   {
@@ -50,37 +53,22 @@ export const services: Service[] = [
     name: "Réseaux sociaux",
     title: "Gestion des réseaux sociaux",
     pitch:
-      "Une communication cohérente pour valoriser votre entreprise et entretenir votre présence en ligne.",
+      "Une communication cohérente, des visuels et des vidéos pour valoriser votre entreprise et entretenir votre présence en ligne.",
     items: [
       "Création de publications",
       "Création de visuels",
+      "Montage vidéo",
+      "Création de Reels",
+      "Vidéos promotionnelles",
+      "Contenus courts",
       "Préparation de contenus",
       "Accompagnement éditorial",
-      "Organisation des publications",
-      "Présentation de l'activité",
+      "Gestion des publications selon la formule choisie",
     ],
-    menuHint: "Publications, visuels, organisation",
+    menuHint: "Publications, visuels, vidéos et Reels",
     href: "/gestion-reseaux-sociaux",
+    offerId: "social",
     primaryKeyword: "gestion réseaux sociaux Doubs",
-  },
-  {
-    slug: "creation-contenu",
-    index: "03",
-    name: "Contenus & vidéo",
-    title: "Création de contenus",
-    pitch:
-      "Des contenus visuels et vidéos pour mettre en valeur vos produits, vos services et votre savoir-faire.",
-    items: [
-      "Vidéos promotionnelles",
-      "Reels",
-      "Montage vidéo",
-      "Visuels publicitaires",
-      "Présentation de produits",
-      "Formats adaptés aux réseaux sociaux",
-    ],
-    menuHint: "Vidéos, reels, visuels publicitaires",
-    href: "/creation-contenu",
-    primaryKeyword: "création contenu vidéo entreprise Doubs",
   },
 ];
 
