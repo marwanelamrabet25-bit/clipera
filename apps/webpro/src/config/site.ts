@@ -8,8 +8,15 @@
  * Règle : une valeur inconnue reste `null`. Le site n'affiche jamais d'information inventée.
  */
 
-/** URL publique du site. À définir avec NEXT_PUBLIC_SITE_URL (ex. https://www.exemple.fr) avant la mise en ligne. */
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+/**
+ * URL publique du site. À définir avec NEXT_PUBLIC_SITE_URL (ex. https://www.exemple.fr) une fois le domaine choisi.
+ * À défaut, sur Vercel : l'adresse de production fournie par la plateforme (ex. https://webpro-agency.vercel.app),
+ * pour que canonical, sitemap et Open Graph pointent vers une adresse réelle. En local : http://localhost:3000.
+ */
+export const SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "http://localhost:3000")
+).replace(/\/$/, "");
 
 /**
  * Indexation autorisée uniquement en production ET avec une URL publique définie.
