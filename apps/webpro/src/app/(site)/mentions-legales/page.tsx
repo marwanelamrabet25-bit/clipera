@@ -10,6 +10,7 @@ export const metadata: Metadata = pageMetadata({
   title: "Mentions légales",
   description: "Mentions légales du site de WEBPRO AGENCY : éditeur, directeur de la publication, hébergeur et propriété intellectuelle.",
   path: "/mentions-legales",
+  defaultImage: true,
 });
 
 export default function Page() {

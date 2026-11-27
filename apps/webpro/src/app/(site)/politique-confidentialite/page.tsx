@@ -10,6 +10,7 @@ export const metadata: Metadata = pageMetadata({
   description:
     "Comment WEBPRO AGENCY traite les données transmises via son formulaire de contact : finalités, durée de conservation, destinataires et droits RGPD.",
   path: "/politique-confidentialite",
+  defaultImage: true,
 });
 
 export default function Page() {

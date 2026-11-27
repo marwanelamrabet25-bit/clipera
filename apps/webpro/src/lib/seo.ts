@@ -12,15 +12,19 @@ type PageMeta = {
   path: string;
   /** Image Open Graph spécifique (sinon : image générée pour la route). */
   noindex?: boolean;
+  /** Pages sans image de partage propre (pas de fichier opengraph-image dans leur dossier) : image générale du site. */
+  defaultImage?: boolean;
 };
 
 /** Construit les métadonnées d'une page : title unique, description, canonical, Open Graph. */
-export function pageMetadata({ title, absoluteTitle, description, path, noindex }: PageMeta): Metadata {
+export function pageMetadata({ title, absoluteTitle, description, path, noindex, defaultImage }: PageMeta): Metadata {
   const fullTitle = absoluteTitle ? title : `${title} · ${brand.shortName}`;
   return {
     title: absoluteTitle ? { absolute: title } : title,
     description,
     alternates: { canonical: path },
+    // Une image déclarée ici remplace celle du fichier opengraph-image de la page : n'ajouter l'image générale
+    // (app/opengraph-image.tsx) qu'aux pages qui n'ont pas la leur.
     openGraph: {
       title: fullTitle,
       description,
@@ -28,8 +32,9 @@ export function pageMetadata({ title, absoluteTitle, description, path, noindex 
       siteName: brand.name,
       locale: "fr_FR",
       type: "website",
+      ...(defaultImage ? { images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: `${brand.name} — agence web à Pierrefontaine-les-Varans, Doubs` }] } : {}),
     },
-    twitter: { card: "summary_large_image", title: fullTitle, description },
+    twitter: { card: "summary_large_image", title: fullTitle, description, ...(defaultImage ? { images: ["/opengraph-image"] } : {}) },
     // Clé absente (et non `undefined`) quand la page est indexable : la règle du layout racine s'applique.
     ...(noindex ? { robots: { index: false, follow: true } } : {}),
   };

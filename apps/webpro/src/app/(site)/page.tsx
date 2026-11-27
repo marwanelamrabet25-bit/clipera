@@ -18,6 +18,7 @@ export const metadata: Metadata = pageMetadata({
   description:
     "Agence digitale à Pierrefontaine-les-Varans : création de sites internet et gestion des réseaux sociaux pour les professionnels du Doubs. Maquette gratuite.",
   path: "/",
+  defaultImage: true,
 });
 
 export default function Home() {
