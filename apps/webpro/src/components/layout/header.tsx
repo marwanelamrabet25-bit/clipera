@@ -156,7 +156,7 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <div className="hidden xl:block">
+          <div className="hidden lg:block">
             <ButtonLink href={primaryCta.href} size="md">
               {primaryCta.label}
             </ButtonLink>

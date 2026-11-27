@@ -34,8 +34,8 @@ export default function Page() {
           <p>Uniquement les informations que vous saisissez dans nos formulaires :</p>
           <ul className="list-disc space-y-1 pl-5">
             <li>
-              formulaire de contact : prénom, nom, entreprise (facultatif), adresse email, téléphone (facultatif), objet de la
-              demande et message ;
+              formulaire de contact : prénom, nom, entreprise (facultatif), adresse email, téléphone (facultatif), prestation
+              souhaitée, budget envisagé (facultatif) et message ;
             </li>
             <li>
               demande de maquette gratuite : nom, entreprise, adresse email, téléphone (facultatif), secteur d&apos;activité,
@@ -51,15 +51,32 @@ export default function Page() {
             les mesures précontractuelles prises à votre demande (article 6.1 a et b du RGPD).
           </p>
           <p>Elles ne sont ni vendues, ni cédées, ni utilisées à des fins de prospection sans votre accord.</p>
+          <p>
+            Si l&apos;accusé de réception automatique est activé, un email de confirmation vous est envoyé à l&apos;adresse saisie,
+            sans autre usage.
+          </p>
         </LegalSection>
-        <LegalSection id="pc-destinataires" title="Destinataires">
+        <LegalSection id="pc-destinataires" title="Destinataires et prestataires">
           <p>
-            Les données sont destinées à {brand.name} uniquement. Les prestataires techniques nécessaires au fonctionnement du
-            site (hébergement, service d&apos;envoi des emails des formulaires et, le cas échéant, outil de suivi des demandes) y ont accès dans la stricte limite de leur mission.
+            Les demandes sont transmises par email à {brand.name} uniquement ({contact.email}). Seuls les prestataires techniques
+            indispensables y ont accès, dans la stricte limite de leur mission :
           </p>
+          <ul className="list-disc space-y-1 pl-5">
+            <li>
+              <strong>Vercel Inc.</strong> (États-Unis) : hébergement du site ;
+            </li>
+            <li>
+              <strong>Resend</strong> (États-Unis) : acheminement des emails envoyés depuis les formulaires ;
+            </li>
+            <li>
+              <strong>Google</strong> (messagerie Gmail de l&apos;agence) : réception des demandes.
+            </li>
+          </ul>
           <p>
-            Prestataires utilisés : <LegalValue value={null} label="hébergeur, service d'envoi d'emails (ex. Vercel, Resend) et éventuel outil de suivi des demandes et, le cas échéant, garanties en cas de transfert hors de l'Union européenne" />
+            Ces prestataires peuvent traiter des données hors de l&apos;Union européenne. Garanties applicables :{" "}
+            <LegalValue value={null} label="garanties de transfert (clauses contractuelles types, cadre UE–États-Unis…) à vérifier pour chaque prestataire" />
           </p>
+          <p>Aucune donnée n&apos;est vendue, cédée ou transmise à d&apos;autres tiers.</p>
         </LegalSection>
         <LegalSection id="pc-duree" title="Durée de conservation">
           <p>

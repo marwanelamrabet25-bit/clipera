@@ -5,7 +5,7 @@ import { requestMockup, type MockupState } from "@/app/(site)/maquette-gratuite/
 import { contact } from "@/config/site";
 import { DESCRIPTION_MAX, readMockup, validateMockup, type MockupErrors, type MockupField } from "@/lib/mockup-schema";
 import { cn } from "@/lib/cn";
-import { BotTraps, buildMailto, ConsentField, DeliveryAlert, FieldShell, inputCls, SubmitRow, SuccessPanel } from "./form-ui";
+import { BotTraps, buildMailto, ConsentField, DeliveryAlert, FieldShell, inputCls, isAlertStatus, SubmitRow, SuccessPanel } from "./form-ui";
 
 const initial: MockupState = { status: "idle" };
 
@@ -86,7 +86,7 @@ export function MockupForm() {
   }
 
   const mailto = buildMailto(`Demande de maquette gratuite — ${v.company ?? ""}`, [
-    `Nom : ${v.name ?? ""}`,
+    `Nom et prénom : ${v.name ?? ""}`,
     `Entreprise : ${v.company ?? ""}`,
     `Secteur d'activité : ${v.sector ?? ""}`,
     `Email : ${v.email ?? ""}`,
@@ -101,13 +101,11 @@ export function MockupForm() {
 
   return (
     <form ref={formRef} action={action} onSubmit={onSubmit} noValidate className="relative" aria-describedby="form-note">
-      {(state.status === "unconfigured" || state.status === "failed" || state.status === "limited") && (
-        <DeliveryAlert ref={statusRef} status={state.status} mailto={mailto} />
-      )}
+      {isAlertStatus(state.status) && <DeliveryAlert ref={statusRef} status={state.status} mailto={mailto} />}
       <BotTraps ref={startedRef} />
 
       <div className="grid gap-x-5 gap-y-7 sm:grid-cols-2">
-        <FieldShell id="name" label="Nom" error={errors.name}>
+        <FieldShell id="name" label="Nom et prénom" error={errors.name}>
           <input id="name" name="name" autoComplete="name" defaultValue={v.name} maxLength={120} className={inputCls} {...a11y("name")} />
         </FieldShell>
         <FieldShell id="mk-company" label="Entreprise" error={errors.company}>

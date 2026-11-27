@@ -34,7 +34,6 @@ export const brand = {
   logo: {
     horizontal: { src: "/brand/logo-horizontal.png", width: 795, height: 117 },
     stacked: { src: "/brand/logo-stacked.png", width: 566, height: 239 },
-    symbol: { src: "/brand/symbol.png", width: 315, height: 173 },
     icon512: "/brand/icon-512.png",
   },
 } as const;

@@ -128,13 +128,13 @@ export function Hero() {
       </div>
 
       <div className="shell relative z-10 mt-14 lg:mt-20">
-        <p className="t-label mb-4 text-slate lg:text-right">Exemples de maquettes · entreprises fictives</p>
-        <nav aria-label="Accès rapides" className="grid border-t border-line sm:grid-cols-2 lg:grid-cols-4">
+        <p className="t-label mb-4 text-slate xl:text-right">Exemples de maquettes · entreprises fictives</p>
+        <nav aria-label="Accès rapides" className="grid border-t border-line sm:grid-cols-2 xl:grid-cols-4">
           {quickLinks.map((l) => (
             <Link
               key={l.href}
               href={l.href}
-              className="group flex items-center justify-between gap-4 border-b border-line py-5 transition-colors hover:text-paper sm:pr-6 lg:border-b-0 lg:border-r lg:px-6 lg:first:pl-0 lg:last:border-r-0"
+              className="group flex items-center justify-between gap-4 border-b border-line py-5 transition-colors hover:text-paper sm:pr-6 xl:border-b-0 xl:border-r xl:px-6 xl:first:pl-0 xl:last:border-r-0"
             >
               <span className="flex items-baseline gap-3">
                 <span className="t-label text-electric">{l.index}</span>

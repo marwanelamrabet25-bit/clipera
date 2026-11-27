@@ -1,38 +1,42 @@
 "use server";
 
-import { deliverLead, isBot, rateLimited } from "@/lib/mailer";
+import { deliverLead, rateLimited, spamCheck } from "@/lib/mailer";
+import { receivedAt } from "@/lib/email-templates";
 import { readMockup, validateMockup, type MockupErrors, type MockupField, type MockupValues } from "@/lib/mockup-schema";
+import type { FormStatus } from "@/lib/form-status";
 
-export type MockupState = {
-  status: "idle" | "invalid" | "sent" | "unconfigured" | "failed" | "limited";
-  errors?: MockupErrors;
-  values?: Partial<MockupValues>;
-};
+export type MockupState = { status: FormStatus; errors?: MockupErrors; values?: Partial<MockupValues> };
 
-/** Demande de maquette gratuite : transmise à l'agence, qui prépare la proposition visuelle (aucune génération automatique). */
+/** Demande de maquette gratuite : transmise par email à l'agence, qui prépare la maquette (aucune génération automatique). */
 export async function requestMockup(_prev: MockupState, formData: FormData): Promise<MockupState> {
-  if (isBot(formData)) return { status: "sent" };
-
   const values = readMockup((k: MockupField) => formData.get(k));
+
+  const spam = spamCheck(formData);
+  if (spam === "honeypot") return { status: "blocked", values };
+  if (spam === "too-fast") return { status: "too-fast", values };
+
   const errors = validateMockup(values);
   if (Object.keys(errors).length) return { status: "invalid", errors, values };
   if (await rateLimited("maquette")) return { status: "limited", values };
 
   const result = await deliverLead({
     kind: "maquette",
-    subject: `Demande de maquette gratuite — ${values.company} (${values.sector})`,
+    subject: `[WEBPRO] Demande de maquette gratuite — ${values.company} (${values.sector})`,
     replyTo: values.email,
+    prospectName: values.name,
     rows: [
-      ["Nom", values.name],
+      ["Nom et prénom", values.name],
       ["Entreprise", values.company],
-      ["Secteur d'activité", values.sector],
       ["Email", values.email],
-      ["Téléphone", values.phone || "—"],
-      ["Site existant", values.siteUrl || "—"],
-      ["Informations complémentaires", values.extra || "—"],
+      ["Téléphone", values.phone],
+      ["Secteur d'activité", values.sector],
+      ["Site internet existant", values.siteUrl],
+      ["Date de réception", receivedAt()],
     ],
-    message: values.description,
-    messageLabel: "Description de l'entreprise",
+    blocks: [
+      ["Description de l'entreprise", values.description],
+      ["Informations complémentaires", values.extra],
+    ],
   });
-  return result === "sent" ? { status: "sent" } : { status: result, values };
+  return result.ok ? { status: "sent" } : { status: result.reason, values };
 }

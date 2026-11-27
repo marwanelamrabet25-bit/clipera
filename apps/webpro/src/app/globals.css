@@ -503,3 +503,10 @@ details.faq summary::-webkit-details-marker {
     clip-path: none !important;
   }
 }
+
+/* Exemples de maquettes : liens et boutons fictifs désactivés (aucune action trompeuse) */
+.demo-static a,
+.demo-static button {
+  pointer-events: none;
+  cursor: default;
+}

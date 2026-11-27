@@ -6,9 +6,9 @@ import { ArrowRight } from "lucide-react";
 import { sendContact, type ContactState } from "@/app/(site)/contact/actions";
 import { care, offers } from "@/config/offers";
 import { contact } from "@/config/site";
-import { MESSAGE_MAX, readValues, serviceOptions, validate, type ContactErrors, type Field } from "@/lib/contact-schema";
+import { budgetChoices, MESSAGE_MAX, readValues, serviceOptions, validate, type ContactErrors, type Field } from "@/lib/contact-schema";
 import { cn } from "@/lib/cn";
-import { BotTraps, buildMailto, ConsentField, DeliveryAlert, FieldShell, inputCls, SubmitRow, SuccessPanel } from "@/components/forms/form-ui";
+import { BotTraps, buildMailto, ConsentField, DeliveryAlert, FieldShell, inputCls, isAlertStatus, SubmitRow, SuccessPanel } from "@/components/forms/form-ui";
 
 const initial: ContactState = { status: "idle" };
 
@@ -96,16 +96,15 @@ export function ContactForm() {
     `Entreprise : ${v.company || "—"}`,
     `Email : ${v.email ?? ""}`,
     `Téléphone : ${v.phone || "—"}`,
-    `Objet : ${v.service ?? ""}`,
+    `Prestation souhaitée : ${v.service ?? ""}`,
+    `Budget : ${v.budget || "Non renseigné"}`,
     "",
     v.message ?? "",
   ]);
 
   return (
     <form ref={formRef} action={action} onSubmit={onSubmit} noValidate className="relative" aria-describedby="form-note">
-      {(state.status === "unconfigured" || state.status === "failed" || state.status === "limited") && (
-        <DeliveryAlert ref={statusRef} status={state.status} mailto={mailto} />
-      )}
+      {isAlertStatus(state.status) && <DeliveryAlert ref={statusRef} status={state.status} mailto={mailto} />}
       <BotTraps ref={startedRef} />
 
       <div className="grid gap-x-5 gap-y-7 sm:grid-cols-2">
@@ -156,6 +155,22 @@ export function ContactForm() {
             </p>
           )}
         </fieldset>
+
+        <FieldShell id="budget" label="Budget envisagé" optional error={errors.budget} className="sm:col-span-2">
+          <div className="relative">
+            <select id="budget" name="budget" defaultValue={v.budget ?? ""} className={cn(inputCls, "appearance-none pr-10")} {...a11y("budget")}>
+              <option value="">Sélectionner une tranche</option>
+              {budgetChoices.map((b) => (
+                <option key={b} value={b}>
+                  {b}
+                </option>
+              ))}
+            </select>
+            <span aria-hidden className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-mist">
+              ▾
+            </span>
+          </div>
+        </FieldShell>
 
         <FieldShell
           id="message"

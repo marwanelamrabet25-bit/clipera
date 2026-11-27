@@ -164,6 +164,15 @@ export function packMonthlySaving() {
   return Math.round((solo - pack) * 100) / 100;
 }
 
+/** Budget envisagé par le prospect (champ facultatif du formulaire de contact). À ajuster librement. */
+export const budgetOptions = [
+  "Je ne sais pas encore",
+  "Moins de 100 €",
+  "De 100 € à 300 €",
+  "De 300 € à 1 000 €",
+  "Plus de 1 000 €",
+] as const;
+
 /** Options proposées dans les formulaires (offres visibles + maintenance si elle n'est pas masquée). */
 export const offerFormOptions = () => [
   ...visibleOffers().map((o) => o.formValue),

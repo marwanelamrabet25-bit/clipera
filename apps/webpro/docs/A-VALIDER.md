@@ -8,9 +8,9 @@ Rien de ce qui suit n'a été inventé sur le site : chaque information inconnue
 | Nom de domaine | Variable `NEXT_PUBLIC_SITE_URL` | Canonical, sitemap et Open Graph pointent vers `localhost` |
 | Identité de l'exploitant, statut juridique, SIREN, SIRET, immatriculation, TVA, adresse légale | `src/config/legal.ts` | « À compléter » visible dans les mentions légales |
 | Directeur de la publication | `src/config/legal.ts` | « À compléter » visible |
-| Hébergeur (nom, adresse, téléphone) | `src/config/legal.ts` | « À compléter » visible |
 | Prestataires techniques et durée de conservation des données | `src/app/(site)/politique-confidentialite/page.tsx` | « À compléter » visible |
-| Configuration de la gestion des demandes (Resend et/ou webhook) | Variables d'environnement | Les deux formulaires (contact, maquette gratuite) proposent l'envoi par messagerie et le téléphone |
+| **Clé API Resend** (`RESEND_API_KEY`) | Vercel → Settings → Environment Variables (voir README) | **Aucun email n'est envoyé** : les formulaires l'indiquent et proposent la messagerie et le téléphone |
+| Téléphone de l'hébergeur (Vercel Inc.) | `src/config/legal.ts` → `host.phone` | « À compléter » visible (non publié sur les pages officielles de Vercel) |
 
 ## Informations manquantes (non bloquantes)
 | Élément | Où | Effet actuel |
@@ -32,14 +32,14 @@ Rien de ce qui suit n'a été inventé sur le site : chaque information inconnue
 - Formulation « première proposition visuelle, pas la création gratuite d'un site complet » et « préparée par nos soins ».
 - Ce que contient concrètement la maquette (une page ? un visuel d'accueil ? nombre de versions ?) : volontairement non précisé sur le site.
 - Aucun délai n'est annoncé : en ajouter un seulement s'il peut être tenu.
-- Processus interne : qui reçoit et traite les demandes (adresse `CONTACT_TO_EMAIL`, éventuel tableur via `LEADS_WEBHOOK_URL`).
+- Processus interne : qui reçoit et traite les demandes arrivées sur `CONTACT_TO_EMAIL` (webproagency25@gmail.com).
 
 ## Formulations à valider par l'agence
 - Code postal **25510** (Pierrefontaine-les-Varans) dans les données structurées.
 - « Nous privilégions les échanges directs, et pouvons aussi avancer à distance selon les projets. »
 - Méthode en 5 étapes : contenu des étapes, notamment « Vous recevez ensuite une proposition détaillée » et « prise en main ».
 - FAQ : référencement (« une optimisation SEO de base est comprise »), réseaux couverts (Instagram, Facebook, TikTok), validation des publications, remplacement d'un site existant.
-- Formulaires : engagement « Elles ne sont ni cédées ni utilisées à d'autres fins ».
+- Formulaires : engagement « Elles ne sont ni cédées ni utilisées à d'autres fins » ; tranches de budget (`budgetOptions` dans `src/config/offers.ts`).
 - Valeurs de la page À propos (Proximité, Clarté, Exigence, Honnêteté) et principes de l'accueil.
 - Articles de conseils (2) : relecture et validation avant publication sous le nom de l'agence.
 
@@ -47,7 +47,8 @@ Rien de ce qui suit n'a été inventé sur le site : chaque information inconnue
 - Typographies : Manrope + Geist Mono (justification dans `DESIGN-SYSTEM.md`).
 - Boutons bleus à texte noir (contraste accessible) plutôt que texte blanc.
 - Aucune page géographique par ville au lancement (analyse dans `SEO-LOCAL.md`).
-- Suppression du champ « budget » du formulaire de contact (les prix étant désormais fixes), remplacé par le choix de l'offre.
+- Champ « budget » (facultatif) rétabli dans le formulaire de contact, à la demande ; tranches modifiables dans `src/config/offers.ts`.
+- Suppression du webhook optionnel de copie des demandes (service non nécessaire) : les demandes ne transitent que par Resend.
 - Pas d'outil de mesure d'audience (donc pas de bandeau cookies). Si un outil est souhaité, préférer une solution sans cookie (ex. Vercel Web Analytics, Plausible) et mettre à jour la politique de confidentialité.
 - Hébergement recommandé : Vercel ; envoi d'emails : Resend. Alternatives possibles.
 

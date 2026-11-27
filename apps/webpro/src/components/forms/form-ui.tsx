@@ -4,6 +4,7 @@ import Link from "next/link";
 import { forwardRef, type ReactNode } from "react";
 import { ArrowRight, Check, LoaderCircle } from "lucide-react";
 import { contact } from "@/config/site";
+import { HONEYPOT_FIELD } from "@/lib/form-status";
 
 export const inputCls =
   "peer block w-full rounded-[3px] border border-line-strong bg-ink-2 px-4 py-3.5 text-[1rem] text-paper placeholder:text-slate transition-[border-color,background-color] duration-200 hover:border-paper/35 focus:border-electric focus:bg-ink-3 focus:outline-none aria-[invalid=true]:border-[#ff6b6b]";
@@ -55,8 +56,8 @@ export const BotTraps = forwardRef<HTMLInputElement>(function BotTraps(_props, r
   return (
     <>
       <div aria-hidden className="absolute -left-[9999px] h-px w-px overflow-hidden">
-        <label htmlFor="website-trap">Site web (laisser vide)</label>
-        <input id="website-trap" name="website" type="text" tabIndex={-1} autoComplete="off" />
+        <label htmlFor="hp-confirm">Laisser ce champ vide</label>
+        <input id="hp-confirm" name={HONEYPOT_FIELD} type="text" tabIndex={-1} autoComplete="off" data-lpignore="true" data-1p-ignore="" />
       </div>
       <input ref={ref} type="hidden" name="startedAt" defaultValue="" />
     </>
@@ -123,35 +124,45 @@ export function SubmitRow({ pending, label }: { pending: boolean; label: string 
   );
 }
 
-/** Message affiché quand l'envoi en ligne n'est pas possible : le visiteur garde son message. */
-export const DeliveryAlert = forwardRef<HTMLDivElement, { status: "unconfigured" | "failed" | "limited"; mailto: string }>(
-  function DeliveryAlert({ status, mailto }, ref) {
-    return (
-      <div ref={ref} tabIndex={-1} role="alert" className="mb-10 border-l-2 border-electric bg-ink-3 p-6 outline-none">
-        <p className="font-semibold text-paper">
-          {status === "limited"
-            ? "Plusieurs messages ont été envoyés depuis votre connexion en peu de temps."
-            : status === "unconfigured"
-              ? "L'envoi en ligne n'est pas encore activé sur ce site."
-              : "Votre message n'a pas pu être envoyé pour le moment."}
-        </p>
-        <p className="mt-2 text-mist">
-          Votre demande n&apos;est pas perdue : envoyez-la directement depuis votre messagerie, ou appelez-nous au{" "}
-          <a href={`tel:${contact.phoneE164}`} className="link-inline whitespace-nowrap">
-            {contact.phoneDisplay}
+type AlertStatus = "unconfigured" | "failed" | "limited" | "blocked" | "too-fast";
+
+const ALERTS: Record<AlertStatus, { title: string; fallback: boolean }> = {
+  unconfigured: { title: "L'envoi en ligne n'est pas encore activé sur ce site : votre demande n'a pas été transmise.", fallback: true },
+  failed: { title: "Votre demande n'a pas pu être envoyée pour le moment.", fallback: true },
+  blocked: { title: "Votre demande n'a pas pu être envoyée.", fallback: true },
+  limited: { title: "Plusieurs demandes ont été envoyées depuis votre connexion en peu de temps. Réessayez dans quelques minutes.", fallback: true },
+  "too-fast": { title: "Le formulaire a été envoyé un peu trop vite. Vérifiez vos informations, puis cliquez de nouveau sur le bouton d'envoi.", fallback: false },
+};
+
+export const isAlertStatus = (s: string): s is AlertStatus => s in ALERTS;
+
+/** Message affiché quand la demande n'a PAS été transmise : jamais de faux succès, solution de repli proposée. */
+export const DeliveryAlert = forwardRef<HTMLDivElement, { status: AlertStatus; mailto: string }>(function DeliveryAlert({ status, mailto }, ref) {
+  const a = ALERTS[status];
+  return (
+    <div ref={ref} tabIndex={-1} role="alert" className="mb-10 border-l-2 border-[#ff8a8a] bg-ink-3 p-6 outline-none">
+      <p className="font-semibold text-paper">{a.title}</p>
+      {a.fallback && (
+        <>
+          <p className="mt-2 text-mist">
+            Vos informations sont conservées dans le formulaire. Vous pouvez aussi nous écrire depuis votre messagerie, ou
+            nous appeler au{" "}
+            <a href={`tel:${contact.phoneE164}`} className="link-inline whitespace-nowrap">
+              {contact.phoneDisplay}
+            </a>
+            .
+          </p>
+          <a
+            href={mailto}
+            className="mt-5 inline-flex h-11 items-center gap-3 rounded-[3px] bg-paper px-4 font-semibold text-ink transition-colors hover:bg-glow"
+          >
+            Écrire depuis ma messagerie <ArrowRight className="size-4" aria-hidden />
           </a>
-          .
-        </p>
-        <a
-          href={mailto}
-          className="mt-5 inline-flex h-11 items-center gap-3 rounded-[3px] bg-paper px-4 font-semibold text-ink transition-colors hover:bg-glow"
-        >
-          Ouvrir ma messagerie avec ce message <ArrowRight className="size-4" aria-hidden />
-        </a>
-      </div>
-    );
-  },
-);
+        </>
+      )}
+    </div>
+  );
+});
 
 export const SuccessPanel = forwardRef<HTMLDivElement, { title: string; children: ReactNode }>(function SuccessPanel({ title, children }, ref) {
   return (

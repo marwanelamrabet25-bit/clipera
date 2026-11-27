@@ -17,16 +17,17 @@ export type MockupExample = {
   /** Type d'activité imaginé pour l'exemple. */
   sector: string;
   previewHref: `/apercu/${string}`;
-  images: { desktop: string; mobile: string; full: string };
+  /** `full` (page entière) n'est générée que pour l'exemple qui l'utilise. */
+  images: { desktop: string; mobile: string; full?: string };
   palette: string[];
 };
 
 export const showMockupExamples = true;
 
-const img = (slug: string) => ({
+const img = (slug: string, withFull = false) => ({
   desktop: `/projects/${slug}/desktop.png`,
   mobile: `/projects/${slug}/mobile.png`,
-  full: `/projects/${slug}/full.png`,
+  ...(withFull ? { full: `/projects/${slug}/full.png` } : {}),
 });
 
 export const mockupExamples: MockupExample[] = [
@@ -36,7 +37,7 @@ export const mockupExamples: MockupExample[] = [
     name: "Atelier Sylve",
     sector: "Menuiserie",
     previewHref: "/apercu/atelier-sylve",
-    images: img("atelier-sylve"),
+    images: img("atelier-sylve", true),
     palette: ["#1C1B19", "#B8875A", "#ECE7DF", "#5C5A55"],
   },
   { slug: "nacre", name: "Nacre", sector: "Institut de beauté", previewHref: "/apercu/nacre", images: img("nacre"), palette: ["#F4ECE7", "#E3C9C0", "#2B2326", "#9A6B56"] },

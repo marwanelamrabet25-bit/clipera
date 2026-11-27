@@ -1,21 +1,49 @@
 import "server-only";
 import { headers } from "next/headers";
 import { contact } from "@/config/site";
+import { buildAutoReply, buildLeadEmail, type LeadKind, type Row } from "./email-templates";
+import { HONEYPOT_FIELD } from "./form-status";
 
 /**
- * Gestion des demandes (contact, maquette gratuite) :
- *  1. Email à l'agence via Resend (RESEND_API_KEY + CONTACT_FROM_EMAIL), réponse directe au demandeur (Reply-To).
- *  2. Optionnel : copie JSON vers LEADS_WEBHOOK_URL (tableur, CRM, outil d'automatisation).
- * Si aucun des deux n'est configuré, le statut « unconfigured » permet d'afficher un repli honnête.
+ * ENVOI DES DEMANDES (formulaire de contact, maquette gratuite) — via l'API Resend, côté serveur uniquement.
+ *
+ * Variables d'environnement (jamais exposées au navigateur) :
+ *  - RESEND_API_KEY      clé API Resend (obligatoire pour envoyer)
+ *  - CONTACT_TO_EMAIL    destinataire des demandes (défaut : webproagency25@gmail.com)
+ *  - CONTACT_FROM_EMAIL  expéditeur autorisé. Défaut : « WEBPRO AGENCY <onboarding@resend.dev> », l'adresse de test
+ *                        de Resend, qui ne peut écrire QU'À l'adresse du compte Resend : créer le compte Resend avec
+ *                        webproagency25@gmail.com, ou vérifier un domaine et y définir l'expéditeur.
+ *  - CONTACT_AUTOREPLY   "true" pour envoyer un accusé de réception au prospect. Ignoré tant que l'expéditeur est
+ *                        l'adresse de test resend.dev (Resend refuserait l'envoi vers une autre adresse).
+ *
+ * Règle : la demande n'est déclarée « envoyée » que si Resend a accepté l'email (réponse 2xx avec identifiant).
  */
 
-export type DeliveryResult = "sent" | "unconfigured" | "failed";
+export type DeliveryResult = { ok: true; id: string } | { ok: false; reason: "unconfigured" | "failed" };
+
+const DEFAULT_FROM = "WEBPRO AGENCY <onboarding@resend.dev>";
+
+export function mailConfig() {
+  const from = process.env.CONTACT_FROM_EMAIL?.trim() || DEFAULT_FROM;
+  return {
+    apiKey: process.env.RESEND_API_KEY?.trim() || null,
+    from,
+    to: process.env.CONTACT_TO_EMAIL?.trim() || contact.email,
+    testSender: /@resend\.dev>?$/i.test(from),
+    autoReply: process.env.CONTACT_AUTOREPLY === "true",
+  };
+}
+
+/* ─── Anti-abus ──────────────────────────────────────────────────────── */
 
 const WINDOW_MS = 10 * 60 * 1000;
 const MAX_PER_WINDOW = 5;
 const hits = new Map<string, number[]>();
 
-/** Limitation de fréquence au mieux (mémoire locale de l'instance) : 5 envois par IP et par 10 minutes. */
+/**
+ * Limitation de fréquence : 5 envois par adresse IP et par 10 minutes.
+ * Mémoire locale de l'instance serveur : protection d'appoint (non partagée entre instances serverless).
+ */
 export async function rateLimited(scope: string) {
   const h = await headers();
   const ip = (h.get("x-forwarded-for") ?? "").split(",")[0].trim() || h.get("x-real-ip") || "inconnue";
@@ -28,90 +56,73 @@ export async function rateLimited(scope: string) {
   return recent.length > MAX_PER_WINDOW;
 }
 
-/** Pièges à robots : champ invisible rempli ou envoi en moins de 3 secondes. */
-export function isBot(formData: FormData) {
-  const honeypot = String(formData.get("website") ?? "");
+
+export function spamCheck(formData: FormData): "ok" | "honeypot" | "too-fast" {
+  if (String(formData.get(HONEYPOT_FIELD) ?? "")) return "honeypot";
   const startedAt = Number(formData.get("startedAt") ?? 0);
-  return Boolean(honeypot) || (startedAt > 0 && Date.now() - startedAt < 3000);
+  if (startedAt > 0 && Date.now() - startedAt < 2500) return "too-fast";
+  return "ok";
 }
 
-const escapeHtml = (s: string) =>
-  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+/* ─── Envoi ──────────────────────────────────────────────────────────── */
+
+async function resendSend(apiKey: string, payload: Record<string, unknown>) {
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+    signal: AbortSignal.timeout(12_000),
+    cache: "no-store",
+  });
+  const body = (await res.json().catch(() => null)) as { id?: string; message?: string; name?: string } | null;
+  return { ok: res.ok && Boolean(body?.id), status: res.status, id: body?.id, error: body?.message ?? body?.name };
+}
 
 export async function deliverLead({
   kind,
   subject,
   replyTo,
+  prospectName,
   rows,
-  message,
-  messageLabel = "Message",
+  blocks,
 }: {
-  kind: "contact" | "maquette";
+  kind: LeadKind;
   subject: string;
   replyTo: string;
-  rows: [string, string][];
-  message: string;
-  messageLabel?: string;
+  prospectName: string;
+  rows: Row[];
+  blocks: Row[];
 }): Promise<DeliveryResult> {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.CONTACT_FROM_EMAIL;
-  const to = process.env.CONTACT_TO_EMAIL || contact.email;
-  const webhook = process.env.LEADS_WEBHOOK_URL;
-
-  if ((!apiKey || !from) && !webhook) {
-    console.warn("[demandes] Envoi non configuré : définir RESEND_API_KEY et CONTACT_FROM_EMAIL (voir README).");
-    return "unconfigured";
+  const cfg = mailConfig();
+  if (!cfg.apiKey) {
+    console.warn("[demandes] RESEND_API_KEY absente : la demande n'a pas été envoyée (voir README, section Formulaires).");
+    return { ok: false, reason: "unconfigured" };
   }
 
-  let ok = false;
-  let failed = false;
-
-  if (apiKey && from) {
-    const text = `${rows.map(([k, v]) => `${k} : ${v}`).join("\n")}\n\n${messageLabel} :\n${message}\n\n— Envoyé depuis le site (consentement donné).`;
-    const html = `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.6;color:#111">
-<h2 style="margin:0 0 16px">${escapeHtml(subject)}</h2>
-<table style="border-collapse:collapse">${rows
-      .map(([k, v]) => `<tr><td style="padding:4px 16px 4px 0;color:#666;vertical-align:top">${escapeHtml(k)}</td><td style="padding:4px 0"><strong>${escapeHtml(v)}</strong></td></tr>`)
-      .join("")}</table>
-<p style="margin:20px 0 6px;color:#666">${escapeHtml(messageLabel)} :</p>
-<p style="margin:0;white-space:pre-wrap">${escapeHtml(message)}</p>
-<p style="margin:24px 0 0;color:#999;font-size:12px">Envoyé depuis le site. Le visiteur a accepté d'être recontacté.</p></div>`;
-    try {
-      const res = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ from, to: [to], reply_to: replyTo, subject, text, html }),
-        signal: AbortSignal.timeout(10_000),
-      });
-      if (res.ok) ok = true;
-      else {
-        failed = true;
-        console.error("[demandes] Échec Resend", res.status, await res.text().catch(() => ""));
-      }
-    } catch (err) {
-      failed = true;
-      console.error("[demandes] Erreur réseau Resend", err);
+  const { html, text } = buildLeadEmail({ kind, rows, blocks, replyTo });
+  try {
+    const r = await resendSend(cfg.apiKey, { from: cfg.from, to: [cfg.to], reply_to: replyTo, subject, html, text });
+    if (!r.ok) {
+      // Pas de données personnelles dans les journaux : seulement le statut et le message du fournisseur.
+      console.error(`[demandes] Resend a refusé l'envoi (${kind}) : HTTP ${r.status} — ${r.error ?? "sans détail"}`);
+      return { ok: false, reason: "failed" };
     }
-  }
 
-  if (webhook) {
-    try {
-      const res = await fetch(webhook, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: kind, subject, receivedAt: new Date().toISOString(), fields: Object.fromEntries(rows), message }),
-        signal: AbortSignal.timeout(10_000),
-      });
-      if (res.ok) ok = true;
-      else {
-        failed = true;
-        console.error("[demandes] Échec du webhook", res.status);
-      }
-    } catch (err) {
-      failed = true;
-      console.error("[demandes] Erreur réseau webhook", err);
+    if (cfg.autoReply && !cfg.testSender) {
+      const reply = buildAutoReply({ kind, name: prospectName });
+      const a = await resendSend(cfg.apiKey, {
+        from: cfg.from,
+        to: [replyTo],
+        reply_to: cfg.to,
+        subject: reply.subject,
+        html: reply.html,
+        text: reply.text,
+      }).catch(() => null);
+      if (!a?.ok) console.warn(`[demandes] Accusé de réception non envoyé (${kind}) : HTTP ${a?.status ?? "—"}`);
     }
+    return { ok: true, id: r.id! };
+  } catch (err) {
+    console.error(`[demandes] Erreur réseau vers Resend (${kind}) :`, err instanceof Error ? err.message : err);
+    return { ok: false, reason: "failed" };
   }
-
-  return ok ? "sent" : failed ? "failed" : "unconfigured";
 }

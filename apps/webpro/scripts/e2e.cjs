@@ -36,7 +36,7 @@ const check = (name, ok, detail = "") => results.push({ name, ok: Boolean(ok), d
     const configured = Boolean(process.env.RESEND_API_KEY);
     if (configured) check("Envoi réel : confirmation affichée", await page.getByText("Merci, votre message est bien parti.").isVisible());
     else {
-      check("Sans configuration : message honnête affiché", /pas encore activé/.test(alert ?? ""), alert?.slice(0, 80));
+      check("Sans configuration : message honnête affiché (rien n'est déclaré envoyé)", /pas encore activé/.test(alert ?? "") && !(await page.getByText("Merci, votre message est bien parti.").isVisible()), alert?.slice(0, 80));
       check("Sans configuration : lien mailto prérempli", /menuiserie/.test(decodeURIComponent(mailto ?? "")));
       check("Sans configuration : valeurs conservées", (await page.inputValue("#firstName")) === "Camille");
     }
@@ -48,7 +48,7 @@ const check = (name, ok, detail = "") => results.push({ name, ok: Boolean(ok), d
     const page = await browser.newPage();
     await page.goto(`${BASE}/contact`, { waitUntil: "networkidle" });
     await page.evaluate(() => {
-      const w = document.querySelector('input[name="website"]');
+      const w = document.querySelector('input[name="hp_confirm"]');
       w.value = "http://spam.example";
     });
     await page.fill("#firstName", "Bot");
@@ -59,8 +59,8 @@ const check = (name, ok, detail = "") => results.push({ name, ok: Boolean(ok), d
     await page.check('input[name="consent"]');
     await page.waitForTimeout(3200);
     await page.getByRole("button", { name: "Envoyer ma demande" }).click();
-    await page.waitForSelector('[role="status"]', { timeout: 15000 });
-    check("Piège à robots : faux succès renvoyé", await page.getByText("Merci, votre message est bien parti.").isVisible());
+    await page.waitForSelector('form [role="alert"]', { timeout: 15000 });
+    check("Piège à robots : rien n'est envoyé et aucun faux succès", !(await page.getByText("Merci, votre message est bien parti.").isVisible()) && (await page.locator('form [role="alert"]').textContent()).includes("n'a pas pu être envoyée"));
     await page.close();
   }
 

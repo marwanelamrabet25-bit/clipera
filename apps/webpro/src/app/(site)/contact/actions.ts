@@ -1,19 +1,19 @@
 "use server";
 
-import { deliverLead, isBot, rateLimited } from "@/lib/mailer";
+import { deliverLead, rateLimited, spamCheck } from "@/lib/mailer";
+import { receivedAt } from "@/lib/email-templates";
 import { readValues, validate, type ContactErrors, type ContactValues, type Field } from "@/lib/contact-schema";
+import type { FormStatus } from "@/lib/form-status";
 
-export type ContactState = {
-  status: "idle" | "invalid" | "sent" | "unconfigured" | "failed" | "limited";
-  errors?: ContactErrors;
-  values?: Partial<ContactValues>;
-};
+export type ContactState = { status: FormStatus; errors?: ContactErrors; values?: Partial<ContactValues> };
 
 export async function sendContact(_prev: ContactState, formData: FormData): Promise<ContactState> {
-  // Robot détecté : réponse identique à un succès, rien n'est envoyé.
-  if (isBot(formData)) return { status: "sent" };
-
   const values = readValues((k: Field) => formData.get(k));
+
+  const spam = spamCheck(formData);
+  if (spam === "honeypot") return { status: "blocked", values };
+  if (spam === "too-fast") return { status: "too-fast", values };
+
   const errors = validate(values);
   if (Object.keys(errors).length) return { status: "invalid", errors, values };
   if (await rateLimited("contact")) return { status: "limited", values };
@@ -21,16 +21,19 @@ export async function sendContact(_prev: ContactState, formData: FormData): Prom
   const name = `${values.firstName} ${values.lastName}`.trim();
   const result = await deliverLead({
     kind: "contact",
-    subject: `Demande de contact — ${values.service} — ${name}${values.company ? ` (${values.company})` : ""}`,
+    subject: `[WEBPRO] Nouvelle demande de contact — ${name}${values.company ? ` (${values.company})` : ""}`,
     replyTo: values.email,
+    prospectName: values.firstName,
     rows: [
-      ["Nom", name],
-      ["Entreprise", values.company || "—"],
+      ["Nom et prénom", name],
+      ["Entreprise", values.company],
       ["Email", values.email],
-      ["Téléphone", values.phone || "—"],
-      ["Objet", values.service],
+      ["Téléphone", values.phone],
+      ["Prestation souhaitée", values.service],
+      ["Budget", values.budget],
+      ["Date de réception", receivedAt()],
     ],
-    message: values.message,
+    blocks: [["Message", values.message]],
   });
-  return result === "sent" ? { status: "sent" } : { status: result, values };
+  return result.ok ? { status: "sent" } : { status: result.reason, values };
 }

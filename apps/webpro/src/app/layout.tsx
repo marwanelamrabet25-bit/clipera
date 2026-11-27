@@ -35,6 +35,11 @@ export const metadata: Metadata = {
   openGraph: { siteName: brand.name, locale: "fr_FR", type: "website" },
   twitter: { card: "summary_large_image" },
   robots: INDEXABLE ? { index: true, follow: true, "max-image-preview": "large" } : { index: false, follow: false },
+  // Vérification Google Search Console / Bing Webmaster Tools (balise meta), si les codes sont fournis.
+  verification: {
+    ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION } : {}),
+    ...(process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION ? { other: { "msvalidate.01": process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION } } : {}),
+  },
 };
 
 export const viewport: Viewport = {

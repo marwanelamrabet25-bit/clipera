@@ -18,7 +18,8 @@ Aucun de ces outils n'est configuré à ce jour : ces listes décrivent ce qu'il
 
 ### Technique
 - [ ] Acheter / choisir le nom de domaine ; définir `NEXT_PUBLIC_SITE_URL`.
-- [ ] Configurer Resend (domaine vérifié) et les variables `RESEND_API_KEY`, `CONTACT_FROM_EMAIL`, `CONTACT_TO_EMAIL` (et `LEADS_WEBHOOK_URL` si un tableur ou CRM est utilisé).
+- [ ] Créer le compte Resend avec webproagency25@gmail.com, ajouter `RESEND_API_KEY` dans Vercel et redéployer (procédure : README).
+- [ ] Avec un domaine : le vérifier dans Resend, définir `CONTACT_FROM_EMAIL` et, si souhaité, `CONTACT_AUTOREPLY=true`.
 - [ ] Envoyer une demande de test réelle depuis **chaque** formulaire (contact, maquette gratuite) et vérifier la réception (et la réponse via « Répondre »).
 - [ ] Déployer, vérifier HTTPS et la redirection www / sans www vers une seule adresse.
 - [ ] Vérifier `https://domaine/robots.txt` (doit autoriser l'indexation en production) et `https://domaine/sitemap.xml` (URLs avec le bon domaine).
@@ -29,7 +30,7 @@ Aucun de ces outils n'est configuré à ce jour : ces listes décrivent ce qu'il
 
 ## 2. Google Search Console
 - [ ] Se connecter sur search.google.com/search-console avec le compte Google de l'agence.
-- [ ] Ajouter une propriété **Domaine** (validation par enregistrement DNS TXT chez le registrar) — recommandé, couvre http/https et www.
+- [ ] Ajouter une propriété **Domaine** (validation par enregistrement DNS TXT chez le registrar) — recommandé, couvre http/https et www. À défaut, propriété « préfixe d'URL » validée par balise meta : renseigner `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` dans Vercel et redéployer.
 - [ ] Envoyer le sitemap : `https://domaine/sitemap.xml`.
 - [ ] Inspecter l'URL de l'accueil et demander l'indexation ; idem pour les deux pages services, `/tarifs` et `/maquette-gratuite`.
 - [ ] Vérifier après quelques jours : pages indexées, ergonomie mobile, Core Web Vitals, absence d'erreurs.

@@ -97,26 +97,32 @@ Le logo officiel a été extrait de la planche d'identité fournie (`brand/sourc
 **À prévoir** : remplacer par les fichiers sources vectoriels (SVG) dès qu'ils sont disponibles, pour une netteté parfaite sur grand écran.
 
 ## Formulaires et demandes
-Deux formulaires : **contact** (`/contact`) et **maquette gratuite** (`/maquette-gratuite`).
-- Validation côté navigateur **et** côté serveur (actions serveur), règles partagées : `src/lib/contact-schema.ts`, `src/lib/mockup-schema.ts`.
-- Anti-spam : champ piège invisible, délai minimal de remplissage, limite de fréquence par adresse IP, nettoyage des caractères de contrôle, échappement HTML.
-- Gestion des demandes (`src/lib/mailer.ts`) :
-  1. email à l'agence via **Resend** (`RESEND_API_KEY`, `CONTACT_FROM_EMAIL`, `CONTACT_TO_EMAIL`), avec « Répondre » directement au demandeur ;
-  2. en option, copie JSON vers **`LEADS_WEBHOOK_URL`** (tableur, CRM, outil d'automatisation) pour suivre les demandes.
-- **Tant que rien n'est configuré**, le formulaire l'indique clairement et propose d'ouvrir la messagerie du visiteur avec la demande préremplie (rien n'est perdu), ainsi que le téléphone. Aucune maquette n'est générée ni envoyée automatiquement : la demande est transmise à l'agence, qui prépare la maquette.
+Deux formulaires : **contact** (`/contact`) et **maquette gratuite** (`/maquette-gratuite`). Les demandes sont envoyées par email à **webproagency25@gmail.com** via **Resend**, côté serveur uniquement (`src/lib/mailer.ts`, modèles `src/lib/email-templates.ts`).
 
-Mise en place de Resend (vérifier les conditions actuelles de l'offre gratuite) :
-1. Créer un compte sur resend.com.
-2. Ajouter et **vérifier le nom de domaine** du site (enregistrements DNS fournis par Resend).
-3. Créer une clé API (droit « envoi » uniquement).
-4. Définir `RESEND_API_KEY`, `CONTACT_FROM_EMAIL` (ex. `WEBPRO AGENCY <contact@domaine.fr>`) et `CONTACT_TO_EMAIL` chez l'hébergeur.
-5. Tester un envoi réel de chaque formulaire, puis `node scripts/e2e.cjs` avec `RESEND_API_KEY` défini.
+Fonctionnement :
+1. validation dans le navigateur, puis **validation stricte côté serveur** (`src/lib/contact-schema.ts`, `src/lib/mockup-schema.ts`) ;
+2. le serveur tente l'envoi ; la confirmation « Merci… » ne s'affiche **que si Resend a accepté l'email** (réponse avec identifiant) ;
+3. sinon, un message d'erreur explicite s'affiche, les champs restent remplis et le visiteur peut écrire depuis sa messagerie ou appeler ;
+4. bouton désactivé et indicateur de chargement pendant l'envoi (pas de double soumission).
+
+Sécurité : clé API uniquement dans les variables d'environnement serveur ; champ piège invisible (`hp_confirm`) et délai minimal de remplissage, **sans faux succès** ; limite de 5 envois / 10 min par IP (au mieux, par instance) ; champs d'une ligne nettoyés (aucun retour à la ligne : pas d'injection d'en-têtes) ; HTML de l'email entièrement échappé ; protection CSRF native des actions serveur Next.js ; aucune donnée personnelle dans les journaux.
+
+Emails reçus : objet explicite (`[WEBPRO] Nouvelle demande de contact — …` / `[WEBPRO] Demande de maquette gratuite — …`), badge distinct, tous les champs (champs vides indiqués « Non renseigné »), message complet, **date de réception** (heure de Paris), « Répondre » adressé directement au prospect. Accusé de réception au prospect : prévu, désactivé par défaut (voir ci-dessous).
+
+### Activer l'envoi réel (Resend) — étapes
+1. Créer un compte gratuit sur **resend.com** avec l'adresse **webproagency25@gmail.com** (important : sans domaine vérifié, Resend n'envoie qu'à l'adresse du compte, via l'expéditeur de test `onboarding@resend.dev`).
+2. Resend → **API Keys** → **Create API Key** → permission *Sending access* → copier la clé (elle ne s'affiche qu'une fois).
+3. Vercel → projet **webpro-agency** → **Settings** → **Environment Variables** → ajouter `RESEND_API_KEY` = la clé, environnements *Production* et *Preview*, type *Sensitive*. (`CONTACT_TO_EMAIL` est déjà défini sur `webproagency25@gmail.com`.)
+4. Redéployer (Vercel → Deployments → ⋯ → *Redeploy*), puis envoyer une demande de test depuis **chaque** formulaire et vérifier la réception dans Gmail (penser au dossier *Spam* / *Promotions* la première fois, et marquer l'expéditeur comme fiable).
+5. **Plus tard, avec un nom de domaine** : Resend → *Domains* → *Add Domain* → ajouter chez le registraire les enregistrements DNS indiqués (SPF/DKIM) → une fois vérifié, définir `CONTACT_FROM_EMAIL` = `WEBPRO AGENCY <contact@votre-domaine.fr>` et, si souhaité, `CONTACT_AUTOREPLY` = `true` pour l'accusé de réception automatique au prospect.
+
+Tant que `RESEND_API_KEY` n'est pas défini, rien n'est envoyé et le formulaire l'indique honnêtement au visiteur.
 
 ## Déploiement
 Recommandé : **Vercel** (créateurs de Next.js, offre gratuite adaptée à un site vitrine). Tout hébergeur Node.js convient aussi (`pnpm build && pnpm start`).
 
 1. Importer le dépôt dans Vercel, **Root Directory : `apps/webpro`** (framework détecté automatiquement).
-2. Variables d'environnement (Production) : `NEXT_PUBLIC_SITE_URL`, `RESEND_API_KEY`, `CONTACT_FROM_EMAIL`, `CONTACT_TO_EMAIL`, et éventuellement `LEADS_WEBHOOK_URL`.
+2. Variables d'environnement (Production) : `RESEND_API_KEY` (secrète), `CONTACT_TO_EMAIL`, puis, une fois le domaine et les mentions légales prêts, `NEXT_PUBLIC_SITE_URL` (rend le site indexable), `CONTACT_FROM_EMAIL`, `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`.
 3. Ajouter le nom de domaine, rediriger la variante sans/avec `www` vers l'adresse principale (réglage Vercel « Redirect »). HTTPS est automatique.
 4. Le site n'est indexable qu'en production **et** si `NEXT_PUBLIC_SITE_URL` est définie ; sinon (prévisualisations, adresse provisoire) `robots.txt` et la balise `noindex` bloquent l'indexation.
 5. Compléter `src/config/legal.ts` (dont l'hébergeur), redéployer.

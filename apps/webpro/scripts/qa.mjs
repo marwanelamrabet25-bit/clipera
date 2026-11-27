@@ -24,7 +24,7 @@ const problems = [];
 const seen = { titles: new Map(), descriptions: new Map() };
 const links = new Set();
 
-for (const width of [1440, 390]) {
+for (const width of [1440, 1024, 768, 390]) {
   const ctx = await browser.newContext({ viewport: { width, height: width > 500 ? 900 : 844 } });
   for (const route of routes) {
     const page = await ctx.newPage();
@@ -52,6 +52,10 @@ for (const width of [1440, 390]) {
       broken: [...document.images].filter((i) => i.complete && i.naturalWidth === 0).map((i) => i.currentSrc || i.src),
       noAlt: [...document.images].filter((i) => !i.hasAttribute("alt")).map((i) => i.src),
       links: [...document.querySelectorAll("a[href]")].map((a) => a.getAttribute("href")),
+      badHrefs: [...document.querySelectorAll("a[href]")]
+        .map((a) => a.getAttribute("href"))
+        .filter((h) => h === "#" || h === "" || /^javascript:/i.test(h) || /localhost|example\.com|exemple\.fr/.test(h) || (/^tel:/.test(h) && !/^tel:\+33\d{9}$/.test(h)) || (/^mailto:/.test(h) && !/^mailto:[^@\s]+@[^@\s]+\.[a-z]{2,}/i.test(h))),
+      emptyButtons: [...document.querySelectorAll("a, button")].filter((el) => !el.closest("[aria-hidden=true]") && !(el.textContent.trim() || el.getAttribute("aria-label") || el.querySelector("img[alt]:not([alt=''])"))).length,
       jsonld: [...document.querySelectorAll('script[type="application/ld+json"]')].map((s) => {
         try { JSON.parse(s.textContent); return true; } catch { return false; }
       }),
@@ -61,6 +65,8 @@ for (const width of [1440, 390]) {
     if (info.broken.length) problems.push(`${route} [${width}] images cassées : ${info.broken.join(", ")}`);
     if (info.noAlt.length) problems.push(`${route} [${width}] images sans alt : ${info.noAlt.join(", ")}`);
     if (info.jsonld.includes(false)) problems.push(`${route} JSON-LD invalide`);
+    if (info.badHrefs.length) problems.push(`${route} [${width}] liens suspects : ${info.badHrefs.join(", ")}`);
+    if (info.emptyButtons) problems.push(`${route} [${width}] ${info.emptyButtons} lien(s)/bouton(s) sans libellé accessible`);
     if (width === 1440 && route !== "/page-inexistante") {
       if (info.h1 !== 1) problems.push(`${route} : ${info.h1} H1`);
       if (!info.canonical) problems.push(`${route} : canonical manquant`);
@@ -90,6 +96,6 @@ for (const href of links) {
   if (r.status >= 400) problems.push(`Lien mort : ${href} (${r.status})`);
 }
 
-console.log(`${routes.length} pages × 2 largeurs, ${links.size} liens internes vérifiés.`);
+console.log(`${routes.length} pages × 4 largeurs, ${links.size} liens internes vérifiés.`);
 console.log(problems.length ? `\n${problems.length} problème(s) :\n- ${problems.join("\n- ")}` : "\nAucun problème détecté.");
 process.exit(problems.length ? 1 : 0);

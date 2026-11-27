@@ -51,7 +51,7 @@ async function shot(browser, url, file, { width, height, dsf, fullPage = false }
     const url = `${BASE}/apercu/${slug}`;
     await shot(browser, url, path.join(dir, "desktop.png"), { width: 1440, height: 900, dsf: 1.5 });
     await shot(browser, url, path.join(dir, "mobile.png"), { width: 390, height: 844, dsf: 2 });
-    await shot(browser, url, path.join(dir, "full.png"), { width: 1440, height: 900, dsf: 1, fullPage: true });
+    if (slug === "atelier-sylve") await shot(browser, url, path.join(dir, "full.png"), { width: 1440, height: 900, dsf: 1, fullPage: true });
     console.log("✓", slug);
   }
   for (const slug of social) {

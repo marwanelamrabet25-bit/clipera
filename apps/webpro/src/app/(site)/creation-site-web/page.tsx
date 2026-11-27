@@ -98,7 +98,7 @@ export default function Page() {
         <div className="group relative">
           <div className="enter-soft">
             <BrowserFrame
-              src={sylve.images.full}
+              src={sylve.images.full ?? sylve.images.desktop}
               alt="Exemple de maquette de site vitrine pour une menuiserie fictive (la page défile au survol)"
               label="Exemple de maquette — menuiserie (fictive)"
               sizes="(min-width: 1440px) 1330px, 94vw"

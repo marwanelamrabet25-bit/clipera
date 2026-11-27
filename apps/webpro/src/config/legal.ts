@@ -24,9 +24,13 @@ export const legal = {
   /** Directeur ou directrice de la publication. */
   publicationDirector: null as string | null,
   /** Hébergeur : nom, adresse et téléphone (obligatoires). Ex. si Vercel : « Vercel Inc., … ». */
+  /**
+   * Hébergeur réel du site (déploiement Vercel). Adresse : politique de confidentialité officielle de Vercel.
+   * Téléphone : non publié sur les pages officielles de Vercel → à compléter après vérification.
+   */
   host: {
-    name: null as string | null,
-    address: null as string | null,
+    name: "Vercel Inc." as string | null,
+    address: "440 N Barranca Ave #4133, Covina, CA 91723, États-Unis" as string | null,
     phone: null as string | null,
   },
   /** Date de dernière mise à jour des pages légales (format libre). */

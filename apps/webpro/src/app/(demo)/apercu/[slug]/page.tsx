@@ -26,7 +26,10 @@ export default async function DemoPreview({ params }: PageProps<"/apercu/[slug]"
   if (!m || !Demo) notFound();
   return (
     <>
-      <Demo />
+      {/* Exemple non interactif : les boutons fictifs de la maquette ne mènent nulle part, ils sont donc désactivés. */}
+      <div className="demo-static">
+        <Demo />
+      </div>
       <DemoBanner name={m.name} />
     </>
   );
