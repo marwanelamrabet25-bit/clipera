@@ -28,6 +28,11 @@ Aucun de ces outils n'est configuré à ce jour : ces listes décrivent ce qu'il
 - [ ] Tester l'aperçu de partage d'une page (envoi du lien dans une messagerie).
 - [ ] Contrôler les données structurées avec l'outil de test des résultats enrichis de Google et le validateur schema.org.
 
+### Rendre le site public (une fois les points ci-dessus réglés)
+- [ ] Vercel → projet **webpro-agency** → **Settings** → **Deployment Protection** → *Vercel Authentication* : désactiver (ou « Only Preview Deployments ») pour que les visiteurs accèdent au site sans compte Vercel.
+- [ ] Domaine : Vercel → **Settings** → **Domains** → ajouter le domaine, puis créer chez le registraire les enregistrements DNS indiqués par Vercel.
+- [ ] Définir `NEXT_PUBLIC_SITE_URL` (ex. `https://www.votre-domaine.fr`) puis redéployer : le site devient indexable (robots.txt, balise robots, sitemap au bon domaine).
+
 ## 2. Google Search Console
 - [ ] Se connecter sur search.google.com/search-console avec le compte Google de l'agence.
 - [ ] Ajouter une propriété **Domaine** (validation par enregistrement DNS TXT chez le registrar) — recommandé, couvre http/https et www. À défaut, propriété « préfixe d'URL » validée par balise meta : renseigner `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` dans Vercel et redéployer.
